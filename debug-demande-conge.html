@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Debug Demande Congé - Capture Requête</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        pre { background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e9ecef; font-size: 12px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        input, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+        .form-row { display: flex; gap: 15px; align-items: center; }
+        .form-row > div { flex: 1; }
+        label { font-weight: bold; color: #495057; }
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status.online { background: #d4edda; color: #155724; }
+        .status.offline { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Demande Congé - Capture Requête</h1>
+        <p><strong>Objectif :</strong> Identifier exactement pourquoi le POST sur <code>/api/conge/submit</code> retourne une erreur 400.</p>
+
+        <div class="section info">
+            <h3>🔍 Status Backend</h3>
+            <div id="backendStatus" class="status offline">Backend non testé</div>
+            <button onclick="checkBackend()">Vérifier Backend</button>
+        </div>
+
+        <div class="section">
+            <h3>📋 Formulaire Test Demande Congé</h3>
+            <div class="form-row">
+                <div>
+                    <label>Type de congé:</label>
+                    <select id="typeConge">
+                        <option value="Congé annuel">Congé annuel</option>
+                        <option value="Congé maladie">Congé maladie</option>
+                        <option value="Congé maternité">Congé maternité</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Durée (jours):</label>
+                    <input type="number" id="duree" value="5" min="1" max="30">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div>
+                    <label>Date début:</label>
+                    <input type="date" id="dateDebut" value="2025-10-15">
+                </div>
+                <div>
+                    <label>Date fin:</label>
+                    <input type="date" id="dateFin" value="2025-10-20">
+                </div>
+            </div>
+            
+            <label>Commentaire:</label>
+            <input type="text" id="commentaire" placeholder="Raison de la demande..." value="Test de demande automatique">
+            
+            <button onclick="simulateRequest()" id="testBtn">🧪 Simuler Requête</button>
+        </div>
+
+        <div class="section">
+            <h3>📤 Données Envoyées</h3>
+            <div id="requestData"></div>
+        </div>
+
+        <div class="section">
+            <h3>📥 Réponse Backend</h3>
+            <div id="responseData"></div>
+        </div>
+
+        <div class="section warning">
+            <h3>⚠️ Problèmes Possibles</h3>
+            <ul>
+                <li><strong>Format dates:</strong> Backend attend yyyy-MM-dd</li>
+                <li><strong>Authentification:</strong> Token JWT manquant</li>
+                <li><strong>Validation:</strong> Champs obligatoires manquants</li>
+                <li><strong>CORS:</strong> Problème de politique de sécurité</li>
+                <li><strong>Encoding:</strong> Problème charset ou content-type</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let backendOnline = false;
+
+        async function checkBackend() {
+            const statusDiv = document.getElementById('backendStatus');
+            
+            try {
+                statusDiv.textContent = 'Vérification...';
+                statusDiv.className = 'status';
+                
+                // Test de base de connectivité avec plusieurs endpoints
+                const response = await fetch('http://localhost:8089/api/conge/debug/ping')
+                    .catch(() => fetch('http://localhost:8089/actuator/health'))
+                    .catch(() => fetch('http://localhost:8089/'))
+                    .catch(() => { throw new Error('Backend inaccessible sur le port 8089') });
+                
+                if (response.status < 500) {
+                    backendOnline = true;
+                    statusDiv.textContent = '✅ Backend accessible';
+                    statusDiv.className = 'status online';
+                } else {
+                    throw new Error(`Status ${response.status}`);
+                }
+            } catch (error) {
+                backendOnline = false;
+                statusDiv.textContent = `❌ Backend inaccessible: ${error.message}`;
+                statusDiv.className = 'status offline';
+            }
+        }
+
+        async function simulateRequest() {
+            const requestDiv = document.getElementById('requestData');
+            const responseDiv = document.getElementById('responseData');
+            const btn = document.getElementById('testBtn');
+            
+            if (!backendOnline) {
+                await checkBackend();
+                if (!backendOnline) {
+                    responseDiv.innerHTML = '<div class="error">❌ Backend non accessible. Vérifiez que Spring Boot est démarré.</div>';
+                    return;
+                }
+            }
+
+            try {
+                btn.disabled = true;
+                btn.textContent = '⏳ Test en cours...';
+
+                // Récupération des valeurs du formulaire
+                const requestData = {
+                    typeConge: document.getElementById('typeConge').value,
+                    dateDebut: document.getElementById('dateDebut').value,
+                    dateFin: document.getElementById('dateFin').value,
+                    duree: parseInt(document.getElementById('duree').value),
+                    commentaire: document.getElementById('commentaire').value
+                };
+
+                // Affichage des données envoyées
+                requestDiv.innerHTML = `
+                    <h4>📋 Payload JSON:</h4>
+                    <pre>${JSON.stringify(requestData, null, 2)}</pre>
+                    <p><strong>Content-Type:</strong> application/json</p>
+                    <p><strong>URL:</strong> POST http://localhost:8089/api/conge/submit</p>
+                `;
+
+                // Envoi de la requête
+                console.log('🚀 Envoi de la requête:', requestData);
+                
+                const response = await fetch('http://localhost:8089/api/conge/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                        // Pas de token JWT pour ce test - on veut voir l'erreur
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                console.log('📥 Réponse reçue:', response);
+
+                const responseText = await response.text();
+                let responseJson;
+                try {
+                    responseJson = JSON.parse(responseText);
+                } catch {
+                    responseJson = responseText;
+                }
+
+                // Affichage de la réponse
+                const statusClass = response.ok ? 'success' : 'error';
+                responseDiv.innerHTML = `
+                    <div class="${statusClass}">
+                        <h4>📊 Status: ${response.status} ${response.statusText}</h4>
+                        <p><strong>Headers de réponse:</strong></p>
+                        <pre>${Array.from(response.headers.entries()).map(([k,v]) => k + ': ' + v).join('\\n')}</pre>
+                        <p><strong>Body de réponse:</strong></p>
+                        <pre>${typeof responseJson === 'object' ? JSON.stringify(responseJson, null, 2) : responseJson}</pre>
+                    </div>
+                `;
+
+                // Analyse de l'erreur
+                if (!response.ok) {
+                    let errorAnalysis = '<h4>🔍 Analyse de l\'erreur:</h4><ul>';
+                    
+                    if (response.status === 400) {
+                        errorAnalysis += '<li>❌ <strong>400 Bad Request:</strong> Données invalides ou manquantes</li>';
+                        errorAnalysis += '<li>🔍 Vérifiez le format des dates (doit être yyyy-MM-dd)</li>';
+                        errorAnalysis += '<li>🔍 Vérifiez que tous les champs obligatoires sont présents</li>';
+                    }
+                    if (response.status === 401) {
+                        errorAnalysis += '<li>❌ <strong>401 Unauthorized:</strong> Token JWT manquant ou invalide</li>';
+                    }
+                    if (response.status === 403) {
+                        errorAnalysis += '<li>❌ <strong>403 Forbidden:</strong> Rôle insuffisant</li>';
+                    }
+                    if (response.status === 500) {
+                        errorAnalysis += '<li>❌ <strong>500 Server Error:</strong> Erreur interne du serveur</li>';
+                    }
+                    
+                    errorAnalysis += '</ul>';
+                    responseDiv.innerHTML += errorAnalysis;
+                }
+
+            } catch (error) {
+                console.error('💥 Erreur:', error);
+                responseDiv.innerHTML = `
+                    <div class="error">
+                        <h4>💥 Erreur de connexion:</h4>
+                        <pre>${error.message}</pre>
+                        <p>Vérifiez que le backend Spring Boot est démarré et accessible.</p>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🧪 Simuler Requête';
+            }
+        }
+
+        // Auto-vérification du backend au chargement
+        window.onload = function() {
+            console.log('🔧 Debug Demande Congé - Prêt');
+            checkBackend();
+            
+            // Mise à jour automatique de la date fin quand on change la durée
+            document.getElementById('duree').addEventListener('change', function() {
+                const dateDebut = new Date(document.getElementById('dateDebut').value);
+                const duree = parseInt(this.value);
+                const dateFin = new Date(dateDebut);
+                dateFin.setDate(dateFin.getDate() + duree - 1);
+                
+                document.getElementById('dateFin').value = dateFin.toISOString().split('T')[0];
+            });
+        };
+    </script>
+</body>
+</html>

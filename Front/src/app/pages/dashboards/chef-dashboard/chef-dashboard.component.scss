@@ -1,0 +1,26 @@
+/* Styles pour Chef dashboard */
+.alert {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  
+  .bx {
+    font-size: 1.25rem;
+  }
+  
+  h6 {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  
+  small {
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+  
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+  }
+}

@@ -1,0 +1,209 @@
+<div class="container-fluid">
+  <!-- En-tête -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-1">Rapports RH</h2>
+          <p class="text-muted mb-0">Génération et gestion des rapports des ressources humaines</p>
+        </div>
+        <button class="btn btn-primary" (click)="showCreateForm = !showCreateForm">
+          <i class="mdi mdi-plus"></i> Nouveau Rapport
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+
+  <!-- Formulaire de création -->
+  <div class="row mb-4" *ngIf="showCreateForm">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Créer un Nouveau Rapport</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="rapportForm" (ngSubmit)="onCreateRapport()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Nom du Rapport</label>
+                  <input type="text" class="form-control" formControlName="nom" placeholder="Ex: Rapport Congés Décembre 2024">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Type de Rapport</label>
+                  <select class="form-select" formControlName="type">
+                    <option value="">Sélectionner un type</option>
+                    <option value="Congés">Congés</option>
+                    <option value="Utilisateurs">Utilisateurs</option>
+                    <option value="Services">Services</option>
+                    <option value="Statistiques">Statistiques</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" formControlName="description" rows="3" placeholder="Description du rapport..."></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Date de Début</label>
+                  <input type="date" class="form-control" formControlName="dateDebut">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Date de Fin</label>
+                  <input type="date" class="form-control" formControlName="dateFin">
+                </div>
+              </div>
+            </div>
+            <div class="text-end">
+              <button type="button" class="btn btn-secondary me-2" (click)="showCreateForm = false">Annuler</button>
+              <button type="submit" class="btn btn-primary" [disabled]="rapportForm.invalid">
+                <i class="mdi mdi-plus"></i> Créer le Rapport
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <div class="search-box">
+        <div class="position-relative">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Rechercher un rapport..."
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+          />
+          <i class="mdi mdi-magnify search-icon"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="typeFilter" (change)="applyFilters()">
+        <option value="">Tous les types</option>
+        <option value="Congés">Congés</option>
+        <option value="Utilisateurs">Utilisateurs</option>
+        <option value="Services">Services</option>
+        <option value="Statistiques">Statistiques</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="statutFilter" (change)="applyFilters()">
+        <option value="">Tous les statuts</option>
+        <option value="Terminé">Terminé</option>
+        <option value="En cours">En cours</option>
+        <option value="Erreur">Erreur</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+        <i class="mdi mdi-filter-remove"></i> Effacer
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste des rapports -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Rapports Disponibles</h5>
+          
+          <div class="table-responsive" *ngIf="filteredRapports?.length; else noRapports">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Nom</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Créé le</th>
+                  <th>Créateur</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let rapport of filteredRapports">
+                  <td>
+                    <strong>{{ rapport.nom }}</strong>
+                  </td>
+                  <td>
+                    <span class="badge bg-info">{{ rapport.type }}</span>
+                  </td>
+                  <td>
+                    <span class="text-muted">{{ rapport.description }}</span>
+                  </td>
+                  <td>
+                    <small>{{ rapport.dateCreation | date:'dd/MM/yyyy' }}</small>
+                  </td>
+                  <td>
+                    <small>{{ rapport.createur }}</small>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ getBadgeClass(rapport.statut) }}">
+                      {{ rapport.statut }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <button 
+                        class="btn btn-success btn-sm" 
+                        (click)="onGenerateRapport(rapport)"
+                        [disabled]="loading"
+                        title="Générer le rapport"
+                      >
+                        <i class="mdi mdi-play"></i>
+                      </button>
+                      <button 
+                        class="btn btn-primary btn-sm" 
+                        (click)="onDownloadRapport(rapport)"
+                        [disabled]="rapport.statut !== 'Terminé'"
+                        title="Télécharger"
+                      >
+                        <i class="mdi mdi-download"></i>
+                      </button>
+                      <button 
+                        class="btn btn-danger btn-sm" 
+                        (click)="onDeleteRapport(rapport)"
+                        title="Supprimer"
+                      >
+                        <i class="mdi mdi-delete"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ng-template #noRapports>
+            <div class="text-center py-4">
+              <i class="mdi mdi-file-document-outline display-4 text-muted"></i>
+              <p class="text-muted mt-2">Aucun rapport trouvé</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

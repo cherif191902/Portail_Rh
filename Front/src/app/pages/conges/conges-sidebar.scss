@@ -1,0 +1,127 @@
+/* Styles améliorés pour la section Congés dans la sidebar */
+
+/* Animation pour l'ouverture du sous-menu */
+.side-nav li.has_sub ul.list-unstyled {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.side-nav li.has_sub.mm-show ul.list-unstyled {
+  max-height: 200px;
+}
+
+/* Badge de notification pour les congés en attente */
+.conges-badge {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: #f46a6a;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Icône spéciale pour les congés */
+.conges-icon {
+  color: #556ee6;
+  margin-right: 8px;
+  transition: color 0.2s ease;
+}
+
+.conges-icon:hover {
+  color: #4b63d2;
+}
+
+/* Style pour les sous-menus de congés */
+.conges-submenu-item {
+  position: relative;
+  padding-left: 45px;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.conges-submenu-item:hover {
+  border-left-color: #556ee6;
+  background-color: rgba(85, 110, 230, 0.05);
+}
+
+.conges-submenu-item.active {
+  border-left-color: #556ee6;
+  background-color: rgba(85, 110, 230, 0.1);
+}
+
+/* Badge pour le nombre de demandes en attente */
+.pending-count {
+  background: linear-gradient(45deg, #f1b44c, #f46a6a);
+  color: white;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: auto;
+  font-weight: bold;
+}
+
+/* Animation d'entrée pour les éléments de menu */
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.conges-menu-item {
+  animation: slideInFromLeft 0.3s ease-out;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  .conges-badge {
+    width: 15px;
+    height: 15px;
+    font-size: 8px;
+  }
+  
+  .conges-submenu-item {
+    padding-left: 35px;
+  }
+}
+
+/* État loading pour le menu */
+.conges-menu-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.conges-menu-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #556ee6;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

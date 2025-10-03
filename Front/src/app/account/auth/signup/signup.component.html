@@ -1,0 +1,72 @@
+<div class="signup-page d-flex flex-wrap">
+
+  <!-- Left side: Image -->
+  <div class="image-side d-none d-md-flex align-items-center justify-content-center">
+    <img src="assets/images/HR Final3.png" alt="Sign Up Visual" class="signup-image" />
+  </div>
+
+  <!-- Right side: Signup Form -->
+  <div class="form-side d-flex align-items-center justify-content-center w-100">
+    <div class="signup-card p-4">
+      <div class="text-center mb-4">
+        <img src="assets/images/HR Final4.png" alt="HR Connect" height="60" />
+        <h2 class="mt-2">Inscription</h2>
+        <p class="text-muted">Obtenez votre compte gratuit maintenant.</p>
+      </div>
+
+      <form class="needs-validation" name="signupForm" [formGroup]="signupForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <ngb-alert type="success" *ngIf="successmsg" [dismissible]="false">Inscription réussie.</ngb-alert>
+        <ngb-alert type="danger" *ngIf="error" [dismissible]="false">{{ error }}</ngb-alert>
+
+        <div class="mb-3">
+          <input type="text" formControlName="nom" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && nom?.errors }"
+            placeholder="Nom de famille" />
+          <div *ngIf="submitted && nom?.errors" class="invalid-feedback">
+            <div *ngIf="nom?.errors?.['required']">Le nom de famille est requis</div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <input type="text" formControlName="prenom" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && prenom?.errors }"
+            placeholder="Prénom" />
+          <div *ngIf="submitted && prenom?.errors" class="invalid-feedback">
+            <div *ngIf="prenom?.errors?.['required']">Le prénom est requis</div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <input type="email" formControlName="email" class="form-control"
+            [ngClass]="{ 'is-invalid': submitted && email?.errors }"
+            placeholder="Email professionnel" />
+          <div *ngIf="submitted && email?.errors" class="invalid-feedback">
+            <div *ngIf="email?.errors?.['required']">L'email est requis</div>
+            <div *ngIf="email?.errors?.['email']">Format d'email invalide</div>
+            <div *ngIf="email?.errors?.['backendError']">{{ error }}</div>
+          </div>
+        </div>
+
+        <div class="alert alert-info mb-3">
+          <i class="mdi mdi-information-outline"></i>
+          <strong>Information :</strong> Votre matricule et mot de passe seront générés automatiquement et envoyés à votre adresse email.
+        </div>
+
+       
+        
+
+        <div class="mt-4 d-grid">
+          <button class="btn btn-primary" type="submit">Enregistrer</button>
+        </div>
+      </form>
+
+      <div class="text-center mt-4">
+        <p>Vous avez déjà un compte ?
+          <a routerLink="/account/login" class="fw-medium text-primary">Connexion</a>
+        </p>
+        <p class="text-muted">© {{year}} Développé par ArabSoft</p>
+      </div>
+    </div>
+  </div>
+</div>

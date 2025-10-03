@@ -1,0 +1,86 @@
+
+<ng-template #contentTemplate>
+
+  <!--- Sidemenu -->
+  <div id="sidebar-menu">
+    <!-- Left Menu Start -->
+    <ul class="metismenu list-unstyled" id="side-menu" #sideMenu>
+      <ng-container *ngFor="let item of menuItems; trackBy: trackById">
+        <li class="menu-section" *ngIf="item.isTitle">
+          <span class="menu-section__label">{{ item.label | translate }}</span>
+          <span class="menu-section__divider"></span>
+        </li>
+
+        <li class="menu-item"
+            *ngIf="!item.isTitle && !item.isLayout && !item.isRh"
+            [ngClass]="{'has-children': hasItems(item)}">
+          <a *ngIf="hasItems(item)"
+             href="javascript:void(0);"
+             class="menu-link is-parent"
+             [ngClass]="{'has-arrow': true, 'has-dropdown': !!item.badge}">
+            <i class="bx {{ item.icon }}" *ngIf="item.icon"></i>
+            <span class="label">{{ item.label | translate }}</span>
+            <span class="badge rounded-pill bg-{{item.badge.variant}}"
+                  *ngIf="item.badge">{{ item.badge.text | translate }}</span>
+          </a>
+
+          <a *ngIf="!hasItems(item)"
+             [routerLink]="item.link"
+             class="menu-link side-nav-link-ref"
+             routerLinkActive="active"
+             [ngClass]="{'highlight-rh': item.link === '/RH/validation-conges'}">
+            <i class="bx {{ item.icon }}" *ngIf="item.icon"></i>
+            <span class="label">{{ item.label | translate }}</span>
+            <span class="badge rounded-pill bg-{{item.badge?.variant}}"
+                  *ngIf="item.badge">{{ item.badge.text | translate }}</span>
+          </a>
+
+          <ul *ngIf="hasItems(item)" class="sub-menu" aria-expanded="false">
+            <li *ngFor="let subitem of item.subItems; trackBy: trackById" class="submenu-item">
+              <a *ngIf="!hasItems(subitem)"
+                 [routerLink]="subitem.link"
+                 class="side-nav-link-ref"
+                 [attr.data-parent]="subitem.parentId"
+                 routerLinkActive="active active-rh-item"
+                 [ngClass]="{'highlight-rh': subitem.link === '/RH/validation-conges'}">
+                <i class="bx {{ subitem.icon }}" *ngIf="subitem.icon"></i>
+                <span>{{ subitem.label | translate }}</span>
+              </a>
+              <a *ngIf="hasItems(subitem)"
+                 class="side-nav-link-a-ref has-arrow"
+                 href="javascript:void(0);"
+                 [attr.data-parent]="subitem.parentId">
+                <i class="bx {{ subitem.icon }}" *ngIf="subitem.icon"></i>
+                <span>{{ subitem.label | translate }}</span>
+              </a>
+              <ul *ngIf="hasItems(subitem)" class="sub-menu mm-collapse" aria-expanded="false">
+                <li *ngFor="let subSubitem of subitem.subItems; trackBy: trackById">
+                  <a [attr.data-parent]="subSubitem.parentId"
+                     [routerLink]="subSubitem.link"
+                     routerLinkActive="active"
+                     class="side-nav-link-ref">
+                    <i class="bx {{ subSubitem.icon }}" *ngIf="subSubitem.icon"></i>
+                    <span>{{ subSubitem.label | translate }}</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+</ng-template>
+<!-- Sidebar -->
+
+<div class="vertical-menu">
+  <ngx-simplebar class="h-100" #componentRef>
+    <div *ngIf="!isCondensed">
+      <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+    </div>
+    <div *ngIf="isCondensed">
+      <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+    </div>
+  </ngx-simplebar>
+</div>
+<!-- Left Sidebar End -->

@@ -1,0 +1,20 @@
+/* Styles pour dashboard employé */
+.alert {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  
+  .bx {
+    font-size: 1.25rem;
+  }
+  
+  h6 {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  
+  small {
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+}

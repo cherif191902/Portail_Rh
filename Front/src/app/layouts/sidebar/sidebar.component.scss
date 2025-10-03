@@ -1,0 +1,117 @@
+/* Sections principales */
+.menu-section {
+	margin: 1.75rem 0 0.75rem;
+	padding: 0 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	text-transform: uppercase;
+	font-size: 0.65rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	color: rgba(255, 255, 255, 0.55);
+	opacity: 0.85;
+}
+
+.menu-section:first-child {
+	margin-top: 0.5rem;
+}
+
+.menu-section__label {
+	flex-shrink: 0;
+}
+
+.menu-section__divider {
+	height: 1px;
+	background: rgba(255, 255, 255, 0.12);
+	flex: 1 1 auto;
+}
+
+/* Items */
+.menu-item {
+	margin: 0;
+}
+
+.menu-link {
+	display: flex;
+	align-items: center;
+	gap: 0.9rem;
+	padding: 0.65rem 1.5rem;
+	font-weight: 500;
+	color: rgba(255, 255, 255, 0.75);
+	border-radius: 0 12px 12px 0;
+	transition: all 0.2s ease;
+}
+
+.menu-link .label {
+	flex: 1 1 auto;
+}
+
+.menu-link .bx {
+	font-size: 1.1rem;
+}
+
+.menu-item .menu-link.active,
+.menu-item .menu-link:hover {
+	background: rgba(56, 132, 255, 0.12);
+	color: #ffffff;
+}
+
+.menu-item .menu-link.active {
+	font-weight: 600;
+}
+
+.menu-item .menu-link .badge {
+	font-size: 0.65rem;
+	padding: 0.25rem 0.45rem;
+}
+
+.menu-item.has-children > .menu-link::after {
+	content: '\ea50';
+	font-family: 'boxicons';
+	font-size: 1rem;
+	transition: transform 0.2s ease;
+}
+
+.menu-item.has-children.mm-active > .menu-link::after {
+	transform: rotate(90deg);
+}
+
+.submenu-item > a {
+	padding-left: 3.3rem;
+	font-size: 0.85rem;
+}
+
+.submenu-item > a .bx {
+	font-size: 1rem;
+}
+
+.sub-menu {
+	padding-left: 0.3rem;
+}
+
+/* Indicateur visuel spécifique pour l'item RH 'Consulter Congés' */
+.highlight-rh.active, .active-rh-item.active {
+	position: relative;
+	background: rgba(56, 132, 255, 0.12) !important;
+	font-weight: 600;
+	color: #1b57b9 !important;
+	border-left: 4px solid #1b57b9;
+	border-radius: 0 4px 4px 0;
+}
+
+.highlight-rh.active::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translate(-100%, -50%);
+	width: 10px;
+	height: 10px;
+	background: #1b57b9;
+	border-radius: 50%;
+	box-shadow: 0 0 0 4px rgba(27,87,185,0.25);
+}
+
+/* Transition douce */
+.highlight-rh, .active-rh-item { transition: all .18s ease-in-out; }

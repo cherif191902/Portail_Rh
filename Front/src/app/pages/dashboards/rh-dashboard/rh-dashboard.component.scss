@@ -1,0 +1,112 @@
+/* Styles pour indicateur de rôle */
+.alert {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  
+  .bx {
+    font-size: 1.25rem;
+  }
+  
+  h6 {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  
+  small {
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+  
+  .date-pill {
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+}
+
+.rh-dashboard {
+	.title { font-weight: 700; }
+	.subtitle { font-size: 0.95rem; }
+
+	.date-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: .5rem;
+		padding: .35rem .9rem;
+		border-radius: 999px;
+		background: rgba(33, 150, 243, 0.12);
+		color: #1976d2;
+		font-weight: 600;
+	}
+
+	.stats-card {
+		border-left: 4px solid transparent;
+		.value { font-size: 2rem; font-weight: 700; margin: .4rem 0; }
+		.icon-wrapper {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			background: rgba(0,0,0,.05);
+			color: #fff;
+			&.primary { background: #1976d2; }
+			&.success { background: #2e7d32; }
+			&.info { background: #0288d1; }
+			&.warning { background: #f9a825; }
+			&.danger { background: #d32f2f; }
+		}
+	}
+
+	.quick-actions .action-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		color: #fff;
+		&.bg-primary { background: linear-gradient(135deg, #3f51b5, #5c6bc0); }
+		&.bg-info { background: linear-gradient(135deg, #039be5, #29b6f6); }
+		&.bg-success { background: linear-gradient(135deg, #2e7d32, #43a047); }
+		&.bg-warning { background: linear-gradient(135deg, #f9a825, #fdd835); color: #4e2b00; }
+		&.bg-secondary { background: linear-gradient(135deg, #546e7a, #78909c); }
+	}
+
+	.avatar {
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 600;
+		color: #333;
+
+		&.avatar-xs {
+			width: 28px;
+			height: 28px;
+			font-size: 0.75rem;
+		}
+	}
+
+	.members {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: .35rem;
+
+		.member {
+			display: flex;
+			align-items: center;
+			gap: .5rem;
+			background: rgba(0,0,0,.03);
+			padding: .4rem .6rem;
+			border-radius: .5rem;
+			font-size: .85rem;
+		}
+	}
+
+	.table-lg tbody tr td { padding: 1rem .75rem; }
+}

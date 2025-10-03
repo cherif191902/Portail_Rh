@@ -1,0 +1,111 @@
+<div class="container-fluid">
+    <app-page-title title="Gestion Types congés" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <!-- Messages d'erreur -->
+    <div *ngIf="errorMsg" class="alert alert-warning">
+      <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
+      <div *ngIf="errorMsg.includes('Session expirée')" class="mt-2">
+        <button class="btn btn-primary btn-sm" (click)="router.navigate(['/account/login'])">
+          <i class="mdi mdi-login"></i> Se connecter
+        </button>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Editer Type congé</h4>
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary " (click)="openModalAjout(content)">Ajout</button>
+          </div>
+      
+  
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Jours Max</th>
+                    <th>Nom Type conge</th>
+        
+                   
+                    <th>options</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let i of typeCng">
+                    <th scope="row">1</th>
+                    <td>{{i.nomTypeconge}}</td>
+                      <td>{{i.maxAllowedDays}}</td>
+                   
+         
+  
+                    <td>
+                      <div class="button-items">
+                       
+                        <button type="button" class="btn btn-warning"  (click)="openModalUpdate(content,i)"> 
+                          <i class="bx bx-edit font-size-16 align-items-center-2"></i>
+                        </button>
+                          <button type="button" class="btn btn-danger"  (click)="confirm(i.idType)">                        
+                            <i class="bx bx-trash font-size-16 align-items-center-2"></i>
+                          </button>
+                      </div>
+                    </td>
+                  </tr>
+  
+                </tbody>
+              </table>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  
+          
+         
+          <!-- Modal Open -->
+          <ng-template #content role="document" let-modal>
+              <div class="modal-header">
+                  <h5 class="modal-title mt-0">Editer Congé</h5>
+                  <button type="button" class="btn-close" aria-hidden="true"
+                      (click)="modal.dismiss('Cross click')"></button>
+              </div>
+              <div class="modal-body">
+                  <form [formGroup]="formType">
+                      <div class="row">
+                          <div class="mb-3">
+                              <label for="email" class="form-label">Type Conge</label>
+                              <input type="text" class="form-control form-control-sm" id="name" placeholder="Type Conge" formControlName="nomTypeconge" >
+                          </div>
+
+<div class="col-md-6 mb-3">
+                <label class="form-label">Jours Maximum Autorisés</label>
+                <input type="number" class="form-control" 
+                       formControlName="maxAllowedDays" 
+                       min="1" max="365"
+                       placeholder="Nombre de jours maximum">
+            </div>
+
+
+
+
+
+                      </div>
+
+
+
+                     
+  
+                      <div class="text-end">
+                          <button type="submit" class="btn btn-primary " (click)="ajoutservice()">Enregistrer</button>
+                      </div>
+                  </form>
+              </div>
+          </ng-template>
+      
+  
+    <!-- end row -->
+  </div>

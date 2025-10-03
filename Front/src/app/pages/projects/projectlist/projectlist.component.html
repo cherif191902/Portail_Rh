@@ -1,0 +1,148 @@
+<div class="container-fluid">
+  <!-- Search Bar -->
+  <div class="card-body p-4">
+    <div class="search-box">
+      <p class="text-muted">Rechercher</p>
+      <div class="position-relative">
+        <input
+          type="text"
+          class="form-control rounded bg-light border-light"
+          placeholder="Rechercher .."
+          [(ngModel)]="term"
+        />
+        <i class="mdi mdi-magnify search-icon"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table List -->
+  <div class="row">
+    <div class="col-12">
+      <div class="table-responsive">
+        <table class="table table-hover table-centered table-nowrap mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Type Congé</th>
+              <th>Date Demande</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let data of listDemande
+                  | filter: term
+                  | paginate: { itemsPerPage: 9, currentPage: p };
+                let i = index
+              "
+            >
+              <td>{{ i + 1 }}</td>
+              <td>{{ data.nom }}</td>
+              <td>{{ data.prenom }}</td>
+              <td>{{ data.typeConge.nomTypeconge }}</td>
+              <td>{{ data.dateCng }}</td>
+              <td>
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  ngbTooltip="Visualiser demande"
+                  (click)="openModal(content, data)"
+                >
+                  <i class="bx bx-user-circle"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="row">
+    <div class="col-12">
+      <div class="text-center my-3">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Template (unchanged) -->
+  <ng-template #content role="document" let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title mt-0">Mise à jour demande</h5>
+      <button
+        type="button"
+        class="btn-close"
+        aria-hidden="true"
+        (click)="modal.dismiss('Cross click')"
+      ></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="demandeForm">
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label class="control-label">Date demande</label>
+              <input
+                class="form-control"
+                type="text"
+                formControlName="dateCng"
+                readonly
+              />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="control-label">Date début</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    formControlName="dateDebut"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="control-label">Date fin</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    formControlName="dateFin"
+                    readonly
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="control-label">Réponse Chef</label>
+              <select
+                class="form-select"
+                formControlName="repChef"
+                disabled
+              >
+                <option value="O">Oui</option>
+                <option value="N">Non</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="control-label">Observation</label>
+              <textarea
+                class="form-control"
+                formControlName="statut"
+                readonly
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </ng-template>
+</div>

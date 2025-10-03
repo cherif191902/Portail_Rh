@@ -1,0 +1,178 @@
+<div class="container-fluid">
+  <app-page-title title="Suivi & Management des Congés"  [breadcrumbItems]="breadCrumbItems"></app-page-title>
+  
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Gestion & Planification des Congés</h4>
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary " (click)="openModalAjout(content)">Nouveau Congé</button>
+        </div>
+      
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Date de début (min):</label>
+            <input type="date" class="form-control" [(ngModel)]="dateDebutMin" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Date de début (max):</label>
+            <input type="date" class="form-control" [(ngModel)]="dateDebutMax" />
+          </div>
+        </div>
+        
+
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Matricule</th>
+                  <th>Date début</th>
+                  <th>Date reprise</th>
+                  <th>Durée</th>
+                  <th *ngIf="!isChefNiveau1" >Rep.Chef</th>
+                  <th>Rep.Rh</th>
+                  <th>Type</th>
+                  <th>options</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let i of filteredCng()">
+                  <th scope="row">1</th>
+                  <td>{{i.matriculeP}}</td>
+                  <td>{{i.dateDebut}}</td>
+                  <td>{{i.dateFin}}</td>
+                  <td>{{i.duree}}</td>
+                  
+                 
+                  <td *ngIf="!isChefNiveau1">
+                    <i class="mdi" 
+                       [ngClass]="{
+                         'mdi-check-circle text-success': i.repNiveau1 === 'O',
+                         'mdi-close-circle text-danger': i.repNiveau1 === 'N',
+                         'mdi-clock-outline text-warning': i.repNiveau1 == 'Pending'
+                       }">
+                    </i>
+                  </td>
+                  
+                  
+                  <td>
+                    <i
+                      class="mdi"
+                      [ngClass]="{
+                        'mdi-check-circle text-success': i.repRh === 'O',
+                        'mdi-close-circle text-danger': i.repRh === 'N',
+                        'mdi-clock-outline text-warning': i.repRh == null
+                      }"
+                    ></i>
+                  </td>
+                  
+                  
+
+                  <td *ngIf="i.typeConge">{{i.typeConge.nomTypeconge}}</td>
+
+                  <td>
+                    <div class="button-items">
+                      <button type="button" class="btn btn-warning" 
+                              *ngIf="i.repNiveau1=='Pending' && i.statut !== 'Approved'" 
+                              (click)="openModalUpdate(content,i)">
+                        <i class="bx bx-edit"></i>
+                      </button>
+                      
+                      <button type="button" class="btn btn-danger" 
+                              *ngIf="i.repNiveau1=='Pending' && i.statut !== 'Rejected'"  
+                              (click)="confirm(i.idConge)">
+                        <i class="bx bx-trash"></i>
+                      </button>
+                    </div>
+                    <div *ngIf="!(i.repNiveau1=='Pending' && i.statut !== 'Approved')" class="text-muted text-center" style="font-style: italic;">
+                      <i class="mdi mdi-block-helper text-secondary me-1"></i> Aucune action disponible
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+        
+       
+        <!-- Modal Open -->
+        <ng-template #content role="document" let-modal>
+            <div class="modal-header">
+                <h5 class="modal-title mt-0">sauvegarde Congé</h5>
+                <button type="button" class="btn-close" aria-hidden="true"
+                    (click)="modal.dismiss('Cross click')"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formConge">
+                    <div class="row">
+                     
+                        <div class="col-lg-2">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Date début</label>
+                                <input  (change)="calculateDuree()" type="date" class="form-control form-control-sm" id="name" placeholder="Table cell" formControlName="dateDebut"  >
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Date reprise</label>
+                                <input (change)="calculateDuree()" type="date" class="form-control form-control-sm" id="name" placeholder="Table cell" formControlName="dateFin">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                          <div class="mb-3">
+                            <label for="name" class="form-label">Durée</label>
+                            <input type="text" class="form-control form-control-sm" id="name" placeholder="Table cell" formControlName="duree"  readonly>
+                        </div>
+                      </div>
+                      
+                    <div class="col-lg-2" formGroupName="typeConge">
+                      <div class="mb-3">
+                        <label class="control-label">Type congés</label>
+                        <select
+                          class="form-select"
+                          aria-label="Default select example"
+                          
+                          formControlName="idType"
+                          title="Veuillez choisir le domaine de formation"
+                        >
+                          <option
+                            *ngFor="let i of typeCng"
+                            value="{{ i.idType }}"
+                          >
+                            {{ i.nomTypeconge }}
+                          </option>
+                        </select>
+                    </div>
+                    
+                  </div>
+                    </div>
+                     <div class="row mt-2" *ngIf="durationExceeds">
+                <div class="col-12">
+                    <div class="alert alert-danger p-2">
+                        <i class="mdi mdi-alert-circle me-2"></i> 
+                        Durée dépassée! Maximum autorisé: {{selectedTypeMaxDays}} jours
+                    </div>
+                </div>
+            </div>
+                    
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary " [disabled]="formConge.invalid || durationExceeds"  (click)="ajoutConge()">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </ng-template>
+    
+
+  <!-- end row -->
+</div>

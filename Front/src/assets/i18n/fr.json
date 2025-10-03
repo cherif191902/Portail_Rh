@@ -1,0 +1,459 @@
+{
+  "HEADER": {
+    "SEARCH": "Rechercher...",
+    "MEGA_MENU": "Méga Menu",
+    "NOTIFICATIONS": {
+      "TITLE": "Notifications",
+      "VIEW_ALL": "Voir tout",
+      "LOAD_MORE": "Voir plus..",
+      "FIRST": {
+        "TITLE": "Votre commande est passée",
+        "TEXT": "Si plusieurs langues fusionnent la grammaire",
+        "TIME": "il y a 3 min"
+      },
+      "SECOND": {
+        "TITLE": "James Lemire",
+        "TEXT": "Cela ressemblera à de l'anglais simplifié.",
+        "TIME": "il y a 1 heure"
+      },
+      "THIRD": {
+        "TITLE": "Votre article est expédié",
+        "TEXT": "Si plusieurs langues fusionnent la grammaire",
+        "TIME": "il y a 3 min"
+      },
+      "FOUR": {
+        "TITLE": "Salena Layfield",
+        "TEXT": "En tant qu'ami sceptique de Cambridge à moi occidental.",
+        "TIME": "il y a 1 heure"
+      }
+    },
+    "SETTINGS": "Paramètres",
+    "UI": {
+      "TITLE": "Composants UI",
+      "LIGHTBOX": "LightBox",
+      "RANGE_SLIDER": "Curseur de plage",
+      "SWEET_ALERT": "Alerte Sweet",
+      "RATING": "Évaluation",
+      "FORMS": "Formulaires",
+      "TABLES": "Tableaux",
+      "CHARTS": "Graphiques"
+    },
+    "APPLICATIONS": {
+      "TITLE": "Applications",
+      "ECOMMERCE": "E-commerce",
+      "CALENDAR": "Calendrier",
+      "EMAIL": "Email",
+      "PROJECTS": "Projets",
+      "TASKS": "Tâches",
+      "CONTACTS": "Contacts"
+    },
+    "EXTRA_PAGES": {
+      "TITLE": "Pages supplémentaires",
+      "LIGHT_SIDEBAR": "Barre latérale légère",
+      "COMPACT_SIDEBAR": "Barre latérale compacte",
+      "HORIZONTAL_LAYOUT": "Disposition horizontale",
+      "MAINTENANCE": "Maintenance",
+      "COMING SOON": "Bientôt disponible",
+      "TIMELINE": "Chronologie",
+      "FAQ": "FAQs"
+    },
+    "LOGIN": {
+      "PROFILE": "Profil",
+      "MY_WALLET": "Mon portefeuille",
+      "SETTINGS": "Paramètres",
+      "LOCK_SCREEN": "Écran verrouillé",
+      "LOGOUT": "Déconnexion"
+    }
+  },
+  "MENUITEMS": {
+    "MENU": {
+      "TEXT": "Menu"
+    },
+    "INTERFACE": {
+      "TEXT": "Interface"
+    },
+    "ESPACE_CHEF": {
+      "TEXT": "Chef de service"
+    },
+    "DEMANDE_CHEF": {
+      "TEXT": "Demandes"
+    },
+    "HISTORIQUE_CHEF": {
+      "TEXT": "Historique"
+    },
+    "MON_EQUIPE": {
+      "TEXT": "Employés"
+    },
+    "ESPACE_RH": {
+      "TEXT": "RH"
+    },
+    "RH_OVERVIEW_SECTION": {
+      "TEXT": "Tableau de bord"
+    },
+    "RH_CONGES_GROUP": {
+      "TEXT": "Congés RH"
+    },
+    "RH_SERVICES_GROUP": {
+      "TEXT": "Services"
+    },
+    "DEMANDE_RH": {
+      "TEXT": "Demandes"
+    },
+    "RH_CONSULTER_CONGES": {
+      "TEXT": "Consulter"
+    },
+    "HISTORIQUE_RH": {
+      "TEXT": "Historique"
+    },
+    "GESTION_UTILISATEUR": {
+      "TEXT": "Utilisateurs"
+    },
+    "GESTION_SERVICE": {
+      "TEXT": "Services"
+    },
+    "GESTION_TYPE_CONGE": {
+      "TEXT": "Types de congés"
+    },
+    "RH_DASHBOARD": {
+      "TEXT": "Tableau de bord RH"
+    },
+    "CHEF_DASHBOARD": {
+      "TEXT": "Tableau de bord Chef"
+    },
+    "ADMIN_DASHBOARD": {
+      "TEXT": "Tableau de bord Admin"
+    },
+    "EMPLOYEE_DASHBOARD": {
+      "TEXT": "Tableau de bord Employé"
+    },
+    "RH_ANALYTICS_GROUP": {
+      "TEXT": "Analyses RH"
+    },
+    "RH_STATISTIQUES": {
+      "TEXT": "Statistiques"
+    },
+    "RH_RAPPORTS": {
+      "TEXT": "Rapports"
+    },
+    "RH_SYSTEM_GROUP": {
+      "TEXT": "Administration"
+    },
+    "RH_CONFIGURATION": {
+      "TEXT": "Configuration"
+    },
+    "RH_NOTIFICATIONS": {
+      "TEXT": "Notifications"
+    },
+    "RH_AFFECTATIONS": {
+      "TEXT": "Affectations"
+    },
+    "RH_VALIDATION_CONGES": {
+      "TEXT": "Validation"
+    },
+    "RH_HISTORIQUE_DECISIONS": {
+      "TEXT": "Décisions"
+    },
+    "ADMIN_SECTION": {
+      "TEXT": "Administration"
+    },
+    "ADMIN_USERS": {
+      "TEXT": "Gestion des Utilisateurs"
+    },
+    "ADMIN_ALL_USERS": {
+      "TEXT": "Tous les Utilisateurs"
+    },
+    "ADMIN_ADD_USER": {
+      "TEXT": "Ajouter Utilisateur"
+    },
+    "ADMIN_ROLES_PERMISSIONS": {
+      "TEXT": "Rôles et Permissions"
+    },
+    "ADMIN_ORGANIZATION": {
+      "TEXT": "Organisation"
+    },
+    "ADMIN_DEPARTMENTS": {
+      "TEXT": "Départements"
+    },
+    "ADMIN_TEAMS": {
+      "TEXT": "Équipes"
+    },
+    "ADMIN_GLOBAL_REPORTS": {
+      "TEXT": "Rapports Globaux"
+    },
+    "ADMIN_WORKFORCE_REPORT": {
+      "TEXT": "Effectif Global"
+    },
+    "ADMIN_LEAVE_ANALYTICS": {
+      "TEXT": "Analyses des Congés"
+    },
+    "ADMIN_SYSTEM_USAGE": {
+      "TEXT": "Utilisation Système"
+    },
+    "DEMANDE_CONGE": {
+      "TEXT": "Demande de congé"
+    },
+    "CONGES": {
+      "TEXT": "Congés"
+    },
+    "SUIVI_DEMANDES": {
+      "TEXT": "Suivi"
+    },
+    "HISTORIQUE_CONGES": {
+      "TEXT": "Historique"
+    },
+    "DEMANDE": {
+      "TEXT": "Demande"
+    },
+    "DASHBOARDS": {
+      "TEXT": "Tableau de bord",
+      "BADGE": "04",
+      "LIST": {
+        "DEFAULT": "Défaut",
+        "SAAS": "Saas",
+        "CRYPTO": "Crypto",
+        "BLOG": "Blog"
+      }
+    },
+    "LAYOUTS": {
+      "TEXT": "Dispositions",
+      "LIST": {
+        "HORIZONTAL": "Horizontal",
+        "LIGHTSIDEBAR": "Barre latérale légère",
+        "COMPACTSIDEBAR": "Barre latérale compacte",
+        "ICONSIDEBAR": "Barre d'icônes",
+        "BOXED": "Mise en boîte",
+        "COLOREDSIDEBAR": "Barre latérale colorée",
+        "VERTICAL": "Vertical",
+        "LIGHTTOPBAR": "Barre supérieure légère",
+        "COLOREDHEADER": "En-tête coloré",
+        "SCROLLABLE": "Défilable"
+      }
+    },
+    "APPS": {
+      "TEXT": "Applications"
+    },
+    "CALENDAR": {
+      "TEXT": "Calendrier"
+    },
+    "CHAT": {
+      "TEXT": "Chat",
+      "BADGE": "Nouveau"
+    },
+    "PARAMETRE": {
+  "TEXT": "Paramètre "
+},
+"PARAMETREPERSONEL": {
+  "TEXT": "Paramètre Personnel"
+},
+    "FILEMANAGER": {
+      "TEXT": "Gestionnaire de fichiers",
+      "BADGE": "Nouveau"
+    },
+    "ECOMMERCE": {
+      "TEXT": "E-commerce",
+      "LIST": {
+        "PRODUCTS": "Produits",
+        "PRODUCTDETAIL": "Détail produit",
+        "ORDERS": "Commandes",
+        "CUSTOMERS": "Clients",
+        "CART": "Panier",
+        "CHECKOUT": "Paiement",
+        "SHOPS": "Boutiques",
+        "ADDPRODUCT": "Ajouter produit"
+      }
+    },
+    "CRYPTO": {
+      "TEXT": "Crypto",
+      "LIST": {
+        "WALLET": "Portefeuille",
+        "BUY/SELL": "Acheter/Vendre",
+        "EXCHANGE": "Échange",
+        "LENDING": "Prêt",
+        "ORDERS": "Commandes",
+        "KYCAPPLICATION": "Application KYC",
+        "ICOLANDING": "ICO Landing"
+      }
+    },
+    "EMAIL": {
+      "TEXT": "Email",
+      "LIST": {
+        "INBOX": "Boîte de réception",
+        "READEMAIL": "Lire l'email",
+        "TEMPLATE": {
+          "BADGE": "Nouveau",
+          "TEXT": "Modèle",
+          "LIST": {
+            "BASIC": "Action basique",
+            "ALERT": "Email d'alerte",
+            "BILLING": "Email de facturation"
+          }
+        }
+      }
+    },
+    "INVOICES": {
+      "TEXT": "Factures",
+      "LIST": {
+        "INVOICELIST": "Liste des factures",
+        "INVOICEDETAIL": "Détail de la facture"
+      }
+    },
+    "PROJECTS": {
+      "TEXT": "Projets",
+      "LIST": {
+        "GRID": "Grille des projets",
+        "PROJECTLIST": "Liste des projets",
+        "OVERVIEW": "Aperçu du projet",
+        "CREATE": "Créer nouveau"
+      }
+    },
+    "TASKS": {
+      "TEXT": "Tâches",
+      "LIST": {
+        "TASKLIST": "Liste des tâches",
+        "KANBAN": "Tableau Kanban",
+        "CREATETASK": "Créer une tâche"
+      }
+    },
+    "CONTACTS": {
+      "TEXT": "Contacts",
+      "LIST": {
+        "USERGRID": "Grille utilisateur",
+        "USERLIST": "Liste utilisateur",
+        "PROFILE": "Profil"
+      }
+    },
+    "BLOG": {
+      "TEXT": "Blog",
+      "BADGE": "Nouveau",
+      "LIST": {
+        "BLOGLIST": "Liste des blogs",
+        "BLOGGRID": "Grille des blogs",
+        "DETAIL": "Détails du blog"
+      }
+    },
+    "PAGES": {
+      "TEXT": "Pages"
+    },
+    "AUTHENTICATION": {
+      "TEXT": "Authentification",
+      "BADGE": "Nouveau",
+      "LIST": {
+        "LOGIN": "Connexion",
+        "LOGIN2": "Connexion 2",
+        "REGISTER": "Inscription",
+        "REGISTER2": "Inscription 2",
+        "RECOVERPWD": "Récupérer mot de passe",
+        "RECOVERPWD2": "Récupérer mot de passe 2",
+        "LOCKSCREEN": "Écran verrouillé",
+        "LOCKSCREEN2": "Écran verrouillé 2",
+        "CONFIRMMAIL": "Confirmer email",
+        "CONFIRMMAIL2": "Confirmer email 2",
+        "EMAILVERIFICATION": "Vérification email",
+        "EMAILVERIFICATION2": "Vérification email 2",
+        "TWOSTEPVERIFICATION": "Vérification en deux étapes",
+        "TWOSTEPVERIFICATION2": "Vérification en deux étapes 2"
+      }
+    },
+    "UTILITY": {
+      "TEXT": "Utilitaires",
+      "LIST": {
+        "STARTER": "Page de démarrage",
+        "MAINTENANCE": "Maintenance",
+        "TIMELINE": "Chronologie",
+        "FAQS": "FAQs",
+        "PRICING": "Tarification",
+        "ERROR404": "Erreur 404",
+        "ERROR500": "Erreur 500"
+      }
+    },
+    "COMPONENTS": {
+      "TEXT": "Composants"
+    },
+    "UIELEMENTS": {
+      "TEXT": "Éléments UI",
+      "LIST": {
+        "ALERTS": "Alertes",
+        "BUTTONS": "Boutons",
+        "CARDS": "Cartes",
+        "CAROUSEL": "Carrousel",
+        "DROPDOWNS": "Menus déroulants",
+        "GRID": "Grille",
+        "IMAGES": "Images",
+        "LIGHTBOX": "Lightbox",
+        "MODALS": "Modales",
+        "RANGESLIDER": "Curseur de plage",
+        "PROGRESSBAR": "Barres de progression",
+        "PLACEHOLDER": "Espace réservé",
+        "SWEETALERT": "Alerte Sweet",
+        "TABS": "Onglets & Accordéons",
+        "TYPOGRAPHY": "Typographie",
+        "VIDEO": "Vidéo",
+        "GENERAL": "Général",
+        "COLORS": "Couleurs",
+        "CROPPER": "Rogneur d'image"
+      }
+    },
+    "FORMS": {
+      "TEXT": "Formulaires",
+      "BADGE": "09",
+      "LIST": {
+        "ELEMENTS": "Éléments de formulaire",
+        "VALIDATION": "Validation de formulaire",
+        "ADVANCED": "Formulaire avancé",
+        "EDITOR": "Éditeur de formulaire",
+        "FILEUPLOAD": "Téléchargement de fichier",
+        "REPEATER": "Répéteur de formulaire",
+        "WIZARD": "Assistant de formulaire",
+        "MASK": "Masque de formulaire",
+        "LAYOUTS": "Dispositions de formulaire"
+      }
+    },
+    "pointage": {
+      "TEXT": "Pointage",
+      "LIST": {
+        "BASIC": "Tableaux basiques",
+        "ADVANCED": "Tableau avancé"
+      }
+    },
+    "POINTAGE_USER": {
+      "TEXT": "Suivi du temps personnel"
+    },
+    "CHARTS": {
+      "TEXT": "Graphiques",
+      "LIST": {
+        "APEX": "Graphique Apex",
+        "CHARTJS": "Graphique Chartjs",
+        "CHARTIST": "Graphique Chartist",
+        "ECHART": "Graphique EChart"
+      }
+    },
+    "ICONS": {
+      "TEXT": "Icônes",
+      "LIST": {
+        "BOXICONS": "Boxicons",
+        "MATERIALDESIGN": "Material Design",
+        "DRIPICONS": "Dripicons",
+        "FONTAWESOME": "Font Awesome"
+      }
+    },
+    "MAPS": {
+      "TEXT": "Cartes",
+      "LIST": {
+        "GOOGLEMAP": "Google Maps"
+      }
+    },
+    "MULTILEVEL": {
+      "TEXT": "Multi-niveaux",
+      "LIST": {
+        "LEVEL1": {
+          "1": "Niveau 1.1",
+          "2": "Niveau 1.2",
+          "LEVEL2": {
+            "1": "Niveau 2.1",
+            "2": "Niveau 2.2"
+          }
+        }
+      }
+    }
+  }
+}

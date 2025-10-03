@@ -1,0 +1,216 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Validation des Congés</h4>
+          
+          <!-- Filtres et recherche -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="search-box">
+                <div class="position-relative">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Rechercher par nom ou matricule..."
+                    [(ngModel)]="filterText"
+                  />
+                  <i class="mdi mdi-magnify search-icon"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 text-end">
+              <button class="btn btn-primary" (click)="refresh()" [disabled]="loading">
+                <i class="mdi mdi-refresh"></i> Rafraîchir
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages d'erreur et de succès -->
+          <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+          <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+
+          <!-- Tableau des congés en attente -->
+          <div class="table-responsive" *ngIf="pending?.length; else emptyPending">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Employé</th>
+                  <th>Période</th>
+                  <th>Jours</th>
+                  <th>Chef Niveau 1</th>
+                  <th>Chef Niveau 2</th>
+                  <th>Statut RH</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of filteredPending()">
+                  <td>{{ c.id }}</td>
+                  <td>
+                    <div>
+                      <strong>{{ c.personnel?.prenom }} {{ c.personnel?.nom }}</strong>
+                      <br>
+                      <small class="text-muted">{{ c.personnel?.matriculeP }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    {{ c.dateDeb | date:'dd/MM/yyyy' }} - {{ c.dateFin | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    <span class="badge bg-info">{{ c.nbJours }} jours</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ badge(c.repChefsNiveau1) }}">
+                      {{ c.repChefsNiveau1 || 'En attente' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ badge(c.repChefsNiveau2) }}">
+                      {{ c.repChefsNiveau2 || 'En attente' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ badge(c.repRh) }}">
+                      {{ c.repRh || 'En attente' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <button 
+                        class="btn btn-success btn-sm" 
+                        (click)="decide(c, 'APPROUVE')" 
+                        [disabled]="loading"
+                        title="Approuver"
+                      >
+                        <i class="mdi mdi-check"></i>
+                      </button>
+                      <button 
+                        class="btn btn-danger btn-sm" 
+                        (click)="decide(c, 'REFUSE')" 
+                        [disabled]="loading"
+                        title="Refuser"
+                      >
+                        <i class="mdi mdi-close"></i>
+                      </button>
+                      <button 
+                        class="btn btn-info btn-sm" 
+                        (click)="loadHistorique(c)" 
+                        title="Voir l'historique"
+                      >
+                        <i class="mdi mdi-history"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ng-template #emptyPending>
+            <div class="text-center py-4">
+              <i class="mdi mdi-inbox-outline display-4 text-muted"></i>
+              <p class="text-muted mt-2">Aucune demande en attente de validation</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historique des décisions -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">
+              Historique des Décisions RH
+              <span *ngIf="historique?.length" class="badge bg-primary ms-2">{{ historique.length }}</span>
+            </h5>
+            <div class="d-flex gap-2">
+              <select 
+                [(ngModel)]="histStatus" 
+                (change)="loadHistoriqueLastFilter()" 
+                class="form-select form-select-sm"
+                style="width: 160px"
+              >
+                <option value="">Tous les statuts</option>
+                <option value="APPROUVE">Approuvés</option>
+                <option value="REFUSE">Refusés</option>
+              </select>
+              <input 
+                class="form-control form-control-sm" 
+                placeholder="Filtrer..." 
+                [(ngModel)]="histFilter" 
+                style="width: 180px"
+              />
+            </div>
+          </div>
+
+          <div class="table-responsive" *ngIf="historique?.length; else emptyHist">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Employé</th>
+                  <th>Période</th>
+                  <th>Jours</th>
+                  <th>Chef Niveau 1</th>
+                  <th>Chef Niveau 2</th>
+                  <th>Décision RH</th>
+                  <th>Date décision</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of filteredHistorique()">
+                  <td>{{ c.id }}</td>
+                  <td>
+                    <div>
+                      <strong>{{ c.personnel?.prenom }} {{ c.personnel?.nom }}</strong>
+                      <br>
+                      <small class="text-muted">{{ c.personnel?.matriculeP }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    {{ c.dateDeb | date:'dd/MM/yyyy' }} - {{ c.dateFin | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    <span class="badge bg-info">{{ c.nbJours }} jours</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ badge(c.repChefsNiveau1) }}">
+                      {{ c.repChefsNiveau1 }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ badge(c.repChefsNiveau2) }}">
+                      {{ c.repChefsNiveau2 }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ badge(c.repRh) }}">
+                      {{ c.repRh }}
+                    </span>
+                  </td>
+                  <td>
+                    <small class="text-muted">{{ c.dateDecision | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ng-template #emptyHist>
+            <div class="text-center py-4">
+              <i class="mdi mdi-history display-4 text-muted"></i>
+              <p class="text-muted mt-2">Aucun historique disponible</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

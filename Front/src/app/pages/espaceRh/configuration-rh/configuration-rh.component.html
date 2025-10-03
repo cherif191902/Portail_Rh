@@ -1,0 +1,223 @@
+<div class="container-fluid">
+  <!-- En-tête -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-1">Configuration RH</h2>
+          <p class="text-muted mb-0">Gestion des paramètres et configurations du système RH</p>
+        </div>
+        <button class="btn btn-outline-primary" (click)="loadConfigurations()" [disabled]="loading">
+          <i class="mdi mdi-refresh"></i> Actualiser
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+
+  <!-- Filtres -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <div class="search-box">
+        <div class="position-relative">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Rechercher une configuration..."
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+          />
+          <i class="mdi mdi-magnify search-icon"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="categorieFilter" (change)="applyFilters()">
+        <option value="">Toutes les catégories</option>
+        <option *ngFor="let cat of getUniqueCategories()" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="typeFilter" (change)="applyFilters()">
+        <option value="">Tous les types</option>
+        <option *ngFor="let type of getUniqueTypes()" [value]="type">{{ type }}</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+        <i class="mdi mdi-filter-remove"></i> Effacer
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste des configurations -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Paramètres de Configuration</h5>
+          
+          <div class="table-responsive" *ngIf="filteredConfigurations?.length; else noConfigs">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Clé</th>
+                  <th>Valeur</th>
+                  <th>Description</th>
+                  <th>Catégorie</th>
+                  <th>Type</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let config of filteredConfigurations">
+                  <td>
+                    <code class="text-primary">{{ config.cle }}</code>
+                  </td>
+                  <td>
+                    <span *ngIf="!editingConfig || editingConfig.id !== config.id" class="fw-bold">
+                      {{ config.valeur }}
+                    </span>
+                    <input 
+                      *ngIf="editingConfig && editingConfig.id === config.id"
+                      type="text" 
+                      class="form-control form-control-sm" 
+                      [(ngModel)]="config.valeur"
+                      [disabled]="!config.modifiable"
+                    />
+                  </td>
+                  <td>
+                    <span class="text-muted">{{ config.description }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ getCategorieColor(config.categorie) }}">
+                      {{ config.categorie }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <i class="mdi {{ getTypeIcon(config.type) }} me-2"></i>
+                      <span>{{ config.type }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group" *ngIf="config.modifiable">
+                      <button 
+                        class="btn btn-warning btn-sm" 
+                        (click)="onEditConfig(config)"
+                        [disabled]="editingConfig && editingConfig.id !== config.id"
+                        title="Modifier"
+                      >
+                        <i class="mdi mdi-pencil"></i>
+                      </button>
+                      <button 
+                        class="btn btn-success btn-sm" 
+                        (click)="onSaveConfig()"
+                        *ngIf="editingConfig && editingConfig.id === config.id"
+                        title="Sauvegarder"
+                      >
+                        <i class="mdi mdi-check"></i>
+                      </button>
+                      <button 
+                        class="btn btn-secondary btn-sm" 
+                        (click)="onCancelEdit()"
+                        *ngIf="editingConfig && editingConfig.id === config.id"
+                        title="Annuler"
+                      >
+                        <i class="mdi mdi-close"></i>
+                      </button>
+                      <button 
+                        class="btn btn-info btn-sm" 
+                        (click)="onResetConfig(config)"
+                        title="Réinitialiser"
+                      >
+                        <i class="mdi mdi-refresh"></i>
+                      </button>
+                    </div>
+                    <span *ngIf="!config.modifiable" class="text-muted">
+                      <i class="mdi mdi-lock"></i> Verrouillé
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ng-template #noConfigs>
+            <div class="text-center py-4">
+              <i class="mdi mdi-cog display-4 text-muted"></i>
+              <p class="text-muted mt-2">Aucune configuration trouvée</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques des configurations -->
+  <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Total Configurations</h6>
+              <h4>{{ configurations.length }}</h4>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-cog display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Modifiables</h6>
+              <h4>{{ getModifiableCount() }}</h4>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-pencil display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-warning text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Verrouillées</h6>
+              <h4>{{ getLockedCount() }}</h4>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-lock display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-info text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Catégories</h6>
+              <h4>{{ getCategoriesCount() }}</h4>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-tag display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

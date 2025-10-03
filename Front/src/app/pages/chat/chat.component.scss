@@ -1,0 +1,79 @@
+@import '~@ctrl/ngx-emoji-mart/picker';
+.emoji-picker {
+  position: absolute;
+  bottom: 50px;
+  right: 0;
+  z-index: 1000;
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.chat-input-links {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.mdi-emoticon-happy-outline {
+  color: #6c757d;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: #3b5de7;
+  }
+}
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.avatar-title {
+  .bg-danger {
+    box-shadow: 0 0 0 2px white; /* Makes badge stand out */
+    font-size: 0.5rem;
+  }
+}
+// chat.component.scss
+.conversation-list {
+  margin: 0.5rem 0;
+  
+  .message-bubble {
+    background: #f3f6f9;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    position: relative;
+    max-width: 80%;
+    
+    &.right {
+      background: #007bff;
+      color: white;
+      margin-left: auto;
+      
+      .message-time {
+        color: rgba(white, 0.8);
+      }
+    }
+  }
+
+  .dropdown-toggle {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover .dropdown-toggle {
+    opacity: 1;
+  }
+}
+
+.chat-conversation {
+  .right {
+    justify-content: flex-end;
+  }
+  
+  .left {
+    justify-content: flex-start;
+  }
+}

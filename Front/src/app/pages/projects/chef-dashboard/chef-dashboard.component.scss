@@ -1,0 +1,127 @@
+.tab-link {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  &.active {
+    color: #fff;
+    background-color: #3b7ddd;
+  }
+}
+.fa-sign-in-alt { color: #28a745; }
+.fa-sign-out-alt { color: #dc3545; }
+.fa-pause-circle { color: #ffc107; }
+
+
+.date-filter-group {
+  max-width: 400px;
+  
+  input[type="date"] {
+    &::-webkit-calendar-picker-indicator {
+      filter: invert(0.5);
+    }
+  }
+}
+
+// Status Badges
+.badge {
+  &-present {
+    background-color: rgba(40, 167, 69, 0.15) !important;
+    border: 1px solid darken(#28a745, 5%);
+    color: #28a745 !important;
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+    }
+  }
+
+  &-half-day {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    border: 1px solid darken(#ffc107, 5%);
+    color: darken(#ffc107, 15%) !important;
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
+    }
+  }
+
+  &-absent {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+    border: 1px solid darken(#dc3545, 5%);
+    color: #dc3545 !important;
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    }
+  }
+
+  // Base badge styling
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+// Status Badges
+.badge {
+  &-present, &-half-day, &-absent {
+    // Add background color and text color
+    background-color: transparent !important;
+    border-width: 2px;
+    border-style: solid;
+    font-weight: 600;
+    padding: 0.5em 0.75em;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &-present {
+    border-color: #28a745;
+    color: #28a745 !important;
+  }
+
+  &-half-day {
+    border-color: #ffc107;
+    color: #ffc107 !important;
+  }
+
+  &-absent {
+    border-color: #dc3545;
+    color: #dc3545 !important;
+  }
+}
+
+// Type Badges (E/S/I)
+.badge-pill {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #dee2e6;
+  color: #495057 !important;
+  padding: 0.5em 0.8em;
+  
+  .fa-sign-in-alt { color: #28a745; }
+  .fa-sign-out-alt { color: #dc3545; }
+  .fa-pause-circle { color: #ffc107; }
+}

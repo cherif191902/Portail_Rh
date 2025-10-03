@@ -1,0 +1,285 @@
+<div class="container-fluid">
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <h4 class="mb-sm-0 font-size-18">Historique des congés</h4>
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">Congés</a></li>
+                        <li class="breadcrumb-item active">Historique</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <!-- Statistiques de l'historique -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="media">
+                        <div class="media-body">
+                            <p class="text-muted fw-medium">Total demandes</p>
+                            <h4 class="mb-0">{{ statistiques.totalDemandes }}</h4>
+                        </div>
+                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
+                            <span class="avatar-title">
+                                <i class="bx bx-calendar-event font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="media">
+                        <div class="media-body">
+                            <p class="text-muted fw-medium">Jours accordés</p>
+                            <h4 class="mb-0">{{ statistiques.joursApprouves }}</h4>
+                        </div>
+                        <div class="mini-stat-icon avatar-sm rounded-circle bg-success align-self-center">
+                            <span class="avatar-title">
+                                <i class="bx bx-check-shield font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="media">
+                        <div class="media-body">
+                            <p class="text-muted fw-medium">Taux d'approbation</p>
+                            <h4 class="mb-0">{{ statistiques.tauxApprobation }}%</h4>
+                        </div>
+                        <div class="mini-stat-icon avatar-sm rounded-circle bg-info align-self-center">
+                            <span class="avatar-title">
+                                <i class="bx bx-trending-up font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
+                    <div class="media">
+                        <div class="media-body">
+                            <p class="text-muted fw-medium">Dernier congé</p>
+                            <h4 class="mb-0 font-size-14" *ngIf="statistiques.dernierCongeDate">
+                                {{ calculerTempsEcoule(statistiques.dernierCongeDate) }}
+                            </h4>
+                            <h4 class="mb-0 font-size-14" *ngIf="!statistiques.dernierCongeDate">
+                                Aucun
+                            </h4>
+                        </div>
+                        <div class="mini-stat-icon avatar-sm rounded-circle bg-warning align-self-center">
+                            <span class="avatar-title">
+                                <i class="bx bx-time font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau de l'historique -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="card-title mb-0">
+                                <i class="bx bx-archive me-2 text-primary"></i>Historique complet des congés
+                            </h4>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bx bx-download me-1"></i>Exporter
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="javascript:void(0);" (click)="exporterExcel()">
+                                            <i class="bx bx-file me-1"></i>Excel
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0);" (click)="exporterPDF()">
+                                            <i class="bx bx-file-blank me-1"></i>PDF
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filtres avancés -->
+                    <div class="row mb-4">
+                        <div class="col-md-2">
+                            <label for="filtreStatut" class="form-label">Statut</label>
+                            <select class="form-select form-select-sm" id="filtreStatut" 
+                                    [(ngModel)]="filtreStatut" (ngModelChange)="onFiltreChange()">
+                                <option [value]="option.value" *ngFor="let option of statutOptions">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filtreTypeConge" class="form-label">Type</label>
+                            <select class="form-select form-select-sm" id="filtreTypeConge" 
+                                    [(ngModel)]="filtreTypeConge" (ngModelChange)="onFiltreChange()">
+                                <option [value]="type.value" *ngFor="let type of typesConges">
+                                    {{ type.label }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filtreAnnee" class="form-label">Année</label>
+                            <select class="form-select form-select-sm" id="filtreAnnee" 
+                                    [(ngModel)]="filtreAnnee" (ngModelChange)="onFiltreChange()">
+                                <option [value]="annee" *ngFor="let annee of anneesDisponibles">
+                                    {{ annee === 'TOUTES' ? 'Toutes les années' : annee }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="searchText" class="form-label">Rechercher</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bx bx-search"></i></span>
+                                <input type="text" class="form-control" id="searchText" 
+                                       placeholder="Type de congé, commentaire..."
+                                       [(ngModel)]="searchText" (ngModelChange)="onFiltreChange()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tableau des données -->
+                    <div class="table-responsive" *ngIf="filteredHistorique.length > 0">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type de congé</th>
+                                    <th>Période</th>
+                                    <th>Durée</th>
+                                    <th>Date demande</th>
+                                    <th>Statut final</th>
+                                    <th>Temps écoulé</th>
+                                    <th class="text-center">Détails</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let demande of filteredHistorique | slice: (page-1) * pageSize : page * pageSize; 
+                                          let i = index; trackBy: trackByFn">
+                                    <td><strong>#{{ demande.id.toString().padStart(4, '0') }}</strong></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0 me-2">
+                                                <div class="avatar-xs">
+                                                    <div class="avatar-title rounded-circle" 
+                                                         [style.background-color]="getTypeColor(demande.typeConge)">
+                                                        <i class="bx bx-calendar font-size-16"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <span class="fw-medium">{{ demande.typeConge }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <small class="text-muted d-block">
+                                                Du {{ demande.dateDebut | date:'dd/MM/yyyy' }}
+                                            </small>
+                                            <small class="text-muted">
+                                                Au {{ demande.dateFin | date:'dd/MM/yyyy' }}
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-soft-info">{{ demande.duree }} jour(s)</span>
+                                    </td>
+                                    <td>
+                                        <small>{{ demande.dateDemande | date:'dd/MM/yyyy HH:mm' }}</small>
+                                    </td>
+                                    <td>
+                                        <span [class]="getStatutClass(demande.statut)">
+                                            <i [class]="getStatutIcon(demande.statut)" class="me-1"></i>
+                                            {{ getStatutLabel(demande.statut) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ calculerTempsEcoule(demande.dateFin) }}
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-soft-primary btn-sm" 
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-placement="top" 
+                                                title="Voir les détails">
+                                            <i class="bx bx-show"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Message si aucune donnée -->
+                    <div *ngIf="filteredHistorique.length === 0" class="text-center py-5">
+                        <div class="avatar-md mx-auto mb-4">
+                            <div class="avatar-title bg-light rounded-circle text-primary h1">
+                                <i class="bx bx-archive-out"></i>
+                            </div>
+                        </div>
+                        <h5 class="text-muted">Aucun historique trouvé</h5>
+                        <p class="text-muted">
+                            {{ historiqueConges.length === 0 ? 
+                               'Vous n\'avez pas encore d\'historique de congés.' : 
+                               'Aucun congé ne correspond aux filtres sélectionnés.' }}
+                        </p>
+                        <a routerLink="/conges/demande" class="btn btn-primary" *ngIf="historiqueConges.length === 0">
+                            <i class="bx bx-plus me-1"></i>Faire ma première demande
+                        </a>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="row align-items-center mt-4" *ngIf="filteredHistorique.length > pageSize">
+                        <div class="col-sm-6">
+                            <div>
+                                <p class="mb-sm-0 text-muted">
+                                    Affichage {{ (page - 1) * pageSize + 1 }} à 
+                                    {{ Math.min(page * pageSize, collectionSize) }} sur {{ collectionSize }} résultats
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="float-sm-end">
+                                <ngb-pagination 
+                                    [(page)]="page" 
+                                    [pageSize]="pageSize" 
+                                    [collectionSize]="collectionSize"
+                                    [maxSize]="5"
+                                    [rotate]="true">
+                                </ngb-pagination>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

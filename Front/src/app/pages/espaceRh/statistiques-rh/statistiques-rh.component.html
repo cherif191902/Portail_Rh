@@ -1,0 +1,228 @@
+<div class="container-fluid">
+  <!-- En-tête -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-1">Statistiques RH</h2>
+          <p class="text-muted mb-0">Analyse des données et tendances des ressources humaines</p>
+        </div>
+        <div class="d-flex gap-2">
+          <select class="form-select" [(ngModel)]="selectedPeriod" (change)="onPeriodChange(selectedPeriod)">
+            <option value="30">30 derniers jours</option>
+            <option value="90">90 derniers jours</option>
+            <option value="365">1 an</option>
+          </select>
+          <button class="btn btn-primary" (click)="refresh()" [disabled]="loading">
+            <i class="mdi mdi-refresh"></i> Rafraîchir
+          </button>
+          <button class="btn btn-success" (click)="exportToExcel()">
+            <i class="mdi mdi-download"></i> Export
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages d'erreur -->
+  <div *ngIf="errorMsg" class="alert alert-warning">
+    <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
+    <div *ngIf="errorMsg.includes('démonstration')" class="mt-2">
+      <button class="btn btn-primary btn-sm" (click)="router.navigate(['/account/login'])">
+        <i class="mdi mdi-login"></i> Se connecter
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques principales -->
+  <div class="row mb-4">
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Total Utilisateurs</h6>
+              <h2 class="mb-0">{{ statistics.totalUsers }}</h2>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-account-group display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Services</h6>
+              <h2 class="mb-0">{{ statistics.totalServices }}</h2>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-office-building display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-info text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Types de Congés</h6>
+              <h2 class="mb-0">{{ statistics.totalTypeConges }}</h2>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-calendar-multiple display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-warning text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">En Attente</h6>
+              <h2 class="mb-0">{{ statistics.pendingConges }}</h2>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-clock-outline display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques des décisions -->
+  <div class="row mb-4">
+    <div class="col-xl-4 col-md-6">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Congés Approuvés</h6>
+              <h2 class="mb-0">{{ statistics.approvedConges }}</h2>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-check-circle display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+      <div class="card bg-danger text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Congés Refusés</h6>
+              <h2 class="mb-0">{{ statistics.rejectedConges }}</h2>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-close-circle display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+      <div class="card bg-secondary text-white">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Taux d'Approbation</h6>
+              <h2 class="mb-0">{{ getApprovalRate() }}%</h2>
+            </div>
+            <div class="align-self-center">
+              <i class="mdi mdi-chart-line display-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="row mb-4">
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Congés par Mois</h5>
+          <div class="chart-container">
+            <canvas id="congesByMonthChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Congés par Service</h5>
+          <div class="chart-container">
+            <canvas id="congesByServiceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau détaillé -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Résumé Détaillé</h5>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Métrique</th>
+                  <th>Valeur</th>
+                  <th>Évolution</th>
+                  <th>Tendance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Total Utilisateurs</td>
+                  <td><strong>{{ statistics.totalUsers }}</strong></td>
+                  <td>+5%</td>
+                  <td><span class="badge bg-success">↗</span></td>
+                </tr>
+                <tr>
+                  <td>Congés Approuvés</td>
+                  <td><strong>{{ statistics.approvedConges }}</strong></td>
+                  <td>+12%</td>
+                  <td><span class="badge bg-success">↗</span></td>
+                </tr>
+                <tr>
+                  <td>Congés Refusés</td>
+                  <td><strong>{{ statistics.rejectedConges }}</strong></td>
+                  <td>-3%</td>
+                  <td><span class="badge bg-success">↘</span></td>
+                </tr>
+                <tr>
+                  <td>Taux d'Approbation</td>
+                  <td><strong>{{ getApprovalRate() }}%</strong></td>
+                  <td>+8%</td>
+                  <td><span class="badge bg-success">↗</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

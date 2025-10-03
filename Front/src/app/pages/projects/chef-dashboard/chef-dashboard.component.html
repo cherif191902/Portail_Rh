@@ -1,0 +1,154 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="card-title mb-0">
+              <span class="tab-link" 
+                    [class.active]="activeTab === 'team'" 
+                    (click)="switchTab('team')">
+                My Team
+              </span>
+              |
+              <span class="tab-link" 
+                    [class.active]="activeTab === 'pointage'" 
+                    (click)="switchTab('pointage')">
+                Pointage
+              </span>
+            </h4>
+          </div>
+
+
+
+
+
+
+          <div *ngIf="activeTab === 'team'" class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Name</th>
+                  <th>Matricule</th>
+                  <th>Role</th>
+                  <th>Service</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sub of subordinates">
+                  <td>{{ sub.prenom }} {{ sub.nom }}</td>
+                  <td>{{ sub.matriculeP }}</td>
+                  <td>
+                    <span *ngFor="let role of sub.roles" class="badge bg-primary">
+                      {{ role.nomRole }}
+                    </span>
+                  </td>
+                  <td>{{ sub.serv?.lib_serv }}</td>
+                </tr>
+                <tr *ngIf="subordinates.length === 0">
+                  <td colspan="4" class="text-center">No subordinates found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row mb-4" *ngIf="activeTab === 'pointage'">
+  <div class="col-md-6">
+      <div class="input-group date-filter-group">
+    
+      <input type="date" class="form-control" 
+             [value]="selectedDate | date:'yyyy-MM-dd'"
+             (change)="onDateChange($event.target.valueAsDate)">
+      <button class="btn btn-outline-secondary" 
+              type="button"
+              (click)="loadToday()"
+              [disabled]="isLoading">
+        Aujourd'hui
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add loading indicator -->
+<div *ngIf="isLoading" class="text-center my-3">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+  <p class="mt-2">Chargement des pointages...</p>
+</div>
+
+          <div *ngIf="activeTab === 'pointage'" class="table-responsive">
+            <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th colspan="7" class="text-center">
+                Pointages du {{ selectedDate | date:'dd/MM/yyyy' }}
+            </th>
+        </tr>
+        <tr>
+            <th style="width: 15%">Matricule</th>
+          
+            <th style="width: 10%">Type</th>
+            <th style="width: 20%">Date & heure</th>
+          
+           <th style="width: 15%">Temps total travaillé</th>
+<th style="width: 15%">Retard</th>
+<th style="width: 15%">Heures supplémentaires</th>
+<th style="width: 10%">Statut</th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngFor="let group of groupedPointages$ | async">
+            <tr class="group-header bg-light">
+                <td colspan="2">
+                    <strong>{{ group.pointages[0]?.personnel?.nom }} {{ group.pointages[0]?.personnel?.prenom }}</strong>
+                    <small class="text-muted">({{ group.matricule }})</small>
+                </td>
+                <td colspan="5">
+                    Total des pointages: {{ group.totalEntries }}
+                </td>
+            </tr>
+          
+            <tr *ngFor="let pointage of group.pointages">
+                <td></td>
+                <td>
+                   <span class="badge badge-pill">  <!-- Removed ngClass -->
+  <i class="fas"
+     [class.fa-sign-in-alt]="pointage.typePoint === 'E'"
+     [class.fa-sign-out-alt]="pointage.typePoint === 'S'"
+     [class.fa-pause-circle]="pointage.typePoint === 'I'"></i>
+  {{ pointage.typePoint }}
+</span>
+                </td>
+                <td>{{ pointage.datePoint | date:'dd/MM/yyyy HH:mm' }}</td>
+                <!-- New Columns -->
+                <td>{{ formatMinutes(pointage.totalMinutesWorked) }}</td>
+                <td>{{ formatMinutes(pointage.lateMinutes) }}</td>
+                <td>{{ formatMinutes(pointage.overtimeMinutes) }}</td>
+                <td>
+                     <span class="badge" 
+      [ngClass]="{
+          'badge-present': pointage.status === 'PRESENT',
+          'badge-half-day': pointage.status === 'HALF_DAY',
+          'badge-absent': pointage.status === 'ABSENT'
+      }">
+  {{ getStatusDisplay(pointage.status) }}
+</span>
+                </td>
+            </tr>
+        </ng-container>
+        <tr *ngIf="(groupedPointages$ | async)?.length === 0">
+            <td colspan="7" class="text-center">Aucun pointage trouvé</td>
+        </tr>
+    </tbody>
+</table>
+          </div>
+
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

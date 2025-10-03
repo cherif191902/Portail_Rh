@@ -1,0 +1,257 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+<div class="card">
+  <div class="card-body">
+          <h4 class="card-title mb-4">Historique des Décisions RH</h4>
+          
+          <!-- Filtres et recherche -->
+          <form [formGroup]="filterForm">
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <div class="search-box">
+                  <div class="position-relative">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Rechercher par nom ou matricule..."
+                      formControlName="searchTerm"
+                    />
+                    <i class="mdi mdi-magnify search-icon"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" formControlName="statusFilter">
+                  <option value="">Tous les statuts</option>
+                  <option value="APPROUVE">Approuvés</option>
+                  <option value="REFUSE">Refusés</option>
+                  <option value="EN_ATTENTE">En attente</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <input
+                  type="date"
+                  class="form-control"
+                  placeholder="Date début"
+                  formControlName="dateFrom"
+                />
+              </div>
+              <div class="col-md-2">
+                <input
+                  type="date"
+                  class="form-control"
+                  placeholder="Date fin"
+                  formControlName="dateTo"
+                />
+              </div>
+              <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" (click)="clearFilters()">
+                  <i class="mdi mdi-filter-remove"></i> Effacer
+                </button>
+                <button class="btn btn-primary me-2" (click)="refresh()" [disabled]="loading">
+                  <i class="mdi mdi-refresh"></i> Rafraîchir
+                </button>
+                <button class="btn btn-success" (click)="exportToExcel()">
+                  <i class="mdi mdi-download"></i> Export
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Messages d'erreur et de succès -->
+          <div *ngIf="errorMsg" class="alert alert-warning">
+            <i class="mdi mdi-alert-circle"></i> {{ errorMsg }}
+            <div *ngIf="errorMsg.includes('Session expirée')" class="mt-2">
+              <button class="btn btn-primary btn-sm" (click)="router.navigate(['/account/login'])">
+                <i class="mdi mdi-login"></i> Se connecter
+              </button>
+            </div>
+            <div *ngIf="errorMsg.includes('démonstration')" class="mt-2">
+              <button class="btn btn-primary btn-sm" (click)="router.navigate(['/account/login'])">
+                <i class="mdi mdi-login"></i> Se connecter pour les vraies données
+              </button>
+            </div>
+          </div>
+          <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+
+          <!-- Statistiques -->
+          <div class="row mb-3" *ngIf="filteredDecisions.length > 0">
+            <div class="col-md-3">
+              <div class="card bg-primary text-white">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="card-title">Total</h6>
+                      <h4>{{ totalItems }}</h4>
+                    </div>
+                    <div class="align-self-center">
+                      <i class="mdi mdi-file-document-outline display-4"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-success text-white">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="card-title">Approuvés</h6>
+                      <h4>{{ getApprovedCount() }}</h4>
+                    </div>
+                    <div class="align-self-center">
+                      <i class="mdi mdi-check-circle display-4"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-danger text-white">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="card-title">Refusés</h6>
+                      <h4>{{ getRejectedCount() }}</h4>
+                    </div>
+                    <div class="align-self-center">
+                      <i class="mdi mdi-close-circle display-4"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-warning text-white">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="card-title">En attente</h6>
+                      <h4>{{ getPendingCount() }}</h4>
+                    </div>
+                    <div class="align-self-center">
+                      <i class="mdi mdi-clock-outline display-4"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tableau des décisions -->
+          <div class="table-responsive" *ngIf="filteredDecisions?.length; else emptyDecisions">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Employé</th>
+                  <th>Période</th>
+                  <th>Jours</th>
+                  <th>Chef Niveau 1</th>
+                  <th>Chef Niveau 2</th>
+                  <th>Décision RH</th>
+                  <th>Date décision</th>
+                  <th>Décidé par</th>
+                  <th>Commentaire</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let decision of getPaginatedDecisions()">
+                  <td>{{ decision.id }}</td>
+                  <td>
+                    <div>
+                      <strong>{{ decision.personnel?.prenom }} {{ decision.personnel?.nom }}</strong>
+                      <br>
+                      <small class="text-muted">{{ decision.personnel?.matriculeP }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div>
+                      <strong>{{ decision.dateDeb | date:'dd/MM/yyyy' }}</strong>
+                      <br>
+                      <small class="text-muted">au {{ decision.dateFin | date:'dd/MM/yyyy' }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-info">{{ decision.nbJours }} jours</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ getBadgeClass(decision.repChefsNiveau1) }}">
+                      {{ getStatusText(decision.repChefsNiveau1) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ getBadgeClass(decision.repChefsNiveau2) }}">
+                      {{ getStatusText(decision.repChefsNiveau2) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ getBadgeClass(decision.repRh) }}">
+                      {{ getStatusText(decision.repRh) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div *ngIf="decision.dateDecision">
+                      <strong>{{ decision.dateDecision | date:'dd/MM/yyyy' }}</strong>
+                      <br>
+                      <small class="text-muted">{{ decision.dateDecision | date:'HH:mm' }}</small>
+                    </div>
+                    <span *ngIf="!decision.dateDecision" class="text-muted">-</span>
+                  </td>
+                  <td>
+                    <span *ngIf="decision.decisionBy">{{ decision.decisionBy }}</span>
+                    <span *ngIf="!decision.decisionBy" class="text-muted">-</span>
+                  </td>
+                  <td>
+                    <span *ngIf="decision.commentaire" 
+                          class="text-truncate d-inline-block" 
+                          style="max-width: 150px;"
+                          [title]="decision.commentaire">
+                      {{ decision.commentaire }}
+                    </span>
+                    <span *ngIf="!decision.commentaire" class="text-muted">-</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ng-template #emptyDecisions>
+            <div class="text-center py-4">
+              <i class="mdi mdi-file-document-outline display-4 text-muted"></i>
+              <p class="text-muted mt-2">Aucune décision trouvée</p>
+            </div>
+          </ng-template>
+
+          <!-- Pagination -->
+          <div class="row" *ngIf="totalItems > itemsPerPage">
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                  Affichage de {{ getStartIndex() }} à 
+                  {{ getEndIndex() }} sur {{ totalItems }} résultats
+                </div>
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" [class.disabled]="currentPage === 1">
+                      <a class="page-link" (click)="onPageChange(currentPage - 1)">Précédent</a>
+                    </li>
+                    <li class="page-item" 
+                        *ngFor="let page of getPageNumbers(); let i = index"
+                        [class.active]="currentPage === i + 1">
+                      <a class="page-link" (click)="onPageChange(i + 1)">{{ i + 1 }}</a>
+                    </li>
+                    <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                      <a class="page-link" (click)="onPageChange(currentPage + 1)">Suivant</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

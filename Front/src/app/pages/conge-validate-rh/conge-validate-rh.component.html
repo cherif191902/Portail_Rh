@@ -1,0 +1,23 @@
+<div class="card">
+  <div class="card-header"><h4>Validation RH</h4></div>
+  <div class="card-body">
+    <table class="table table-sm">
+      <thead>
+        <tr><th>#</th><th>Personnel</th><th>Dates</th><th>Type</th><th>Durée</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of demandes; let i = index">
+          <td>{{i+1}}</td>
+          <td>{{d.personnel.nom}} {{d.personnel.prenom}}</td>
+          <td>{{d.dateDebut}} - {{d.dateFin}}</td>
+          <td>{{d.typeConge?.nomType}}</td>
+          <td>{{d.duree}}</td>
+          <td>
+            <button class="btn btn-success btn-sm" (click)="decision(d.idConge, true)">Valider</button>
+            <button class="btn btn-danger btn-sm" (click)="decision(d.idConge, false)">Rejeter</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

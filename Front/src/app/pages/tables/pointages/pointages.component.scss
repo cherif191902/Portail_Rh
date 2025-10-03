@@ -1,0 +1,43 @@
+// Add these styles to match the pointages component
+.badge-pill {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #dee2e6;
+  color: #495057 !important;
+  padding: 0.5em 0.8em;
+  
+  .fa-sign-in-alt { color: #28a745; }
+  .fa-sign-out-alt { color: #dc3545; }
+  .fa-pause-circle { color: #ffc107; }
+}
+
+// Status badge colors
+.badge-present {
+  border-color: #28a745;
+  color: #28a745 !important;
+}
+
+.badge-half-day {
+  border-color: #ffc107;
+  color: #ffc107 !important;
+}
+
+.badge-absent {
+  border-color: #dc3545;
+  color: #dc3545 !important;
+}
+
+// Status badge base styling
+.badge {
+  &-present, &-half-day, &-absent {
+    background-color: transparent !important;
+    border-width: 2px;
+    border-style: solid;
+    font-weight: 600;
+    padding: 0.5em 0.75em;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}

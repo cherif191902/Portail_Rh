@@ -1,0 +1,55 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="card-body p-4">
+      <div class="search-box">
+        <p class="text-muted">Rechercher</p>
+        <div class="position-relative">
+          <input type="text" class="form-control rounded bg-light border-light" placeholder="Rechercher .." [(ngModel)]="term" />
+          <i class="mdi mdi-magnify search-icon"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table align-middle table-nowrap table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" style="width: 70px">#</th>
+                    <th scope="col">Nom et prénom</th>
+                    <th scope="col">Type de congé</th>
+                    <th scope="col">Date demande</th>
+                    <th scope="col">Date début</th>
+                    <th scope="col">Date fin</th>
+                    <th scope="col">Réponse Rh</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of listDemande | filter: term | paginate: { itemsPerPage: 9, currentPage: p }; let i = index">
+                    <td><div class="avatar-xs"><span class="avatar-title rounded-circle"> {{ i + 1 }} </span></div></td>
+                    <td><h5 class="font-size-14 mb-1"><a href="javascript: void(0);" class="text-dark">{{ data.nom }} {{ data.prenom }}</a></h5></td>
+                    <td>{{ data.typeConge.nomTypeconge }}</td>
+                    <td>{{ data.dateCng }}</td>
+                    <td>{{ data.dateDebut }}</td>
+                    <td>{{ data.dateFin }}</td>
+                    <td>{{ data.repRh }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="text-center my-3">
+                  <pagination-controls (pageChange)="p = $event"></pagination-controls>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

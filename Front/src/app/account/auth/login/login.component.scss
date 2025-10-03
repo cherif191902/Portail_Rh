@@ -1,0 +1,117 @@
+.login-page {
+  height: 100vh;
+  display: flex;
+  background-color: #f8f9fc;
+
+  .video-side {
+    width: 50%;
+    background-color: #ffffff; // ⬅️ White background
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-video {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    object-fit: contain;
+    background-color: #ffffff; // ⬅️ White background inside video if needed
+  }
+
+  .form-side {
+    flex: 1;
+    background: #fff;
+    padding: 2rem;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+.login-card {
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease-in-out;
+
+  &:hover {
+    box-shadow:
+      0 15px 35px rgba(0, 0, 0, 0.15),
+      0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.form-control {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ced4da;
+}
+
+.btn-primary {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+
+  &:hover {
+    background-color: #004494;
+    border-color: #004494;
+  }
+}
+
+.auth-pass-inputgroup .btn-light {
+  border-radius: 0 12px 12px 0;
+}
+
+.video-side .login-video {
+  border-radius: 12px;
+  max-height: 100%;
+  object-fit: cover;
+}
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  flex-wrap: wrap;
+
+  .image-side {
+    width: 50%;
+    max-width: 50%;
+    background-color: #0b1f35;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+
+    @media (max-width: 768px) {
+      display: none; // Hide on small screens
+    }
+
+    .login-image {
+      max-width: 80%;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .form-side {
+    width: 50%;
+    max-width: 50%;
+    padding: 2rem;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+}

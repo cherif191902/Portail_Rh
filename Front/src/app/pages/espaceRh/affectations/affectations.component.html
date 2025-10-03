@@ -1,0 +1,70 @@
+<div class="card">
+  <div class="card-body">
+    <h4 class="card-title">Affectations</h4>
+    <p class="text-muted">Assigner des chefs et des employés aux services.</p>
+
+    <div *ngIf="message" class="alert alert-info py-2">{{message}}</div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h5>Affecter un Chef</h5>
+        <div class="mb-2">
+          <label class="form-label">Service</label>
+          <select class="form-select" [(ngModel)]="selectedServiceForChef">
+            <option [ngValue]="null">-- choisir --</option>
+            <option *ngFor="let s of services" [ngValue]="s.idService">{{s.nomService}}</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Chef</label>
+          <select class="form-select" [(ngModel)]="selectedChef">
+            <option [ngValue]="null">-- choisir --</option>
+            <option *ngFor="let c of employees" [ngValue]="c.id">{{c.prenom}} {{c.nom}}</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" (click)="assignChef()" [disabled]="!selectedServiceForChef || !selectedChef || loading">Affecter Chef</button>
+      </div>
+      <div class="col-md-6">
+        <h5>Affecter un Employé</h5>
+        <div class="mb-2">
+          <label class="form-label">Service</label>
+          <select class="form-select" [(ngModel)]="selectedServiceForEmployee">
+            <option [ngValue]="null">-- choisir --</option>
+            <option *ngFor="let s of services" [ngValue]="s.idService">{{s.nomService}}</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Employé</label>
+          <select class="form-select" [(ngModel)]="selectedEmployee">
+            <option [ngValue]="null">-- choisir --</option>
+            <option *ngFor="let e of employees" [ngValue]="e.id">{{e.prenom}} {{e.nom}}</option>
+          </select>
+        </div>
+        <button class="btn btn-success" (click)="assignEmployee()" [disabled]="!selectedServiceForEmployee || !selectedEmployee || loading">Affecter Employé</button>
+      </div>
+    </div>
+
+    <hr/>
+    <h5>Services</h5>
+    <div class="table-responsive" *ngIf="services?.length">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Chef</th>
+            <th>Nb Personnels</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of services">
+            <td>{{s.idService}}</td>
+            <td>{{s.nomService}}</td>
+            <td>{{s.chef ? (s.chef.prenom + ' ' + s.chef.nom) : '—'}}</td>
+            <td>{{s.personnels?.length}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

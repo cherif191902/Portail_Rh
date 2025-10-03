@@ -1,0 +1,147 @@
+<div class="container-fluid">
+  <app-page-title [title]="'Gestion des Pointages'" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+  
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Importation des Pointages</h4>
+          
+          <!-- File Upload Section -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="input-group">
+                <input type="file" class="form-control" 
+                       accept=".xlsx,.xls" 
+                       (change)="onFileSelected($event)">
+                <button class="btn btn-primary" 
+                        type="button" 
+                        (click)="uploadFile()"
+                        [disabled]="!selectedFile || loading">
+                  <span *ngIf="!loading">Importer</span>
+                  <span *ngIf="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Importation...
+                  </span>
+                </button>
+              </div>
+             
+            </div>
+          </div>
+          <div class="row mb-4">
+  <div class="col-md-6">
+    <div class="input-group">
+      <input type="date" class="form-control" 
+             [value]="selectedDate | date:'yyyy-MM-dd'"
+             (change)="onDateChange($event.target.valueAsDate)">
+      <button class="btn btn-outline-secondary" 
+              type="button"
+              (click)="loadToday()"
+              [disabled]="isLoading">
+        Aujourd'hui
+      </button>
+      <button class="btn btn-primary" 
+            type="button"
+            (click)="validatePointages()"
+            [disabled]="isLoading || isValidated">
+      <span *ngIf="!validating">Valider</span>
+      <span *ngIf="validating">
+        <i class="fas fa-spinner fa-spin"></i> Validation...
+      </span>
+    </button>
+    </div>
+  </div>
+</div>
+
+          <!-- Pointage Table -->
+          <div class="table-responsive">
+           <table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+  <th [attr.colspan]="isDateValidated() ? 9 : 5" class="text-center">
+    Pointages du {{ selectedDate | date:'dd/MM/yyyy' }}
+  </th>
+</tr>
+    <tr>
+     <th style="width: 15%">Matricule</th>
+  <th style="width: 10%">Type</th>
+  <th style="width: 20%">Date & heure</th>
+  <th style="width: 15%">N° Carte</th>
+ 
+      <!-- Conditional columns -->
+       <th *ngIf="isDateValidated()" style="width: 10%">Temps total travaillé</th>
+  <th *ngIf="isDateValidated()" style="width: 10%">Retard</th>
+  <th *ngIf="isDateValidated()" style="width: 10%">Heures supplémentaires</th>
+  <th *ngIf="isDateValidated()" style="width: 10%">Statut</th>
+    </tr>
+  </thead>
+  <tbody>
+    <ng-container *ngFor="let group of groupedPointages$ | async">
+      <tr class="group-header bg-light">
+       <td [attr.colspan]="isDateValidated() ? 3 : 3">
+          <strong>{{ group.pointages[0]?.personnel?.nom }} {{ group.pointages[0]?.personnel?.prenom }}</strong>
+          <small class="text-muted">({{ group.matricule }})</small>
+        </td>
+         <td [attr.colspan]="isDateValidated() ? 6 : 2">
+          Total des pointages: {{ group.totalEntries }}
+        </td>
+      </tr>
+      <tr *ngFor="let pointage of group.pointages">
+        <td></td>
+        <td>
+           <span class="badge badge-pill">  <!-- Removed ngClass -->
+  <i class="fas"
+     [class.fa-sign-in-alt]="pointage.typePoint === 'E'"
+     [class.fa-sign-out-alt]="pointage.typePoint === 'S'"
+     [class.fa-pause-circle]="pointage.typePoint === 'I'"></i>
+  {{ pointage.typePoint }}
+</span>
+        </td>
+        <td>{{ pointage.datePoint | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ pointage.nCarte }}</td>
+       
+        
+        <!-- Conditional columns -->
+        <td *ngIf="isDateValidated()">
+          {{ formatMinutes(pointage.totalMinutesWorked) }}
+        </td>
+        <td *ngIf="isDateValidated()">
+          {{ formatMinutes(pointage.lateMinutes) }}
+        </td>
+        <td *ngIf="isDateValidated()">
+          {{ formatMinutes(pointage.overtimeMinutes) }}
+        </td>
+        <td *ngIf="isDateValidated()">
+          <span class="badge" 
+                [ngClass]="{
+                  'badge-present': pointage.status === 'PRESENT',
+                  'badge-half-day': pointage.status === 'HALF_DAY',
+                  'badge-absent': pointage.status === 'ABSENT'
+                }">
+            {{ getStatusDisplay(pointage.status) }}
+          </span>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="text-center my-3">
+                <pagination-controls 
+                  (pageChange)="p = $event"
+                  previousLabel="Précédent"
+                  nextLabel="Suivant"
+                  screenReaderPaginationLabel="Pagination"
+                  screenReaderPageLabel="page"
+                  screenReaderCurrentLabel="You're on page"></pagination-controls>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
