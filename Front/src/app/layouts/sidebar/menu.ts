@@ -6,6 +6,22 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.MENU.TEXT',
         isTitle: true
     },
+    // Dashboard pour Employé (accessible à tous)
+    {
+        id: 5,
+        label: 'MENUITEMS.DASHBOARD.TEXT',
+        icon: 'bx-home-circle',
+        link: '/dashboards/default'
+        // Pas de requiredRoles = accessible à tous les utilisateurs connectés
+    },
+    // Dashboard pour Chef
+    {
+        id: 6,
+        label: 'MENUITEMS.CHEF_DASHBOARD.TEXT',
+        icon: 'bx-group',
+        link: '/dashboards/chef',
+        requiredRoles: ['ROLE_CHEF_SERVICE', 'ROLE_CHEF_A', 'ROLE_CHEF_B']
+    },
     {
         id: 10,
         label: 'MENUITEMS.ADMIN_DASHBOARD.TEXT',
@@ -20,12 +36,76 @@ export const MENU: MenuItem[] = [
         link: '/dashboards/rh',
         requiredRoles: ['ROLE_RH', 'ROLE_ADMIN']
     },
-        {
-            id: 12,
-            label: 'MENUITEMS.DASHBOARDS.TEXT',
-            icon: 'bx-home-circle',
-            link: '/dashboard'
-        },
+    // Section Congés (accessible à tous)
+    {
+        id: 20,
+        label: 'MENUITEMS.CONGES_SECTION.TEXT',
+        isTitle: true
+    },
+    {
+        id: 21,
+        label: 'MENUITEMS.CONGES_GROUP.TEXT',
+        icon: 'bx-calendar-event',
+        subItems: [
+            {
+                id: 211,
+                label: 'MENUITEMS.NOUVELLE_DEMANDE_CONGE.TEXT',
+                icon: 'bx-plus-circle',
+                link: '/conges/demande',
+                parentId: 21
+            },
+            {
+                id: 212,
+                label: 'MENUITEMS.MES_CONGES.TEXT',
+                icon: 'bx-list-ul',
+                link: '/conges/list',
+                parentId: 21
+            },
+            {
+                id: 213,
+                label: 'MENUITEMS.SUIVI_CONGES.TEXT',
+                icon: 'bx-search',
+                link: '/conges/suivi',
+                parentId: 21
+            }
+        ]
+    },
+    // Section Chef
+    {
+        id: 30,
+        label: 'MENUITEMS.CHEF_SECTION.TEXT',
+        isTitle: true,
+        requiredRoles: ['ROLE_CHEF_SERVICE', 'ROLE_CHEF_A', 'ROLE_CHEF_B']
+    },
+    {
+        id: 31,
+        label: 'MENUITEMS.ESPACE_CHEF.TEXT',
+        icon: 'bx-user-voice',
+        requiredRoles: ['ROLE_CHEF_SERVICE', 'ROLE_CHEF_A', 'ROLE_CHEF_B'],
+        subItems: [
+            {
+                id: 311,
+                label: 'MENUITEMS.DEMANDE_CHEF.TEXT',
+                icon: 'bx-task',
+                link: '/chef/demandes',
+                parentId: 31
+            },
+            {
+                id: 312,
+                label: 'MENUITEMS.HISTORIQUE_CHEF.TEXT',
+                icon: 'bx-history',
+                link: '/chef/historique',
+                parentId: 31
+            },
+            {
+                id: 313,
+                label: 'MENUITEMS.MON_EQUIPE.TEXT',
+                icon: 'bx-group',
+                link: '/chef/equipe',
+                parentId: 31
+            }
+        ]
+    },
     {
         id: 15,
         label: 'MENUITEMS.ADMIN_SECTION.TEXT',
@@ -113,34 +193,6 @@ export const MENU: MenuItem[] = [
         ]
     },
     {
-        id: 50,
-        label: 'MENUITEMS.CONGES.TEXT',
-        icon: 'bx-calendar-alt',
-        subItems: [
-            {
-                id: 51,
-                label: 'MENUITEMS.DEMANDE_CONGE.TEXT',
-                icon: 'bx-calendar-plus',
-                link: '/conges/demande',
-                parentId: 50
-            },
-            {
-                id: 52,
-                label: 'MENUITEMS.SUIVI_DEMANDES.TEXT',
-                icon: 'bx-show',
-                link: '/conges/suivi',
-                parentId: 50
-            },
-            {
-                id: 53,
-                label: 'MENUITEMS.HISTORIQUE_CONGES.TEXT',
-                icon: 'bx-archive',
-                link: '/conges/historique',
-                parentId: 50
-            }
-        ]
-    },
-    {
         id: 100,
         label: 'MENUITEMS.RH_CONGES_GROUP.TEXT',
         icon: 'bx-calendar-event',
@@ -151,20 +203,6 @@ export const MENU: MenuItem[] = [
                 label: 'MENUITEMS.RH_VALIDATION_CONGES.TEXT',
                 icon: 'bx-check-circle',
                 link: '/RH/validation-conges',
-                parentId: 100
-            },
-            {
-                id: 102,
-                label: 'MENUITEMS.RH_HISTORIQUE_DECISIONS.TEXT',
-                icon: 'bx-time-five',
-                link: '/RH/historique-decisions',
-                parentId: 100
-            },
-            {
-                id: 103,
-                label: 'MENUITEMS.GESTION_TYPE_CONGE.TEXT',
-                icon: 'bx-slider-alt',
-                link: '/RH/TypeConge',
                 parentId: 100
             }
         ]

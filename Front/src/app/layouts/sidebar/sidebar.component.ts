@@ -51,11 +51,16 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   ngOnInit() {
- 
+    console.log('🚀 Initialisation du sidebar');
     this.initialize();
     this._scrollElement();
     this.getUnreadMessageCount();
 
+    // Écouter les changements de rôles pour rafraîchir le menu
+    this.menuRefresh.refresh$.subscribe(() => {
+      console.log('🔄 Rafraîchissement du menu demandé');
+      this.initialize();
+    });
     
     this.chatService.unreadCount$.subscribe(count => {
       const chatMenuItem = this.menuItems.find(item => item.id === 10);
@@ -165,15 +170,59 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
    */
  initialize(): void {
   const user = this.token.getUser();
-  const roles: string[] = user?.roles || [];
-  if (!roles.length) { this.menuItems = []; return; }
+  console.log('🔍 Initialisation sidebar - Utilisateur:', user);
+  
+  // Amélioration de la récupération des rôles
+  let roles: string[] = [];
+  
+  if (user?.roles && Array.isArray(user.roles)) {
+    // Si les rôles sont déjà un tableau de strings
+    if (typeof user.roles[0] === 'string') {
+      roles = user.roles;
+    }
+    // Si les rôles sont des objets avec propriété nomRole ou authority
+    else if (typeof user.roles[0] === 'object') {
+      roles = user.roles.map((role: any) => {
+        return role.nomRole || role.authority || role.name || role.role || 'ROLE_USER';
+      });
+    }
+  }
+  
+  // Fallback sur role_portail ou rôle par défaut
+  if (roles.length === 0) {
+    roles = [user?.role_portail || 'ROLE_USER'];
+  }
+  
+  console.log('🎭 Rôles détectés:', roles);
+  
+  // Toujours afficher au minimum les éléments de base pour les utilisateurs connectés
+  if (!user || roles.length === 0) {
+    console.warn('⚠️ Aucun rôle détecté, chargement des éléments par défaut');
+    roles = ['ROLE_USER']; // Rôle par défaut
+  }
 
   const has = (r: string) => roles.includes(r);
   const cloned: MenuItem[] = JSON.parse(JSON.stringify(MENU));
 
   const filterByRoles = (item: MenuItem) => {
+    // Toujours afficher les titres
+    if (item.isTitle) return true;
+    
+    // Si pas de restriction de rôles, afficher pour tous les utilisateurs connectés
+    if (!item.requiredRoles && !item.isAdmin && !item.isRh && !item.isPersonel) {
+      return true;
+    }
+    
+    // Vérifier les restrictions spécifiques
     if (item.isAdmin && !has('ROLE_ADMIN')) return false;
-    if (item.requiredRoles && !item.requiredRoles.some(rr => has(rr))) return false;
+    if (item.isRh && !has('ROLE_RH') && !has('ROLE_ADMIN')) return false;
+    if (item.isPersonel && !has('ROLE_USER')) return false;
+    
+    // Vérifier les rôles requis
+    if (item.requiredRoles && !item.requiredRoles.some(rr => has(rr))) {
+      return false;
+    }
+    
     return true;
   };
 
@@ -184,19 +233,113 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
         const next: MenuItem = { ...item };
         if (next.subItems) {
           next.subItems = process(next.subItems);
+          // Ne garder un parent que s'il a des enfants ou un lien direct
+          if (!next.link && (!next.subItems || next.subItems.length === 0) && !next.isTitle) {
+            return null;
+          }
         }
         return next;
       })
-      .filter(item => item.isTitle || item.link || (item.subItems && item.subItems.length));
+      .filter(item => item !== null)
+      .filter(item => {
+        // Garder les titres, les liens directs, ou les parents avec des enfants
+        return item.isTitle || item.link || (item.subItems && item.subItems.length > 0);
+      });
   };
 
   const processed = process(cloned);
+  
+  // Filtrer les titres orphelins (sans éléments suivants)
   this.menuItems = processed.filter((item, index, arr) => {
     if (!item.isTitle) return true;
+    // Garder un titre seulement s'il y a du contenu après
     return arr.slice(index + 1).some(next => !next.isTitle);
   });
 
+  console.log('📋 Menu items finaux:', this.menuItems.map(item => ({ 
+    label: item.label, 
+    requiredRoles: item.requiredRoles,
+    subItems: item.subItems?.length 
+  })));
+
+  // Mécanisme de récupération : s'assurer qu'il y a toujours au moins le dashboard de base
+  if (this.menuItems.length === 0 || this.menuItems.filter(item => !item.isTitle).length === 0) {
+    console.warn('⚠️ Menu vide détecté, ajout des éléments de base');
+    this.addFallbackMenuItems();
+  }
+
   this.cdr.detectChanges();
+ }
+
+ /**
+  * Ajoute des éléments de menu de base en cas d'échec du filtrage
+  */
+ private addFallbackMenuItems(): void {
+   console.log('🛡️ Ajout des éléments de menu de secours');
+   
+   this.menuItems = [
+     {
+       id: 1,
+       label: 'MENUITEMS.MENU.TEXT',
+       isTitle: true
+     },
+     {
+       id: 5,
+       label: 'MENUITEMS.DASHBOARD.TEXT',
+       icon: 'bx-home-circle',
+       link: '/dashboards/default'
+     },
+     {
+       id: 20,
+       label: 'MENUITEMS.CONGES_SECTION.TEXT',
+       isTitle: true
+     },
+     {
+       id: 21,
+       label: 'MENUITEMS.CONGES_GROUP.TEXT',
+       icon: 'bx-calendar-event',
+       subItems: [
+         {
+           id: 211,
+           label: 'MENUITEMS.NOUVELLE_DEMANDE_CONGE.TEXT',
+           icon: 'bx-plus-circle',
+           link: '/conges/demande',
+           parentId: 21
+         },
+         {
+           id: 212,
+           label: 'MENUITEMS.MES_CONGES.TEXT',
+           icon: 'bx-list-ul',
+           link: '/conges/list',
+           parentId: 21
+         }
+       ]
+     }
+   ];
+   
+   console.log('✅ Menu de secours activé');
+ }
+
+ /**
+  * Méthode de diagnostic pour identifier les problèmes de rôles
+  */
+ public diagnoseRoleIssues(): void {
+   const user = this.token.getUser();
+   console.log('🔍 === DIAGNOSTIC DES RÔLES ===');
+   console.log('Utilisateur complet:', user);
+   console.log('Rôles detectés:', user?.roles);
+   console.log('Type des rôles:', typeof user?.roles);
+   console.log('Est un tableau?:', Array.isArray(user?.roles));
+   
+   if (Array.isArray(user?.roles) && user.roles.length > 0) {
+     console.log('Premier rôle:', user.roles[0]);
+     console.log('Type du premier rôle:', typeof user.roles[0]);
+     console.log('Structure du premier rôle:', user.roles[0]);
+   }
+   
+   console.log('Role portail:', user?.role_portail);
+   console.log('Nombre d\'éléments de menu:', this.menuItems.length);
+   console.log('=== FIN DIAGNOSTIC ===');
  }
 
   /**

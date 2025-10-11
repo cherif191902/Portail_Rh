@@ -28,19 +28,30 @@ public saveUser(user: any): void {
 public getUser(): any {
   const user = window.sessionStorage.getItem(USER_KEY);
   if (user) {
-    const userData = JSON.parse(user);
+    try {
+      const userData = JSON.parse(user);
+      console.log('🔍 Données utilisateur brutes:', userData);
 
-    // Mapper les rôles selon différents formats possibles
-    const mappedRoles = this.mapRoles(userData.roles);
+      // Mapper les rôles selon différents formats possibles
+      const mappedRoles = this.mapRoles(userData.roles);
+      console.log('🎭 Rôles mappés:', mappedRoles);
 
-    // Adapter les données pour la compatibilité avec l'ancien système
-    return {
-      ...userData,
-      matriculeP: userData.matricule || userData.email, // Utiliser matricule du backend, fallback sur email
-      role_portail: mappedRoles.length > 0 ? mappedRoles[0] : 'ROLE_USER',
-      roles: mappedRoles // Rôles mappés en format string
-    };
+      // Adapter les données pour la compatibilité avec l'ancien système
+      const adaptedUser = {
+        ...userData,
+        matriculeP: userData.matricule || userData.matriculeP || userData.email, 
+        role_portail: mappedRoles.length > 0 ? mappedRoles[0] : 'ROLE_USER',
+        roles: mappedRoles // Rôles mappés en format string
+      };
+
+      console.log('👤 Utilisateur adapté:', adaptedUser);
+      return adaptedUser;
+    } catch (error) {
+      console.error('❌ Erreur parsing user data:', error);
+      return { roles: ['ROLE_USER'], role_portail: 'ROLE_USER' };
+    }
   }
+  console.warn('⚠️ Aucune donnée utilisateur en session');
   return {};
 }
 
@@ -48,30 +59,43 @@ public getUser(): any {
  * Mapper les rôles selon différents formats possibles
  */
 private mapRoles(rawRoles: any): string[] {
-  if (!rawRoles) return [];
+  console.log('🔄 Mapping des rôles:', rawRoles);
+  
+  if (!rawRoles) {
+    console.log('⚠️ Pas de rôles fournis, retour ROLE_USER par défaut');
+    return ['ROLE_USER'];
+  }
 
   // Si c'est déjà un tableau de strings
-  if (Array.isArray(rawRoles) && typeof rawRoles[0] === 'string') {
+  if (Array.isArray(rawRoles) && rawRoles.length > 0 && typeof rawRoles[0] === 'string') {
+    console.log('✅ Rôles déjà en format string[]');
     return rawRoles;
   }
 
-  // Si c'est un tableau d'objets avec propriété 'authority', 'name', ou 'role'
-  if (Array.isArray(rawRoles) && typeof rawRoles[0] === 'object') {
+  // Si c'est un tableau d'objets avec différentes propriétés possibles
+  if (Array.isArray(rawRoles) && rawRoles.length > 0 && typeof rawRoles[0] === 'object') {
+    console.log('🔧 Conversion des objets rôles');
     return rawRoles.map(role => {
+      // Priorité aux propriétés les plus courantes
+      if (role.nomRole) return role.nomRole;
       if (role.authority) return role.authority;
       if (role.name) return role.name;
       if (role.role) return role.role;
-      // Mapping par ID si nécessaire (basé sur votre système)
-      return this.mapRoleIdToName(role.id);
+      // Mapping par ID si nécessaire
+      if (role.id) return this.mapRoleIdToName(role.id);
+      return null;
     }).filter(Boolean);
   }
 
   // Si c'est un string unique
   if (typeof rawRoles === 'string') {
+    console.log('📝 Rôle unique en string');
     return [rawRoles];
   }
 
-  return [];
+  // Tableau vide ou autre format non reconnu
+  console.log('⚠️ Format de rôles non reconnu, retour ROLE_USER par défaut');
+  return ['ROLE_USER'];
 }
 
 /**
@@ -79,13 +103,17 @@ private mapRoles(rawRoles: any): string[] {
  */
 private mapRoleIdToName(roleId: number): string {
   const roleMapping = {
-    1: 'ROLE_CHEF',
-    2: 'ROLE_ADMIN',
-    3: 'ROLE_USER',
-    4: 'ROLE_RH'
+    1: 'ROLE_CHEF_SERVICE', // Chef de service (ancien système)
+    2: 'ROLE_ADMIN',        // Administrateur
+    3: 'ROLE_USER',         // Utilisateur standard/Employé
+    4: 'ROLE_RH',           // Ressources Humaines
+    5: 'ROLE_CHEF_A',       // Chef niveau A
+    6: 'ROLE_CHEF_B'        // Chef niveau B
   };
 
-  return roleMapping[roleId] || 'ROLE_USER';
+  const mappedRole = roleMapping[roleId] || 'ROLE_USER';
+  console.log(`🏷️ Mapping ID ${roleId} -> ${mappedRole}`);
+  return mappedRole;
 }
 // tokenservice.service.ts
 public getNiveauFromToken(): number | null {

@@ -93,7 +93,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let c of pendingConges; trackBy: trackById">
+                <tr *ngFor="let c of pendingConges">
                   <td>
                     <div class="d-flex align-items-center gap-2">
                       <div class="avatar avatar-xs bg-light">{{ initials(c.personnel) }}</div>
@@ -126,7 +126,7 @@
         </div>
         <div class="card-body p-0">
           <div *ngIf="recentDecisions?.length; else emptyHist" class="list-group list-group-flush">
-            <div class="list-group-item" *ngFor="let d of recentDecisions; trackBy: trackById">
+            <div class="list-group-item" *ngFor="let d of recentDecisions">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
                   <div class="fw-semibold">{{ d.personnel?.prenom }} {{ d.personnel?.nom }}</div>
@@ -141,86 +141,6 @@
             <div class="p-4 text-center text-muted">Pas de décision récemment.</div>
           </ng-template>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card shadow-sm mt-4">
-    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-      <div>
-        <h5 class="mb-0">Gestion des services</h5>
-        <small class="text-muted">Suivi des chefs et collaborateurs affectés</small>
-      </div>
-      <button class="btn btn-outline-secondary btn-sm" (click)="refreshOverview()" [disabled]="loadingOverview">Rafraîchir</button>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-lg table-hover mb-0 align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>Service</th>
-              <th>Chef en place</th>
-              <th>Affecter un chef</th>
-              <th>Affecter un collaborateur</th>
-              <th>Collaborateurs</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let s of services; trackBy: trackById">
-              <td>
-                <div class="fw-semibold">{{ s.nomService }}</div>
-                <small class="text-muted">{{ s.libService || '—' }}</small>
-              </td>
-              <td>
-                <div *ngIf="s.chef; else noChef" class="d-flex align-items-center gap-2">
-                  <div class="avatar avatar-xs bg-primary text-white">{{ initials(s.chef) }}</div>
-                  <div>
-                    <div class="fw-semibold">{{ s.chef?.prenom }} {{ s.chef?.nom }}</div>
-                    <small class="text-muted">{{ s.chef?.matriculeP }}</small>
-                  </div>
-                </div>
-                <ng-template #noChef><span class="badge bg-warning-subtle text-warning">À affecter</span></ng-template>
-              </td>
-              <td class="w-25">
-                <div class="input-group input-group-sm">
-                  <select class="form-select" [(ngModel)]="selectedChefByService[s.idService]">
-                    <option [ngValue]="null">Sélectionner un chef</option>
-                    <option *ngFor="let c of allChefs" [ngValue]="c.id">{{ c.prenom }} {{ c.nom }} ({{ c.matriculeP }})</option>
-                  </select>
-                  <button class="btn btn-primary" (click)="assignChef(s.idService, selectedChefByService[s.idService])"
-                          [disabled]="!selectedChefByService[s.idService] || loadingServices">
-                    Valider
-                  </button>
-                </div>
-              </td>
-              <td class="w-25">
-                <div class="input-group input-group-sm">
-                  <select class="form-select" [(ngModel)]="selectedEmployeeByService[s.idService]">
-                    <option [ngValue]="null">Ajouter un collaborateur</option>
-                    <option *ngFor="let e of allEmployees" [ngValue]="e.id">{{ e.prenom }} {{ e.nom }} ({{ e.matriculeP }})</option>
-                  </select>
-                  <button class="btn btn-outline-secondary" (click)="assignEmployee(s.idService, selectedEmployeeByService[s.idService])"
-                          [disabled]="!selectedEmployeeByService[s.idService] || loadingServices">
-                    Ajouter
-                  </button>
-                </div>
-              </td>
-              <td>
-                <div *ngIf="s.personnels?.length; else emptyPeople">
-                  <div class="members">
-                    <div class="member" *ngFor="let member of s.personnels">
-                      <div class="avatar avatar-xs bg-light">{{ initials(member) }}</div>
-                      <span>{{ member.prenom }} {{ member.nom }}</span>
-                    </div>
-                  </div>
-                </div>
-                <ng-template #emptyPeople>
-                  <span class="text-muted">Aucun collaborateur affecté</span>
-                </ng-template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>

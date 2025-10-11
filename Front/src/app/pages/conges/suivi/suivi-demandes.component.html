@@ -191,32 +191,87 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
+                                        <!-- Boutons de validation rapide (pour les responsables) -->
+                                        <div class="btn-group me-2" role="group" *ngIf="peutValider(demande)">
+                                            <button type="button" class="btn btn-sm btn-success" 
+                                                    (click)="ouvrirModalValidation(demande)"
+                                                    title="Valider cette demande">
+                                                <i class="bx bx-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    (click)="ouvrirModalRefus(demande)"
+                                                    title="Refuser cette demande">
+                                                <i class="bx bx-x"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Badge de statut pour les demandes non-validables -->
+                                        <span *ngIf="!peutValider(demande)" 
+                                              [class]="getStatutClass(demande.statut)"
+                                              class="me-2">
+                                            <i [class]="getStatutIcon(demande.statut)"></i>
+                                        </span>
+                                        
                                         <div class="dropdown">
                                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" 
                                                     data-bs-toggle="dropdown" aria-expanded="false">
                                                 Actions
                                             </button>
                                             <ul class="dropdown-menu">
+                                                <!-- Actions de validation (pour les responsables) -->
+                                                <li *ngIf="peutValider(demande)">
+                                                    <a class="dropdown-item text-success" href="javascript:void(0);" 
+                                                       (click)="ouvrirModalValidation(demande)">
+                                                        <i class="bx bx-check-circle me-1"></i>Valider
+                                                    </a>
+                                                </li>
+                                                <li *ngIf="peutValider(demande)">
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0);" 
+                                                       (click)="ouvrirModalRefus(demande)">
+                                                        <i class="bx bx-x-circle me-1"></i>Refuser
+                                                    </a>
+                                                </li>
+                                                <li *ngIf="peutValider(demande)">
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                
+                                                <!-- Actions générales -->
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0);" 
                                                        (click)="voirDetails(demande)">
                                                         <i class="bx bx-show me-1"></i>Voir détails
                                                     </a>
                                                 </li>
-                                                <li *ngIf="demande.statut === 'EN_ATTENTE'">
-                                                    <a class="dropdown-item text-danger" href="javascript:void(0);" 
+                                                
+                                                <!-- Action d'annulation (pour l'employé uniquement) -->
+                                                <li *ngIf="demande.statut.includes('EN_ATTENTE') && !peutValider(demande)">
+                                                    <a class="dropdown-item text-warning" href="javascript:void(0);" 
                                                        (click)="annulerDemande(demande)">
-                                                        <i class="bx bx-x me-1"></i>Annuler
+                                                        <i class="bx bx-x me-1"></i>Annuler ma demande
                                                     </a>
                                                 </li>
-                                                <li *ngIf="demande.statut === 'REFUSE' && demande.motifRefus">
-                                                    <hr class="dropdown-divider">
+                                                
+                                                <!-- Affichage du motif de refus -->
+                                                <ng-container *ngIf="demande.statut.includes('Refusé') && demande.motifRefus">
+                                                    <li><hr class="dropdown-divider"></li>
                                                     <li class="dropdown-item-text">
                                                         <small class="text-muted">
                                                             <strong>Motif du refus:</strong><br>
                                                             {{ demande.motifRefus }}
                                                         </small>
                                                     </li>
+                                                </ng-container>
+                                                
+                                                <!-- Affichage du commentaire si disponible -->
+                                                <ng-container *ngIf="demande.commentaire && demande.commentaire.trim()">
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li class="dropdown-item-text">
+                                                        <small class="text-muted">
+                                                            <strong>Commentaires:</strong><br>
+                                                            {{ demande.commentaire }}
+                                                        </small>
+                                                    </li>
+                                                </ng-container>
                                             </ul>
                                         </div>
                                     </td>

@@ -38,13 +38,18 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
   pageSize = 10;
   collectionSize = 0;
 
-  // Options de filtre
+  // Options de filtre (nouveau workflow)
   statutOptions = [
     { value: 'TOUS', label: 'Tous les statuts' },
-    { value: 'EN_ATTENTE', label: 'En attente' },
+    { value: 'EN_ATTENTE_CHEF_A', label: 'En attente Chef A' },
+    { value: 'EN_ATTENTE_CHEF_B', label: 'En attente Chef B' },
+    { value: 'EN_ATTENTE_RH', label: 'En attente RH' },
     { value: 'APPROUVE', label: 'Approuvé' },
-    { value: 'REFUSE', label: 'Refusé' },
-    { value: 'ANNULE', label: 'Annulé' }
+    { value: 'REFUSE_PAR_CHEF_A', label: 'Refusé par Chef A' },
+    { value: 'REFUSE_PAR_CHEF_B', label: 'Refusé par Chef B' },
+    { value: 'REFUSE_PAR_RH', label: 'Refusé par RH' },
+    { value: 'EN_ATTENTE', label: 'En attente (ancien)' },
+    { value: 'REFUSE', label: 'Refusé (ancien)' }
   ];
 
   typesConges = [
@@ -78,19 +83,19 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
   }
 
   chargerDemandes() {
-    console.log('🔄 Chargement des demandes de congé en cours...');
+    console.log('🔄 Chargement des demandes en attente de validation...');
     
-    // Utiliser la nouvelle méthode pour ne récupérer que les demandes en cours
-    this.congeApiService.getDemandesEnCours().subscribe({
+    // Charger les demandes en attente selon le rôle de l'utilisateur
+    this.congeApiService.getDemandesEnAttente().subscribe({
       next: (demandes) => {
-        console.log('✅ Demandes en cours chargées:', demandes.length);
-        console.log('📋 Détail des demandes en cours:', demandes);
+        console.log('✅ Demandes en attente chargées:', demandes.length);
+        console.log('📋 Détail des demandes en attente:', demandes);
         this.demandes = demandes;
         this.appliquerFiltres();
         
-        // Message si aucune demande en cours
+        // Message si aucune demande en attente
         if (demandes.length === 0) {
-          console.log('📭 Aucune demande de congé en cours');
+          console.log('📭 Aucune demande de congé en attente de validation');
         }
       },
       error: (error) => {
@@ -135,23 +140,13 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
   }
 
   getStatutClass(statut: string): string {
-    switch (statut) {
-      case 'APPROUVE': return 'badge bg-success';
-      case 'REFUSE': return 'badge bg-danger';
-      case 'EN_ATTENTE': return 'badge bg-warning';
-      case 'ANNULE': return 'badge bg-secondary';
-      default: return 'badge bg-secondary';
-    }
+    // Utiliser la méthode du service API pour uniformiser
+    return this.congeApiService.getStatutBadgeClass(statut);
   }
 
   getStatutIcon(statut: string): string {
-    switch (statut) {
-      case 'APPROUVE': return 'fas fa-check-circle';
-      case 'REFUSE': return 'fas fa-times-circle';
-      case 'EN_ATTENTE': return 'fas fa-clock';
-      case 'ANNULE': return 'fas fa-ban';
-      default: return 'fas fa-question-circle';
-    }
+    // Utiliser la méthode du service API pour uniformiser
+    return this.congeApiService.getStatutIcon(statut);
   }
 
   getStatutLabel(statut: string): string {
@@ -161,6 +156,132 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
       case 'EN_ATTENTE': return 'En attente';
       case 'ANNULE': return 'Annulé';
       default: return 'Inconnu';
+    }
+  }
+
+  // ========== NOUVELLES MÉTHODES DE VALIDATION ==========
+
+  /**
+   * Valide une demande de congé
+   */
+  validerDemande(demande: DemandeConge, commentaire?: string) {
+    if (!this.peutValider(demande)) {
+      alert('Vous n\'êtes pas autorisé à valider cette demande.');
+      return;
+    }
+
+    const confirmMessage = `Êtes-vous sûr de vouloir VALIDER cette demande de congé ?
+    Type: ${demande.typeConge}
+    Période: du ${demande.dateDebut} au ${demande.dateFin}`;
+    
+    if (confirm(confirmMessage)) {
+      const validationData = {
+        action: 'VALIDER' as const,
+        commentaire: commentaire || 'Validation approuvée'
+      };
+
+      console.log('✅ Validation de la demande ID:', demande.id);
+      
+      this.congeApiService.validerConge(demande.id!, validationData).subscribe({
+        next: (response) => {
+          console.log('✅ Demande validée avec succès:', response);
+          alert(`Demande validée avec succès ! Nouveau statut: ${response.statut}`);
+          // Recharger les données
+          this.chargerDemandes();
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la validation:', error);
+          alert(`Erreur lors de la validation: ${error.message || 'Une erreur est survenue'}`);
+        }
+      });
+    }
+  }
+
+  /**
+   * Refuse une demande de congé
+   */
+  refuserDemande(demande: DemandeConge, motifRefus?: string) {
+    if (!this.peutValider(demande)) {
+      alert('Vous n\'êtes pas autorisé à refuser cette demande.');
+      return;
+    }
+
+    const motif = motifRefus || prompt('Veuillez indiquer le motif du refus:');
+    if (!motif) {
+      alert('Un motif de refus est obligatoire.');
+      return;
+    }
+
+    const confirmMessage = `Êtes-vous sûr de vouloir REFUSER cette demande de congé ?
+    Type: ${demande.typeConge}
+    Période: du ${demande.dateDebut} au ${demande.dateFin}
+    Motif: ${motif}`;
+    
+    if (confirm(confirmMessage)) {
+      const validationData = {
+        action: 'REFUSER' as const,
+        commentaire: motif
+      };
+
+      console.log('❌ Refus de la demande ID:', demande.id);
+      
+      this.congeApiService.refuserConge(demande.id!, validationData).subscribe({
+        next: (response) => {
+          console.log('❌ Demande refusée avec succès:', response);
+          alert(`Demande refusée. Nouveau statut: ${response.statut}`);
+          // Recharger les données
+          this.chargerDemandes();
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors du refus:', error);
+          alert(`Erreur lors du refus: ${error.message || 'Une erreur est survenue'}`);
+        }
+      });
+    }
+  }
+
+  /**
+   * Détermine si l'utilisateur peut valider/refuser cette demande
+   */
+  peutValider(demande: DemandeConge): boolean {
+    // Convertir vers CongeResponse pour la méthode du service
+    const congeResponse = {
+      id: demande.id || 0,
+      typeConge: demande.typeConge,
+      dateDebut: demande.dateDebut,
+      dateFin: demande.dateFin,
+      duree: demande.duree,
+      statut: demande.statut,
+      dateDemande: demande.dateDemande,
+      commentaire: demande.commentaire,
+      motifRefus: demande.motifRefus
+    };
+    return this.congeApiService.peutValider(congeResponse);
+  }
+
+  /**
+   * Ouvre une modal pour saisir un commentaire lors de la validation
+   */
+  ouvrirModalValidation(demande: DemandeConge) {
+    // TODO: Implémenter une modal Bootstrap pour saisir le commentaire
+    // Pour l'instant, on utilise prompt()
+    const commentaire = prompt('Commentaire de validation (optionnel):');
+    if (commentaire !== null) { // L'utilisateur n'a pas annulé
+      this.validerDemande(demande, commentaire);
+    }
+  }
+
+  /**
+   * Ouvre une modal pour saisir le motif de refus
+   */
+  ouvrirModalRefus(demande: DemandeConge) {
+    // TODO: Implémenter une modal Bootstrap pour saisir le motif
+    // Pour l'instant, on utilise prompt()
+    const motif = prompt('Motif du refus (obligatoire):');
+    if (motif && motif.trim()) {
+      this.refuserDemande(demande, motif.trim());
+    } else if (motif !== null) {
+      alert('Le motif du refus est obligatoire.');
     }
   }
 

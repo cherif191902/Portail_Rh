@@ -42,8 +42,6 @@ export class RhDashboardComponent implements OnInit {
   today = new Date();
 
   services: any[] = [];
-  allChefs: any[] = [];
-  allEmployees: any[] = [];
   pendingConges: CongeVM[] = [];
   recentDecisions: CongeVM[] = [];
 
@@ -51,11 +49,7 @@ export class RhDashboardComponent implements OnInit {
   quickActions: QuickAction[] = [];
 
   loadingOverview = false;
-  loadingServices = false;
   errorMessage = '';
-
-  selectedChefByService: Record<number, number | null> = {};
-  selectedEmployeeByService: Record<number, number | null> = {};
 
   constructor(
     private token: TokenStorage, 
@@ -119,17 +113,12 @@ export class RhDashboardComponent implements OnInit {
     forkJoin({
       services: this.rh.getServices(),
       pending: this.rh.getPendingCongesRh(),
-      history: this.rh.getHistoriqueRh(),
-      chefs: this.rh.getChefs(),
-      employees: this.rh.getEmployees()
+      history: this.rh.getHistoriqueRh()
     }).subscribe({
-      next: ({ services, pending, history, chefs, employees }) => {
+      next: ({ services, pending, history }) => {
         this.services = Array.isArray(services) ? services : [];
         this.pendingConges = Array.isArray(pending) ? pending.slice(0, 5) : [];
         this.recentDecisions = Array.isArray(history) ? history.slice(0, 5) : [];
-
-        this.allChefs = this.resolveChefs(chefs);
-        this.allEmployees = this.resolveEmployees(employees);
 
         this.computeSummaryCards();
       },
@@ -138,43 +127,6 @@ export class RhDashboardComponent implements OnInit {
         this.errorMessage = "Impossible de charger les données du tableau de bord";
       },
       complete: () => this.loadingOverview = false
-    });
-  }
-
-  private resolveChefs(raw: any): any[] {
-    if (Array.isArray(raw) && raw.length) return raw;
-    const allPersonnels = new Set<any>();
-    this.services.forEach(s => {
-      if (s.personnels) {
-        s.personnels.forEach((p: any) => allPersonnels.add(p));
-      }
-    });
-    return Array.from(allPersonnels).filter((p: any) => this.hasRole(p, 'ROLE_CHEF_SERVICE'));
-  }
-
-  private resolveEmployees(raw: any): any[] {
-    if (Array.isArray(raw) && raw.length) return raw;
-    const employeesMap = new Map<number, any>();
-    this.services.forEach(s => {
-      if (Array.isArray(s.personnels)) {
-        s.personnels.forEach((p: any) => {
-          if (p?.id && !employeesMap.has(p.id)) {
-            employeesMap.set(p.id, p);
-          }
-        });
-      }
-    });
-    return Array.from(employeesMap.values());
-  }
-
-  private hasRole(personnel: any, role: string): boolean {
-    if (!personnel || !personnel.roles) return false;
-    return personnel.roles.some((r: any) => {
-      if (!r) return false;
-      if (typeof r === 'string') return r === role;
-      if (r.nomRole) return r.nomRole === role;
-      if (r.name) return r.name === role;
-      return false;
     });
   }
 
@@ -238,38 +190,6 @@ export class RhDashboardComponent implements OnInit {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }
 
-  assignChef(serviceId: number, personnelId: number | null) {
-    if (!personnelId) return;
-    this.loadingServices = true;
-    this.rh.assignChef(serviceId, personnelId).subscribe({
-      next: () => {
-        this.selectedChefByService[serviceId] = null;
-        this.refreshOverview();
-      },
-      error: err => {
-        console.error('Affectation chef échouée', err);
-        this.errorMessage = "Impossible d'affecter le chef";
-      },
-      complete: () => this.loadingServices = false
-    });
-  }
-
-  assignEmployee(serviceId: number, personnelId: number | null) {
-    if (!personnelId) return;
-    this.loadingServices = true;
-    this.rh.assignEmployee(serviceId, personnelId).subscribe({
-      next: () => {
-        this.selectedEmployeeByService[serviceId] = null;
-        this.refreshOverview();
-      },
-      error: err => {
-        console.error('Affectation employé échouée', err);
-        this.errorMessage = "Impossible d'affecter l'employé";
-      },
-      complete: () => this.loadingServices = false
-    });
-  }
-
   initials(person?: any): string {
     if (!person) return '';
     const name = `${person.prenom || ''} ${person.nom || ''}`.trim();
@@ -302,6 +222,4 @@ export class RhDashboardComponent implements OnInit {
         return 'En attente';
     }
   }
-
-  trackById(_: number, item: any) { return item?.id; }
 }

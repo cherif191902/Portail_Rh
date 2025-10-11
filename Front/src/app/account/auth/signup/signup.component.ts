@@ -36,14 +36,28 @@ export class SignupComponent implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
+    this.loadServices();
   }
 
   initializeForm() {
     this.signupForm = this.formBuilder.group({
       nom: ['', Validators.required],
       prenom: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      serviceId: ['', Validators.required]
     });
+  }
+
+  loadServices() {
+    this.authService.getServices().subscribe(
+      (services) => {
+        this.services = services;
+        console.log('Services chargés:', this.services);
+      },
+      (error) => {
+        console.error('Erreur lors du chargement des services:', error);
+      }
+    );
   }
 
 
@@ -57,6 +71,7 @@ export class SignupComponent implements OnInit {
   get nom() { return this.signupForm.get('nom'); }
   get prenom() { return this.signupForm.get('prenom'); }
   get email() { return this.signupForm.get('email'); }
+  get serviceId() { return this.signupForm.get('serviceId'); }
 
   /**
    * On submit form
@@ -72,13 +87,20 @@ export class SignupComponent implements OnInit {
     const payload = {
       nom: this.signupForm.value.nom,
       prenom: this.signupForm.value.prenom,
-      email: this.signupForm.value.email
+      email: this.signupForm.value.email,
+      serviceId: parseInt(this.signupForm.value.serviceId)
     };
 
     this.authService.register(payload).subscribe(
-      () => {
+      (response) => {
         this.successmsg = true;
         this.error = '';
+        
+        // Afficher le nom du service dans le message de succès
+        const serviceName = this.services.find(s => s.idService == payload.serviceId)?.nomService || 'le service sélectionné';
+        console.log('Inscription réussie ! Vous êtes rattaché au service:', serviceName);
+        console.log('Réponse complète:', response);
+        
         setTimeout(() => {
           this.router.navigate(['/account/login']);
         }, 2000);

@@ -16,7 +16,9 @@
 
       <form class="needs-validation" name="signupForm" [formGroup]="signupForm" (ngSubmit)="onSubmit()" novalidate>
 
-        <ngb-alert type="success" *ngIf="successmsg" [dismissible]="false">Inscription réussie.</ngb-alert>
+        <ngb-alert type="success" *ngIf="successmsg" [dismissible]="false">
+          Inscription réussie ! Vous êtes rattaché au service sélectionné.
+        </ngb-alert>
         <ngb-alert type="danger" *ngIf="error" [dismissible]="false">{{ error }}</ngb-alert>
 
         <div class="mb-3">
@@ -48,9 +50,22 @@
           </div>
         </div>
 
+        <div class="mb-3">
+          <select formControlName="serviceId" class="form-select"
+            [ngClass]="{ 'is-invalid': submitted && serviceId?.errors }">
+            <option value="">Choisissez votre service</option>
+            <option *ngFor="let service of services" [value]="service.idService">
+              {{ service.nomService }}
+            </option>
+          </select>
+          <div *ngIf="submitted && serviceId?.errors" class="invalid-feedback">
+            <div *ngIf="serviceId?.errors?.['required']">Le choix du service est requis</div>
+          </div>
+        </div>
+
         <div class="alert alert-info mb-3">
           <i class="mdi mdi-information-outline"></i>
-          <strong>Information :</strong> Votre matricule et mot de passe seront générés automatiquement et envoyés à votre adresse email.
+          <strong>Information :</strong> Votre matricule et mot de passe seront générés automatiquement et envoyés à votre adresse email. Vous serez automatiquement rattaché aux responsables hiérarchiques du service choisi.
         </div>
 
        

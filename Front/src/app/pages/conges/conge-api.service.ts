@@ -11,9 +11,15 @@ export interface CongeRequest {
   dateFin: string;   // Format ISO date
   duree?: number;
   commentaire?: string;
-  statut?: 'EN_ATTENTE' | 'APPROUVE' | 'REFUSE' | 'ANNULE';
+  statut?: 'EN_ATTENTE_CHEF_A' | 'EN_ATTENTE_CHEF_B' | 'EN_ATTENTE_RH' | 'APPROUVE' | 
+           'REFUSE_PAR_CHEF_A' | 'REFUSE_PAR_CHEF_B' | 'REFUSE_PAR_RH' | 'EN_ATTENTE' | 'REFUSE' | 'ANNULE';
   dateDemande?: string;
   motifRefus?: string;
+}
+
+export interface ValidationCongeRequest {
+  action: 'VALIDER' | 'REFUSER';
+  commentaire?: string;
 }
 
 export interface CongeResponse {
@@ -75,6 +81,24 @@ export class CongeApiService {
     // Récupérer depuis localStorage ou décoder le JWT token
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
     return user.matricule || user.username || 'CHEBEN001'; // fallback pour les tests
+  }
+
+  /**
+   * Gère les erreurs HTTP
+   */
+  private handleError = (error: any): Observable<never> => {
+    console.error('Erreur API Congé:', error);
+    let errorMessage = 'Une erreur est survenue';
+    
+    if (error.error && error.error.message) {
+      errorMessage = error.error.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    } else if (typeof error.error === 'string') {
+      errorMessage = error.error;
+    }
+    
+    return throwError(() => new Error(errorMessage));
   }
 
   /**
@@ -199,9 +223,10 @@ export class CongeApiService {
   }
 
   /**
-   * Récupère l'historique des congés (APPROUVE terminé, REFUSE, ANNULE)
+   * Récupère l'historique des congés localement (APPROUVE terminé, REFUSE, ANNULE)
+   * Note: Cette méthode sera remplacée par getHistoriqueConges() qui appelle le backend
    */
-  getHistoriqueConges(): Observable<CongeResponse[]> {
+  getHistoriqueCongesLocal(): Observable<CongeResponse[]> {
     return this.getMesDemandesConges().pipe(
       map((demandes: CongeResponse[]) => 
         demandes.filter(demande => 
@@ -260,5 +285,168 @@ export class CongeApiService {
       `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/solde/${matricule}`,
       this.httpOptions
     );
+  }
+
+  // ========== NOUVELLES MÉTHODES POUR LE WORKFLOW DE VALIDATION ==========
+
+  /**
+   * Valide une demande de congé selon le rôle de l'utilisateur connecté
+   */
+  validerConge(congeId: number, validationData: ValidationCongeRequest): Observable<CongeResponse> {
+    return this.http.post<CongeResponse>(
+      `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/${congeId}/valider`,
+      validationData,
+      this.httpOptions
+    ).pipe(
+      map(response => {
+        console.log('✅ Congé validé avec succès:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Refuse une demande de congé selon le rôle de l'utilisateur connecté
+   */
+  refuserConge(congeId: number, validationData: ValidationCongeRequest): Observable<CongeResponse> {
+    return this.http.post<CongeResponse>(
+      `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/${congeId}/refuser`,
+      validationData,
+      this.httpOptions
+    ).pipe(
+      map(response => {
+        console.log('❌ Congé refusé avec succès:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère les demandes en attente de validation selon le rôle de l'utilisateur connecté
+   */
+  getDemandesEnAttente(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/en-attente`,
+      this.httpOptions
+    ).pipe(
+      map(response => {
+        console.log('📋 Demandes en attente récupérées:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère l'historique des demandes terminées (approuvées ou refusées)
+   */
+  getHistoriqueConges(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/historique`,
+      this.httpOptions
+    ).pipe(
+      map(response => {
+        console.log('📚 Historique des congés récupéré:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère spécifiquement les demandes en attente de validation RH
+   * Endpoint spécifique : /conge/rh/pending
+   */
+  getDemandesEnAttenteRh(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/rh/pending`,
+      this.httpOptions
+    ).pipe(
+      map(response => {
+        console.log('🏢 Demandes RH en attente récupérées:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Détermine si l'utilisateur peut valider une demande selon son rôle et le statut de la demande
+   */
+  peutValider(conge: CongeResponse): boolean {
+    const userRoles = this.getCurrentUserRoles();
+    
+    switch (conge.statut) {
+      case 'En attente de validation Chef A':
+        return userRoles.includes('ROLE_CHEF_A') || userRoles.includes('ROLE_CHEF_SERVICE') || userRoles.includes('ROLE_ADMIN');
+      case 'En attente de validation Chef B':
+        return userRoles.includes('ROLE_CHEF_B') || userRoles.includes('ROLE_CHEF_SERVICE') || userRoles.includes('ROLE_ADMIN');
+      case 'En attente de validation RH':
+        return userRoles.includes('ROLE_RH') || userRoles.includes('ROLE_ADMIN');
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Récupère les rôles de l'utilisateur connecté
+   */
+  private getCurrentUserRoles(): string[] {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.roles || [];
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des rôles:', error);
+    }
+    return [];
+  }
+
+  /**
+   * Détermine la couleur du badge selon le statut
+   */
+  getStatutBadgeClass(statut: string): string {
+    switch (statut) {
+      case 'Approuvé':
+        return 'badge bg-success';
+      case 'En attente de validation Chef A':
+      case 'En attente de validation Chef B':
+      case 'En attente de validation RH':
+      case 'EN_ATTENTE':
+        return 'badge bg-warning';
+      case 'Refusé par Chef A':
+      case 'Refusé par Chef B':
+      case 'Refusé par RH':
+      case 'REFUSE':
+        return 'badge bg-danger';
+      default:
+        return 'badge bg-secondary';
+    }
+  }
+
+  /**
+   * Détermine l'icône selon le statut
+   */
+  getStatutIcon(statut: string): string {
+    switch (statut) {
+      case 'Approuvé':
+        return 'mdi mdi-check-circle';
+      case 'En attente de validation Chef A':
+      case 'En attente de validation Chef B':
+      case 'En attente de validation RH':
+      case 'EN_ATTENTE':
+        return 'mdi mdi-clock-outline';
+      case 'Refusé par Chef A':
+      case 'Refusé par Chef B':
+      case 'Refusé par RH':
+      case 'REFUSE':
+        return 'mdi mdi-close-circle';
+      default:
+        return 'mdi mdi-help-circle';
+    }
   }
 }

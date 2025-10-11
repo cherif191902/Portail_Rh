@@ -69,6 +69,27 @@
     "MENU": {
       "TEXT": "Menu"
     },
+    "DASHBOARD": {
+      "TEXT": "Tableau de bord"
+    },
+    "CONGES_SECTION": {
+      "TEXT": "Congés"
+    },
+    "CONGES_GROUP": {
+      "TEXT": "Mes congés"
+    },
+    "NOUVELLE_DEMANDE_CONGE": {
+      "TEXT": "Nouvelle demande"
+    },
+    "MES_CONGES": {
+      "TEXT": "Mes demandes"
+    },
+    "SUIVI_CONGES": {
+      "TEXT": "Suivi"
+    },
+    "CHEF_SECTION": {
+      "TEXT": "Chef de service"
+    },
     "INTERFACE": {
       "TEXT": "Interface"
     },

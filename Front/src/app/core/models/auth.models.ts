@@ -18,6 +18,7 @@ export interface SignupRequest {
   email: string;
   nom: string;
   prenom: string;
+  serviceId: number;
 }
 
 // Modèles pour les réponses d'authentification

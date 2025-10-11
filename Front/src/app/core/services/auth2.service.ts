@@ -27,12 +27,12 @@ export class Auth2Service {
     );
   }
 
-  register(body: SignupRequest): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.AUTH_API}signup`, body, httpOptions);
+  register(body: SignupRequest): Observable<any> {
+    return this.http.post<any>(`${this.AUTH_API}signup`, body, httpOptions);
   }
 
   getServices(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.AUTH_API}getService`);
+    return this.http.get<any[]>(`${this.AUTH_API}services`);
   }
 
   getChefsByService(serviceId: number): Observable<any[]> {
