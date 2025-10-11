@@ -48,6 +48,30 @@ public class AuthController {
 
     @Autowired
     private tn.esprit.examen.nomPrenomClasseExamen.services.CredentialGeneratorService credentialGenerator;
+    
+    @Autowired
+    private tn.esprit.examen.nomPrenomClasseExamen.repositories.ServiceRepository serviceRepository;
+
+    @GetMapping("/services")
+    public ResponseEntity<?> getAllServicesPublic() {
+        try {
+            List<tn.esprit.examen.nomPrenomClasseExamen.entities.Service> services = serviceRepository.findAll();
+            List<java.util.Map<String, Object>> serviceList = new java.util.ArrayList<>();
+            
+            for (tn.esprit.examen.nomPrenomClasseExamen.entities.Service service : services) {
+                java.util.Map<String, Object> serviceMap = new java.util.HashMap<>();
+                serviceMap.put("idService", service.getIdService());
+                serviceMap.put("nomService", service.getNomService());
+                serviceMap.put("libService", service.getLibService());
+                serviceList.add(serviceMap);
+            }
+            
+            return ResponseEntity.ok(serviceList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: " + e.getMessage()));
+        }
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -87,6 +111,10 @@ public class AuthController {
         }
 
         try {
+            // Vérifier que le service existe
+            tn.esprit.examen.nomPrenomClasseExamen.entities.Service service = serviceRepository.findById(signUpRequest.getServiceId())
+                    .orElseThrow(() -> new RuntimeException("Error: Service not found!"));
+
             // Générer automatiquement le matricule et le mot de passe
             String matricule = credentialGenerator.generateMatricule(
                 signUpRequest.getNom(),
@@ -102,7 +130,11 @@ public class AuthController {
                     signUpRequest.getNom(),
                     signUpRequest.getPrenom());
 
-
+            // Assigner le service et la hiérarchie automatiquement
+            personnel.setService(service);
+            personnel.setChefA(service.getChefA());
+            personnel.setChefB(service.getChefB());
+            personnel.setRhResponsable(service.getRhResponsable());
 
             // Assigner le rôle USER par défaut
             Role userRole = roleRepository.findByNomRole(ERole.ROLE_USER)
@@ -122,19 +154,31 @@ public class AuthController {
                     password
                 );
 
-                return ResponseEntity.ok(new MessageResponse(
-                    "User registered successfully! Credentials sent to " + signUpRequest.getEmail()
-                ));
+                // Créer la réponse avec les informations du service
+                java.util.Map<String, Object> response = new java.util.HashMap<>();
+                response.put("message", "User registered successfully! Credentials sent to " + signUpRequest.getEmail());
+                response.put("serviceId", service.getIdService());
+                response.put("nomService", service.getNomService());
+                response.put("chefAId", service.getChefA() != null ? service.getChefA().getId() : null);
+                response.put("chefBId", service.getChefB() != null ? service.getChefB().getId() : null);
+                response.put("rhId", service.getRhResponsable() != null ? service.getRhResponsable().getId() : null);
+                
+                return ResponseEntity.ok(response);
 
             } catch (Exception emailError) {
                 // Si l'email échoue, on retourne quand même un succès avec les identifiants
                 System.err.println("⚠️ Email non envoyé, mais utilisateur créé : " + emailError.getMessage());
 
-                return ResponseEntity.ok(new MessageResponse(
-                    "User registered successfully! " +
-                    "Email service unavailable. " +
-                    "Credentials: Matricule=" + matricule + ", Password=" + password
-                ));
+                // Créer la réponse avec les informations du service (même si email échoue)
+                java.util.Map<String, Object> response = new java.util.HashMap<>();
+                response.put("message", "User registered successfully! Email service unavailable. Credentials: Matricule=" + matricule + ", Password=" + password);
+                response.put("serviceId", service.getIdService());
+                response.put("nomService", service.getNomService());
+                response.put("chefAId", service.getChefA() != null ? service.getChefA().getId() : null);
+                response.put("chefBId", service.getChefB() != null ? service.getChefB().getId() : null);
+                response.put("rhId", service.getRhResponsable() != null ? service.getRhResponsable().getId() : null);
+                
+                return ResponseEntity.ok(response);
             }
 
         } catch (Exception e) {

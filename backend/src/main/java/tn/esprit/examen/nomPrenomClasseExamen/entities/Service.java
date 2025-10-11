@@ -31,6 +31,22 @@ public class Service {
     @JoinColumn(name = "chef_id")
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
     private Personnel chef;
+
+    // Nouveaux champs pour la hiérarchie
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_a_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
+    private Personnel chefA;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_b_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
+    private Personnel chefB;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rh_responsable_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
+    private Personnel rhResponsable;
     
     // Constructeurs
     public Service() {}

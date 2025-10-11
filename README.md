@@ -1,182 +1,129 @@
 # 🏢 Portail RH - Système de Gestion des Ressources Humaines
 
-## 📋 **Description**
-Portail RH complet avec authentification par matricule, gestion des congés, pointage, notifications et messagerie.
+Application complète de gestion RH avec workflow de validation de congés multi-niveaux.
 
-## 🏗️ **Architecture**
-- **Backend :** Spring Boot + JPA/Hibernate + MySQL
-- **Frontend :** Angular + Bootstrap
-- **Authentification :** JWT avec matricule
-- **Base de données :** MySQL
+## 🚀 Fonctionnalités Principales
 
-## ✅ **Fonctionnalités Implémentées**
+### 👥 Gestion des Utilisateurs
+- Inscription automatique avec affectation hiérarchique
+- Authentification JWT par matricule
+- Gestion des rôles : Employé, Chef A, Chef B, RH, Admin
 
-### 🔐 **Authentification**
-- Connexion par matricule et mot de passe
-- JWT avec durée de 24h
-- Système de rôles (USER, CHEF_SERVICE, RH, ADMIN)
-- Guards d'authentification Angular
+### 📅 Gestion des Congés
+- **Workflow de validation à 4 niveaux** :
+  - Employé → Demande de congé
+  - Chef A → Première validation
+  - Chef B → Seconde validation  
+  - RH → Validation finale
+- Suivi en temps réel des demandes
+- Historique complet des validations
 
-### 👥 **Gestion du Personnel**
-- Entité Personnel complète avec relations
-- Hiérarchie (responsable/subordonnés)
-- Services et départements
-- Système de rôles multiple
+### 🏗️ Affectations Hiérarchiques
+- Affectation automatique des responsables lors de l'inscription
+- Gestion des chefs par service
+- Interface d'administration pour les affectations
 
-### 🏖️ **Gestion des Congés**
-- Types de congés avec limites
-- Workflow d'approbation 3 niveaux
-- Historique et statistiques
-- Dashboard avec graphiques
+### 📊 Tableaux de Bord
+- Dashboard employé : Suivi des congés personnels
+- Dashboard chef : Validation des demandes d'équipe
+- Dashboard RH : Vue globale des congés
 
-### ⏰ **Système de Pointage**
-- Pointage entrée/sortie/pause
+### ⏰ Pointage et Présence
+- Système de pointage entrée/sortie
 - Calcul automatique des heures
 - Statistiques de présence
-- Gestion des retards
 
-### 🔔 **Notifications**
-- Système de notifications en temps réel
-- Types : CONGE, POINTAGE, SYSTEME, CHAT
-- Priorités multiples
-- Marquer comme lu/non lu
-
-### 💬 **Messagerie**
+### 💬 Communication
+- Messagerie interne
+- Notifications en temps réel
 - Chat entre utilisateurs
-- Messages texte, images, fichiers
-- Historique des conversations
-- Compteur de messages non lus
 
-## 🗄️ **Base de Données**
+## 🛠️ Technologies
 
-### **Entités Principales**
-- `Personnel` - Utilisateurs du système
-- `Service` - Services/départements
-- `Role` - Rôles système
-- `Conge` - Demandes de congés
-- `TypeConge` - Types de congés
-- `Pointage` - Enregistrements de pointage
-- `Notification` - Notifications système
-- `ChatMessage` - Messages de chat
+| Composant | Technologie |
+|-----------|-------------|
+| Frontend | Angular 13+ |
+| Backend | Spring Boot |
+| Base de données | MySQL |
+| Authentification | JWT |
+| UI Framework | Bootstrap |
 
-### **Relations**
-- Personnel ↔ Service (ManyToOne)
-- Personnel ↔ Role (ManyToMany)
-- Personnel ↔ Personnel (hiérarchie)
-- Personnel ↔ Conge/Pointage/Notification (OneToMany)
+## ⚡ Installation Rapide
 
-## 🚀 **Installation et Démarrage**
-
-### **Backend (Spring Boot)**
+### 1. Backend
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
-Le backend démarre sur `http://localhost:8089`
 
-### **Frontend (Angular)**
+### 2. Frontend
 ```bash
 cd Front
 npm install
-ng serve
-```
-Le frontend démarre sur `http://localhost:4200`
-
-### **Base de Données**
-- MySQL sur port 3306
-- Base : `portail_rh`
-- Utilisateur : `root`
-- Mot de passe : (vide)
-
-## 👤 **Utilisateur de Test**
-- **Matricule :** `TEST001`
-- **Mot de passe :** `password123`
-- **Rôle :** `ROLE_USER`
-
-## 📁 **Structure du Projet**
-
-### **Backend**
-```
-backend/src/main/java/tn/esprit/examen/nomPrenomClasseExamen/
-├── entities/          # Entités JPA
-├── repositories/      # Repositories Spring Data
-├── controllers/       # Controllers REST
-├── security/          # Configuration sécurité JWT
-├── config/           # Configuration Spring
-└── services/         # Services métier (à développer)
+npm start
 ```
 
-### **Frontend**
+### 3. Accès
+- **Frontend** : http://localhost:4200
+- **Backend API** : http://localhost:8089
+
+## 👤 Comptes de Test
+
+| Rôle | Matricule | Mot de passe |
+|------|-----------|--------------|
+| Employé | EMP001 | password |
+| Chef Service | CHEF001 | password |
+| RH | RH001 | password |
+| Admin | ADMIN001 | password |
+
+## 📋 Workflow de Congés
+
 ```
-Front/src/app/
-├── core/
-│   ├── models/       # Modèles TypeScript
-│   ├── services/     # Services Angular
-│   ├── guards/       # Guards d'authentification
-│   └── helpers/      # Intercepteurs HTTP
-├── pages/
-│   ├── dashboards/   # Dashboard principal
-│   ├── auth/         # Pages d'authentification
-│   └── layouts/      # Layouts et composants
-└── shared/           # Composants partagés
+Employé → Chef A → Chef B → RH → ✅ Approuvé
+   ↓         ↓         ↓       ↓
+   ❌ Refus possible à chaque niveau
 ```
 
-## 🔧 **Configuration**
+## 🔧 Configuration
 
-### **JWT**
-- Secret : `mySecretKey`
-- Durée : 24 heures
-- Header : `Authorization: Bearer <token>`
+### Base de Données
+1. Créer une base MySQL `portail_rh`
+2. Configurer les identifiants dans `application.properties`
+3. Les tables sont créées automatiquement
 
-### **CORS**
-- Origine autorisée : `http://localhost:4200`
-- Méthodes : GET, POST, PUT, DELETE
-- Headers : Authorization, Content-Type
+### Variables d'Environnement
+```properties
+# Base de données
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=portail_rh
+DB_USER=root
+DB_PASSWORD=
 
-## 📊 **APIs Disponibles**
+# JWT
+JWT_SECRET=monSecretJWT
+JWT_EXPIRATION=86400
+```
 
-### **Authentification**
-- `POST /api/auth/signin` - Connexion
-- `POST /api/auth/signup` - Inscription
+## 📱 Utilisation
 
-### **Congés**
-- `GET /conge/getTotalCongeThisYear/{matricule}/{year}`
-- `GET /conge/getCng/{matricule}`
-- `GET /conge/getNbrCngMois`
-- `GET /conge/getAllCng`
+1. **Inscription** : Choisir son service, affectation automatique
+2. **Connexion** : Utiliser matricule + mot de passe
+3. **Demande de congé** : Saisir dates et motif
+4. **Validation** : Chefs et RH valident selon leur niveau
+5. **Suivi** : Consulter l'état des demandes en temps réel
 
-### **Pointage**
-- `GET /api/pointage/me`
-- `POST /api/pointage/pointer`
-- `GET /api/pointage/historique`
+## 📁 Structure du Projet
 
-### **Test**
-- `GET /api/test/public` - Endpoint public
-- `GET /api/test/user` - Endpoint authentifié
+```
+Portail_Rh/
+├── backend/           # Spring Boot API
+├── Front/            # Angular Frontend
+├── README.md         # Ce fichier
+└── migration-*.sql   # Scripts de migration DB
+```
 
-## 🎯 **Prochaines Étapes**
+---
 
-1. **Services Métier** - Implémenter la logique business
-2. **Tests Unitaires** - Ajouter les tests backend/frontend
-3. **WebSockets** - Réactiver pour notifications temps réel
-4. **Rapports** - Génération de rapports PDF/Excel
-5. **Mobile** - Application mobile avec Ionic
-
-## 📝 **Notes Techniques**
-
-- Authentification par matricule (pas email)
-- JWT stocké dans sessionStorage
-- Intercepteur HTTP automatique pour l'authentification
-- Lazy loading des relations JPA
-- Pagination et filtres sur les listes
-- Validation côté client et serveur
-
-## 🧹 **Code Quality**
-- ✅ Code nettoyé et optimisé
-- ✅ Commentaires inutiles supprimés
-- ✅ Logs de debug retirés
-- ✅ Structure organisée et maintenable
-- ✅ Bonnes pratiques respectées
-
-## 🏆 **Statut**
-✅ **Projet Fonctionnel et Propre** - Dashboard utilisateur opérationnel avec code optimisé.
+**Version** : 1.0.0  
+**Développé avec** : Spring Boot + Angular

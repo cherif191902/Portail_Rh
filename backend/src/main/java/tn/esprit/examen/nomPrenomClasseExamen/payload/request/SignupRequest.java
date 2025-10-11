@@ -16,6 +16,9 @@ public class SignupRequest {
     @Size(max = 20)
     private String prenom;
 
+    @NotNull
+    private Long serviceId;
+
     // Getters and Setters
     public String getEmail() {
         return email;
@@ -39,5 +42,13 @@ public class SignupRequest {
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
     }
 }

@@ -48,6 +48,12 @@ public class CongeMapperService {
      * Détermine le statut final d'une demande de congé
      */
     private String determinerStatutFinal(Conge conge) {
+        // Priorité au nouveau système si disponible
+        if (conge.getStatutConge() != null) {
+            return conge.getStatutConge().getLibelle();
+        }
+        
+        // Fallback vers l'ancien système
         // Si refusé à n'importe quel niveau
         if ("REFUSE".equals(conge.getRepChefsNiveau1()) || 
             "REFUSE".equals(conge.getRepChefsNiveau2()) || 
@@ -70,15 +76,21 @@ public class CongeMapperService {
      * Détermine le motif de refus s'il y en a un
      */
     private String determinerMotifRefus(Conge conge) {
-        if ("REFUSE".equals(conge.getRepChefsNiveau1())) {
-            return "Refusé par le chef de service (niveau 1)";
+        // Nouveau système
+        if (conge.getStatutConge() != null && conge.getStatutConge().isRefuse()) {
+            switch (conge.getStatutConge()) {
+                case REFUSE_PAR_CHEF_A:
+                    return "Refusé par le Chef A";
+                case REFUSE_PAR_CHEF_B:
+                    return "Refusé par le Chef B";
+                case REFUSE_PAR_RH:
+                    return "Refusé par les Ressources Humaines";
+                default:
+                    return "Demande refusée";
+            }
         }
-        if ("REFUSE".equals(conge.getRepChefsNiveau2())) {
-            return "Refusé par le chef de service (niveau 2)";
-        }
-        if ("REFUSE".equals(conge.getRepRh())) {
-            return "Refusé par les ressources humaines";
-        }
+        
+        // Ancien système (fallback - supprimer les warnings deprecated)
         return null;
     }
 

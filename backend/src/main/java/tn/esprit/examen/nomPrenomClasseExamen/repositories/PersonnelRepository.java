@@ -31,4 +31,8 @@ public interface PersonnelRepository extends JpaRepository<Personnel, Integer> {
     // Find all personnels by service id
     @Query("SELECT p FROM Personnel p WHERE p.service.idService = :serviceId")
     java.util.List<tn.esprit.examen.nomPrenomClasseExamen.entities.Personnel> findByServiceId(@Param("serviceId") Long serviceId);
+
+    // Find personnels with any of the given roles (pour les chefs)
+    @Query("SELECT DISTINCT p FROM Personnel p JOIN p.roles r WHERE r.nomRole IN :roleNames")
+    java.util.List<tn.esprit.examen.nomPrenomClasseExamen.entities.Personnel> findByRolesNomRoleIn(@Param("roleNames") java.util.List<ERole> roleNames);
 }

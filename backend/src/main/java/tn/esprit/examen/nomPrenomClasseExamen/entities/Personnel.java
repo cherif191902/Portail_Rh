@@ -51,9 +51,34 @@ public class Personnel implements UserDetails {
     @JoinColumn(name = "responsable_id")
     private Personnel responsable;
 
+    // Relations hiérarchiques pour le workflow de validation des congés
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_a_id")
+    private Personnel chefA;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_b_id")
+    private Personnel chefB;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rh_responsable_id")
+    private Personnel rhResponsable;
+
     @OneToMany(mappedBy = "responsable", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Personnel> subordonnes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chefA", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Personnel> employes_chef_a = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chefB", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Personnel> employes_chef_b = new ArrayList<>();
+
+    @OneToMany(mappedBy = "rhResponsable", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Personnel> employes_rh = new ArrayList<>();
 
     @OneToMany(mappedBy = "personnel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

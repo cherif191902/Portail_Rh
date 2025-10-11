@@ -87,4 +87,48 @@ public interface CongeRepository extends JpaRepository<Conge, Long> {
     // Historique filtré par statut RH
     @Query("SELECT c FROM Conge c WHERE c.repRh = :status ORDER BY c.dateCong DESC")
     List<Conge> findRhHistoryByStatus(@Param("status") String status);
+
+    // ========== NOUVELLES MÉTHODES POUR LE WORKFLOW AVEC STATUT_CONGE ==========
+    
+    // Recherche par statut (nouveau workflow)
+    List<Conge> findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge statutConge);
+    
+    // Recherche par liste de statuts
+    List<Conge> findByStatutCongeIn(List<tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge> statuts);
+    
+    // Recherche par personnel et statuts
+    List<Conge> findByPersonnelAndStatutCongeIn(Personnel personnel, List<tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge> statuts);
+    
+    // Recherche par personnel et statut
+    List<Conge> findByPersonnelAndStatutConge(Personnel personnel, tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge statutConge);
+    
+    // Demandes en attente par niveau de validation (nouveau workflow)
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = 'EN_ATTENTE_CHEF_A' ORDER BY c.dateCong ASC")
+    List<Conge> findPendingForChefA();
+    
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = 'EN_ATTENTE_CHEF_B' ORDER BY c.dateCong ASC")
+    List<Conge> findPendingForChefB();
+    
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = 'EN_ATTENTE_RH' ORDER BY c.dateCong ASC")
+    List<Conge> findPendingForRhNew();
+    
+    // Demandes approuvées (nouveau workflow)
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = 'APPROUVE' ORDER BY c.dateCong DESC")
+    List<Conge> findApprovedCongesNew();
+    
+    // Demandes refusées (nouveau workflow)
+    @Query("SELECT c FROM Conge c WHERE c.statutConge IN ('REFUSE_PAR_CHEF_A', 'REFUSE_PAR_CHEF_B', 'REFUSE_PAR_RH') ORDER BY c.dateCong DESC")
+    List<Conge> findRejectedCongesNew();
+    
+    // Demandes terminées (approuvées ou refusées)
+    @Query("SELECT c FROM Conge c WHERE c.statutConge IN ('APPROUVE', 'REFUSE_PAR_CHEF_A', 'REFUSE_PAR_CHEF_B', 'REFUSE_PAR_RH') ORDER BY c.dateCong DESC")
+    List<Conge> findTerminatedConges();
+    
+    // Demandes en cours de validation (tous les niveaux d'attente)
+    @Query("SELECT c FROM Conge c WHERE c.statutConge IN ('EN_ATTENTE_CHEF_A', 'EN_ATTENTE_CHEF_B', 'EN_ATTENTE_RH') ORDER BY c.dateCong ASC")
+    List<Conge> findPendingValidationConges();
+    
+    // Statistiques par statut (nouveau workflow)
+    @Query("SELECT c.statutConge, COUNT(c) FROM Conge c WHERE c.statutConge IS NOT NULL GROUP BY c.statutConge")
+    List<Object[]> getCongeStatsByStatut();
 }

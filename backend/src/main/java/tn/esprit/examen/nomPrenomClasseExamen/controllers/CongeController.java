@@ -39,7 +39,8 @@ public class CongeController {
                            tn.esprit.examen.nomPrenomClasseExamen.services.CongeService congeService,
                            tn.esprit.examen.nomPrenomClasseExamen.repositories.TypeCongeRepository typeCongeRepository,
                            CongeMapperService congeMapperService,
-                           tn.esprit.examen.nomPrenomClasseExamen.services.DataInitializationService dataInitializationService) {
+                           tn.esprit.examen.nomPrenomClasseExamen.services.DataInitializationService dataInitializationService,
+                           tn.esprit.examen.nomPrenomClasseExamen.services.ValidationCongeService validationCongeService) {
         this.congeRepository = congeRepository;
         this.personnelRepository = personnelRepository;
         this.notificationRepository = notificationRepository;
@@ -47,6 +48,7 @@ public class CongeController {
         this.typeCongeRepository = typeCongeRepository;
         this.congeMapperService = congeMapperService;
         this.dataInitializationService = dataInitializationService;
+        this.validationCongeService = validationCongeService;
     }
 
     // ---------- Helpers ----------
@@ -426,8 +428,26 @@ public class CongeController {
     @GetMapping("/rh/pending")
     @PreAuthorize("hasRole('RH')")
     public ResponseEntity<?> getPendingForRh() {
-        List<Conge> list = congeRepository.findPendingForRh();
-        return ResponseEntity.ok(list);
+        logger.info("📋 [RH] Récupération des demandes en attente de validation RH");
+        
+        try {
+            // Utiliser le nouveau système avec StatutConge
+            List<Conge> demandesEnAttenteRh = congeRepository.findByStatutConge(
+                tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_RH
+            );
+            
+            // Convertir en DTOs
+            List<DemandeCongeDto> demandesDto = demandesEnAttenteRh.stream()
+                    .map(congeMapperService::toDemandeCongeDto)
+                    .collect(Collectors.toList());
+                    
+            logger.info("✅ [RH] {} demandes en attente de validation RH trouvées", demandesDto.size());
+            return ResponseEntity.ok(demandesDto);
+            
+        } catch (Exception e) {
+            logger.error("❌ [RH] Erreur lors de la récupération des demandes:", e);
+            return ResponseEntity.status(500).body("Erreur lors de la récupération des demandes");
+        }
     }
 
     @PostMapping("/rh/decision/{id}")
@@ -719,6 +739,187 @@ public class CongeController {
     public ResponseEntity<?> updateRh(@RequestBody Conge conge) {
         Conge saved = congeRepository.save(conge);
         return ResponseEntity.ok(saved);
+    }
+
+    // ========== NOUVEAUX ENDPOINTS POUR LE WORKFLOW DE VALIDATION ==========
+    
+    private final tn.esprit.examen.nomPrenomClasseExamen.services.ValidationCongeService validationCongeService;
+
+    /**
+     * Valide une demande de congé selon le rôle de l'utilisateur connecté
+     */
+    @PostMapping("/{id}/valider")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B') or hasRole('CHEF_SERVICE') or hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> validerConge(@PathVariable Long id, 
+                                         @RequestBody tn.esprit.examen.nomPrenomClasseExamen.dto.ValidationCongeDto validationDto) {
+        logger.info("✅ Tentative de validation du congé ID: {}", id);
+        
+        String matriculeValidateur = getCurrentMatricule();
+        if (matriculeValidateur == null) {
+            logger.warn("❌ Aucun utilisateur connecté pour la validation");
+            return ResponseEntity.badRequest().body("Utilisateur non authentifié");
+        }
+        
+        try {
+            validationDto.setAction("VALIDER");
+            Conge congeValide = validationCongeService.validerConge(id, matriculeValidateur, validationDto);
+            
+            // Convertir en DTO pour la réponse
+            DemandeCongeDto responseDto = congeMapperService.toDemandeCongeDto(congeValide);
+            
+            logger.info("✅ Congé ID {} validé avec succès, nouveau statut: {}", 
+                       id, congeValide.getStatutConge().getLibelle());
+            return ResponseEntity.ok(responseDto);
+            
+        } catch (IllegalArgumentException e) {
+            logger.warn("⚠️ Erreur de validation pour le congé ID {}: {}", id, e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("❌ Erreur inattendue lors de la validation du congé ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(500).body("Erreur interne du serveur");
+        }
+    }
+
+    /**
+     * Refuse une demande de congé selon le rôle de l'utilisateur connecté
+     */
+    @PostMapping("/{id}/refuser")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B') or hasRole('CHEF_SERVICE') or hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> refuserConge(@PathVariable Long id, 
+                                         @RequestBody tn.esprit.examen.nomPrenomClasseExamen.dto.ValidationCongeDto validationDto) {
+        logger.info("❌ Tentative de refus du congé ID: {}", id);
+        
+        String matriculeValidateur = getCurrentMatricule();
+        if (matriculeValidateur == null) {
+            logger.warn("❌ Aucun utilisateur connecté pour le refus");
+            return ResponseEntity.badRequest().body("Utilisateur non authentifié");
+        }
+        
+        try {
+            validationDto.setAction("REFUSER");
+            Conge congeRefuse = validationCongeService.validerConge(id, matriculeValidateur, validationDto);
+            
+            // Convertir en DTO pour la réponse
+            DemandeCongeDto responseDto = congeMapperService.toDemandeCongeDto(congeRefuse);
+            
+            logger.info("❌ Congé ID {} refusé, nouveau statut: {}", 
+                       id, congeRefuse.getStatutConge().getLibelle());
+            return ResponseEntity.ok(responseDto);
+            
+        } catch (IllegalArgumentException e) {
+            logger.warn("⚠️ Erreur de refus pour le congé ID {}: {}", id, e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("❌ Erreur inattendue lors du refus du congé ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(500).body("Erreur interne du serveur");
+        }
+    }
+
+    /**
+     * Récupère les demandes en attente de validation selon le rôle de l'utilisateur connecté
+     */
+    @GetMapping("/en-attente")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B') or hasRole('CHEF_SERVICE') or hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getDemandesEnAttente() {
+        logger.info("📋 Récupération des demandes en attente de validation");
+        
+        Optional<Personnel> personnelOpt = getCurrentPersonnel();
+        if (personnelOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Utilisateur non trouvé");
+        }
+        
+        Personnel personnel = personnelOpt.get();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        List<Conge> demandesEnAttente = new ArrayList<>();
+        
+        // Déterminer les demandes selon le rôle
+        boolean isAdmin = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isRh = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_RH"));
+        boolean isChefA = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_CHEF_A"));
+        boolean isChefB = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_CHEF_B"));
+        boolean isChefService = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_CHEF_SERVICE"));
+            
+        if (isAdmin) {
+            // Admin voit toutes les demandes en attente
+            demandesEnAttente = congeRepository.findByStatutCongeIn(
+                Arrays.asList(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_A,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_B,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_RH)
+            );
+        } else if (isRh) {
+            // RH voit les demandes en attente RH
+            demandesEnAttente = congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_RH);
+        } else if (isChefA || isChefService) {
+            // Chef A voit les demandes en attente Chef A
+            demandesEnAttente = congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_A);
+        } else if (isChefB) {
+            // Chef B voit les demandes en attente Chef B
+            demandesEnAttente = congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_B);
+        }
+        
+        // Convertir en DTOs
+        List<DemandeCongeDto> demandesDto = demandesEnAttente.stream()
+                .map(congeMapperService::toDemandeCongeDto)
+                .collect(Collectors.toList());
+                
+        logger.info("📤 Retour de {} demandes en attente pour le rôle connecté", demandesDto.size());
+        return ResponseEntity.ok(demandesDto);
+    }
+
+    /**
+     * Récupère les demandes terminées (approuvées ou refusées)
+     */
+    @GetMapping("/historique")
+    @PreAuthorize("hasRole('USER') or hasRole('CHEF_A') or hasRole('CHEF_B') or hasRole('CHEF_SERVICE') or hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getHistoriqueConges() {
+        logger.info("📋 Récupération de l'historique des congés");
+        
+        Optional<Personnel> personnelOpt = getCurrentPersonnel();
+        if (personnelOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Utilisateur non trouvé");
+        }
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isUser = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+        boolean isAdminOrRh = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_RH"));
+            
+        List<Conge> historique;
+        
+        if (isUser && !isAdminOrRh) {
+            // Utilisateur normal ne voit que ses demandes terminées
+            Personnel personnel = personnelOpt.get();
+            historique = congeRepository.findByPersonnelAndStatutCongeIn(
+                personnel,
+                Arrays.asList(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.APPROUVE,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.REFUSE_PAR_CHEF_A,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.REFUSE_PAR_CHEF_B,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.REFUSE_PAR_RH)
+            );
+        } else {
+            // Admin/RH/Chefs voient toutes les demandes terminées
+            historique = congeRepository.findByStatutCongeIn(
+                Arrays.asList(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.APPROUVE,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.REFUSE_PAR_CHEF_A,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.REFUSE_PAR_CHEF_B,
+                             tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.REFUSE_PAR_RH)
+            );
+        }
+        
+        // Convertir en DTOs
+        List<DemandeCongeDto> historiqueDto = historique.stream()
+                .map(congeMapperService::toDemandeCongeDto)
+                .collect(Collectors.toList());
+                
+        logger.info("📤 Retour de {} demandes dans l'historique", historiqueDto.size());
+        return ResponseEntity.ok(historiqueDto);
     }
 
 }
