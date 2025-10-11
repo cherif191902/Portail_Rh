@@ -122,11 +122,21 @@ public class CongeController {
         Personnel personnel = opt.get();
         logger.info("📋 Recherche des congés pour le personnel: {}", personnel.getMatriculeP());
         
-        // Initialiser des données de test dynamiques si nécessaire
-        dataInitializationService.ensureTestDataForUser(personnel.getMatriculeP());
-        
-        List<Conge> conges = congeRepository.findByPersonnel(personnel);
-        logger.info("✅ {} congés trouvés en base de données", conges.size());
+        // Vérifier les rôles pour déterminer la portée des données
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdminOrRh = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_RH"));
+            
+        List<Conge> conges;
+        if (isAdminOrRh) {
+            // Admin/RH peut voir tous les congés
+            conges = congeRepository.findAll();
+            logger.info("👑 Admin/RH - Récupération de tous les congés: {}", conges.size());
+        } else {
+            // Utilisateur normal ne voit que ses congés
+            conges = congeRepository.findByPersonnel(personnel);
+            logger.info("👤 Utilisateur - Récupération des congés personnels: {}", conges.size());
+        }
         
         // Convertir les entités en DTOs pour le frontend
         List<DemandeCongeDto> demandesDto = conges.stream()
@@ -134,61 +144,107 @@ public class CongeController {
                 .collect(Collectors.toList());
         
         logger.info("📤 Retour de {} demandes DTO au frontend", demandesDto.size());
-        if (!demandesDto.isEmpty()) {
-            logger.info("📊 Exemple de demande: ID={}, Type={}, Statut={}, DateDemande={}", 
-                    demandesDto.get(0).getId(), 
-                    demandesDto.get(0).getTypeConge(), 
-                    demandesDto.get(0).getStatut(), 
-                    demandesDto.get(0).getDateDemande());
-        }
-        
         return ResponseEntity.ok(demandesDto);
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> updateConge(@PathVariable Long id, @RequestBody Conge update) {
+    public ResponseEntity<?> updateConge(@PathVariable Long id, @RequestBody CongeRequestDto updateDto) {
+        logger.info("🔄 Modification de la demande de congé ID: {}", id);
+        
         Optional<Personnel> opt = getCurrentPersonnel();
-        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
+        if (opt.isEmpty()) {
+            logger.warn("❌ Utilisateur introuvable lors de la modification");
+            return ResponseEntity.badRequest().body("Utilisateur introuvable");
+        }
 
         Optional<Conge> c = congeRepository.findById(id);
-        if (c.isEmpty()) return ResponseEntity.notFound().build();
+        if (c.isEmpty()) {
+            logger.warn("❌ Demande de congé introuvable: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+        
         Conge conge = c.get();
-        if (!conge.getPersonnel().getMatriculeP().equals(opt.get().getMatriculeP()))
-            return ResponseEntity.status(403).body("Accès refusé");
+        
+        // Vérifier que l'utilisateur ne peut modifier que ses propres congés
+        if (!conge.getPersonnel().getMatriculeP().equals(opt.get().getMatriculeP())) {
+            logger.warn("🚫 Tentative d'accès non autorisé à la demande {} par {}", 
+                       id, opt.get().getMatriculeP());
+            return ResponseEntity.status(403).body("Accès refusé - Vous ne pouvez modifier que vos propres demandes");
+        }
 
-        if (!"EN_ATTENTE".equals(conge.getRepChefsNiveau1()))
+        if (!"EN_ATTENTE".equals(conge.getRepChefsNiveau1())) {
+            logger.warn("⚠️ Tentative de modification d'une demande déjà traitée: {}", id);
             return ResponseEntity.badRequest().body("Impossible de modifier une demande déjà traitée par le chef");
+        }
 
-        // Autoriser modification des dates, motif, commentaire, type
-        conge.setDateDeb(update.getDateDeb());
-        conge.setDateFin(update.getDateFin());
-        conge.setNbJours(update.getNbJours());
-        conge.setMotif(update.getMotif());
-        conge.setCommentaire(update.getCommentaire());
+        try {
+            // Mettre à jour avec les nouvelles données
+            conge.setDateDeb(updateDto.getDateDebut());
+            conge.setDateFin(updateDto.getDateFin());
+            conge.setNbJours(updateDto.getDuree() != null ? updateDto.getDuree().toString() : null);
+            conge.setCommentaire(updateDto.getCommentaire());
+            
+            // Trouver le type de congé si spécifié
+            if (updateDto.getTypeConge() != null) {
+                Optional<TypeConge> typeCongeOpt = typeCongeRepository.findByNomTypeconge(updateDto.getTypeConge());
+                if (typeCongeOpt.isPresent()) {
+                    conge.setTypeConge(typeCongeOpt.get());
+                }
+            }
 
-        Conge saved = congeRepository.save(conge);
-        return ResponseEntity.ok(saved);
+            Conge saved = congeRepository.save(conge);
+            logger.info("✅ Demande de congé modifiée avec succès: {}", saved.getIdConge());
+            
+            DemandeCongeDto responseDto = congeMapperService.toDemandeCongeDto(saved);
+            return ResponseEntity.ok(responseDto);
+            
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la modification: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body("Erreur: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/cancel/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> cancelConge(@PathVariable Long id) {
+        logger.info("🗑️ Annulation de la demande de congé ID: {}", id);
+        
         Optional<Personnel> opt = getCurrentPersonnel();
-        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
+        if (opt.isEmpty()) {
+            logger.warn("❌ Utilisateur introuvable lors de l'annulation");
+            return ResponseEntity.badRequest().body("Utilisateur introuvable");
+        }
 
         Optional<Conge> c = congeRepository.findById(id);
-        if (c.isEmpty()) return ResponseEntity.notFound().build();
+        if (c.isEmpty()) {
+            logger.warn("❌ Demande de congé introuvable: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+        
         Conge conge = c.get();
-        if (!conge.getPersonnel().getMatriculeP().equals(opt.get().getMatriculeP()))
-            return ResponseEntity.status(403).body("Accès refusé");
+        
+        // Vérifier que l'utilisateur ne peut annuler que ses propres congés
+        if (!conge.getPersonnel().getMatriculeP().equals(opt.get().getMatriculeP())) {
+            logger.warn("🚫 Tentative d'annulation non autorisée de la demande {} par {}", 
+                       id, opt.get().getMatriculeP());
+            return ResponseEntity.status(403).body("Accès refusé - Vous ne pouvez annuler que vos propres demandes");
+        }
 
-        // autoriser annulation tant que chef n'a pas approuvé
-        if (!"EN_ATTENTE".equals(conge.getRepChefsNiveau1()))
-            return ResponseEntity.badRequest().body("Impossible d'annuler une demande déjà traitée");
+        // Autoriser annulation tant que chef n'a pas approuvé
+        if (!"EN_ATTENTE".equals(conge.getRepChefsNiveau1())) {
+            logger.warn("⚠️ Tentative d'annulation d'une demande déjà traitée: {}", id);
+            return ResponseEntity.badRequest().body("Impossible d'annuler une demande déjà traitée par le chef");
+        }
 
-        congeRepository.delete(conge);
-        return ResponseEntity.ok().build();
+        try {
+            congeRepository.delete(conge);
+            logger.info("✅ Demande de congé annulée avec succès: {}", id);
+            return ResponseEntity.ok("Demande de congé annulée avec succès");
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de l'annulation: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body("Erreur: " + e.getMessage());
+        }
     }
 
     // ---------- ENDPOINTS PUBLICS POUR LE FRONTEND ----------

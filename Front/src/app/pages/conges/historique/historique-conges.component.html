@@ -248,7 +248,7 @@
                         <h5 class="text-muted">Aucun historique trouvé</h5>
                         <p class="text-muted">
                             {{ historiqueConges.length === 0 ? 
-                               'Vous n\'avez pas encore d\'historique de congés.' : 
+                               'Aucun congé trouvé dans l\'historique. Vos demandes passées apparaîtront ici une fois terminées (approuvées, refusées ou annulées).' : 
                                'Aucun congé ne correspond aux filtres sélectionnés.' }}
                         </p>
                         <a routerLink="/conges/demande" class="btn btn-primary" *ngIf="historiqueConges.length === 0">

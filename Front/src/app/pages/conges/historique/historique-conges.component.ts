@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CongeService, DemandeConge } from '../conge.service';
+import { CongeApiService, CongeResponse } from '../conge-api.service';
+import { TokenStorage } from 'src/app/core/services/tokenservice.service';
 
 @Component({
   selector: 'app-historique-conges',
@@ -8,8 +9,8 @@ import { CongeService, DemandeConge } from '../conge.service';
 })
 export class HistoriqueCongesComponent implements OnInit {
 
-  historiqueConges: DemandeConge[] = [];
-  filteredHistorique: DemandeConge[] = [];
+  historiqueConges: CongeResponse[] = [];
+  filteredHistorique: CongeResponse[] = [];
   
   // Filtres
   filtreStatut: string = 'TOUS';
@@ -50,7 +51,10 @@ export class HistoriqueCongesComponent implements OnInit {
     dernierCongeDate: null as Date | null
   };
 
-  constructor(private congeService: CongeService) {}
+  constructor(
+    private congeApiService: CongeApiService,
+    private token: TokenStorage
+  ) {}
 
   ngOnInit(): void {
     this.chargerHistoriqueConges();
@@ -66,22 +70,33 @@ export class HistoriqueCongesComponent implements OnInit {
   }
 
   chargerHistoriqueConges() {
-    this.congeService.getMesDemandesConges().subscribe(
-      demandes => {
-        // Filtrer uniquement les demandes terminées (approuvées, refusées, annulées)
-        this.historiqueConges = demandes.filter(d => 
-          d.statut === 'APPROUVE' || d.statut === 'REFUSE' || d.statut === 'ANNULE'
-        );
+    console.log('📚 Chargement de l\'historique des congés...');
+    
+    this.congeApiService.getHistoriqueConges().subscribe({
+      next: (historique) => {
+        console.log('✅ Historique chargé:', historique.length, 'demandes');
+        this.historiqueConges = historique;
         
         this.calculerStatistiques();
         this.appliquerFiltres();
+        
+        // Message si aucun historique
+        if (historique.length === 0) {
+          console.log('📭 Aucun congé trouvé dans l\'historique');
+        }
       },
-      error => {
-        console.error('Erreur lors du chargement de l\'historique:', error);
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement de l\'historique:', error);
         this.historiqueConges = [];
         this.appliquerFiltres();
+        
+        // Gestion spécifique des erreurs d'authentification
+        if (error?.status === 401) {
+          console.warn('🚫 Utilisateur non authentifié - redirection vers login');
+          window.location.href = '/account/login';
+        }
       }
-    );
+    });
   }
 
   calculerStatistiques() {
@@ -107,7 +122,7 @@ export class HistoriqueCongesComponent implements OnInit {
       totalDemandes: this.historiqueConges.length,
       joursApprouves,
       tauxApprobation: Math.round(tauxApprobation),
-      dernierCongeDate: congesApprouvesOrdonnes.length > 0 ? congesApprouvesOrdonnes[0].dateFin : null
+      dernierCongeDate: congesApprouvesOrdonnes.length > 0 ? new Date(congesApprouvesOrdonnes[0].dateFin) : null
     };
   }
 
@@ -202,7 +217,7 @@ export class HistoriqueCongesComponent implements OnInit {
     return colors[typeConge] || colors['Autre'];
   }
 
-  trackByFn(index: number, item: DemandeConge): number {
+  trackByFn(index: number, item: CongeResponse): number {
     return item.id;
   }
 

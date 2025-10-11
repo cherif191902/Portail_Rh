@@ -20,7 +20,7 @@ import { CongeChartComponent } from './conge-chart/conge-chart.component';
 import { ChartsModule } from 'ng2-charts';
 
 @NgModule({
-  declarations: [DefaultComponent, CongeChartComponent, AdminDashboardComponent, RhDashboardComponent, ChefDashboardComponent],
+  declarations: [DefaultComponent, AdminDashboardComponent, RhDashboardComponent, ChefDashboardComponent, CongeChartComponent],
   imports: [
     CommonModule,
     FormsModule,

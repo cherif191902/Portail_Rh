@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CongeService } from '../../pages/tables/conge.service';
+import { CongeApiService } from '../conges/conge-api.service';
 import { TokenStorage } from 'src/app/core/services/tokenservice.service';
 import Swal from 'sweetalert2';
 
@@ -16,7 +17,12 @@ export class CongeRequestComponent implements OnInit {
   durationExceeds = false;
   solde: any = null;
 
-  constructor(private fb: FormBuilder, private congeService: CongeService, private token: TokenStorage) { }
+  constructor(
+    private fb: FormBuilder, 
+    private congeService: CongeService, 
+    private congeApiService: CongeApiService,
+    private token: TokenStorage
+  ) { }
 
   ngOnInit(): void {
     this.formConge = this.fb.group({
@@ -146,38 +152,54 @@ export class CongeRequestComponent implements OnInit {
       return;
     }
 
-    // Construire le payload correspondant à l'entité Conge côté backend
+    console.log('📝 Soumission du formulaire:', this.formConge.value);
+
+    // Construire le payload correspondant au CongeRequestDto côté backend
     const form = this.formConge.value;
-    const payload: any = {
-      dateDeb: form.dateDebut, // backend expects dateDeb
+    
+    // Trouver le nom du type de congé sélectionné
+    const selectedTypeId = form.typeConge?.idType;
+    const selectedType = this.typeCng.find(t => t.idType == selectedTypeId);
+    const typeConge = selectedType?.nomTypeconge || selectedType?.nomType || selectedType?.name;
+
+    const demandeData = {
+      typeConge: typeConge,
+      dateDebut: form.dateDebut,
       dateFin: form.dateFin,
-      nbJours: String(form.duree),
-      motif: form.motif,
-      // include typeConge object with idType as number if provided
-      typeConge: form.typeConge && form.typeConge.idType ? { idType: Number(form.typeConge.idType) } : null
+      duree: Number(form.duree),
+      commentaire: form.motif || ''
     };
 
-    this.congeService.addConge(payload).subscribe(() => {
-      Swal.fire('Succès', 'Demande de congé soumise', 'success');
-      this.formConge.reset();
-      // notify other components (dashboard) that a new demande was submitted
-      this.congeService.demandeSubmitted$.next(true);
-    }, err => {
-      // extraire un message lisible
-      let msg = 'Erreur lors de la soumission';
-      try {
-        if (err?.error) {
-          // si le backend renvoie {message: ...} ou string
-          msg = typeof err.error === 'string' ? err.error : (err.error.message || JSON.stringify(err.error));
-        } else if (err?.message) {
-          msg = err.message;
-        } else {
-          msg = String(err);
+    console.log('📤 Données envoyées à l\'API:', demandeData);
+
+    this.congeApiService.creerDemandeConge(demandeData).subscribe({
+      next: (response) => {
+        console.log('✅ Demande créée avec succès:', response);
+        Swal.fire('Succès', 'Demande de congé soumise avec succès', 'success');
+        this.formConge.reset();
+        // Notifier les autres composants qu'une nouvelle demande a été soumise
+        this.congeService.demandeSubmitted$.next(true);
+      },
+      error: (err) => {
+        console.error('❌ Erreur lors de la soumission:', err);
+        
+        // Extraire un message lisible
+        let msg = 'Erreur lors de la soumission';
+        try {
+          if (err?.error) {
+            // Si le backend renvoie une string directement ou un objet avec message
+            msg = typeof err.error === 'string' ? err.error : (err.error.message || JSON.stringify(err.error));
+          } else if (err?.message) {
+            msg = err.message;
+          } else {
+            msg = String(err);
+          }
+        } catch (e) {
+          msg = 'Erreur inconnue lors de la communication avec le serveur';
         }
-      } catch (e) {
-        msg = 'Erreur inconnue';
+        
+        Swal.fire('Erreur', msg, 'error');
       }
-      Swal.fire('Erreur', String(msg), 'error');
     });
   }
 }

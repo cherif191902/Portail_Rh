@@ -31,9 +31,11 @@
                                 <select class="form-select" id="typeConge" formControlName="typeConge"
                                     [class.is-invalid]="submitted && f['typeConge'].errors">
                                     <option value="">Sélectionner un type de congé</option>
-                                    <option [value]="type.id" *ngFor="let type of typesConges">
-                                        {{ type.nom }} (max {{ type.dureeMax }} jours)
-                                    </option>
+                                    <ng-container *ngFor="let type of typesConges">
+                                        <option [value]="type.idType" *ngIf="type && type.idType !== null && type.idType !== undefined">
+                                            {{ type.nomTypeconge }} (max {{ type.maxAllowedDays }} jours)
+                                        </option>
+                                    </ng-container>
                                 </select>
                                 <div *ngIf="submitted && f['typeConge'].errors" class="invalid-feedback">
                                     <div *ngIf="f['typeConge'].errors['required']">Le type de congé est requis</div>
@@ -110,18 +112,7 @@
                             </div>
                         </div>
 
-                        <!-- Fichier justificatif -->
-                        <div class="row mb-4">
-                            <label for="fichierJustificatif" class="col-sm-3 col-form-label">Justificatif</label>
-                            <div class="col-sm-9">
-                                <input type="file" 
-                                       class="form-control" 
-                                       id="fichierJustificatif" 
-                                       (change)="onFileChange($event)"
-                                       accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                                <small class="text-muted">Formats acceptés: PDF, Images (JPG, PNG), Documents Word</small>
-                            </div>
-                        </div>
+                        <!-- Section justificatif supprimée -->
 
                         <!-- Boutons d'action -->
                         <div class="row">
@@ -151,7 +142,7 @@
                     <div class="alert alert-info" role="alert">
                         <ul class="mb-0">
                             <li>Les demandes de congé doivent être soumises au moins 48h à l'avance</li>
-                            <li>Un justificatif médical est requis pour les congés maladie de plus de 3 jours</li>
+                            <li>Les congés maladie de plus de 3 jours nécessitent un certificat médical à fournir séparément</li>
                             <li>Les congés payés sont soumis à validation hiérarchique</li>
                             <li>Vous recevrez une notification par email lors du traitement de votre demande</li>
                         </ul>

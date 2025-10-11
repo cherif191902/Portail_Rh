@@ -1,6 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { CongeService, DemandeConge } from '../conge.service';
+import { CongeApiService } from '../conge-api.service';
+import { TokenStorage } from 'src/app/core/services/tokenservice.service';
+
+interface DemandeConge {
+  id?: number;
+  typeConge: string;
+  dateDebut: string;
+  dateFin: string;
+  duree: number;
+  statut: string;
+  dateDemande: string;
+  commentaire?: string;
+  motifRefus?: string;
+}
 
 @Component({
   selector: 'app-suivi-demandes',
@@ -44,20 +57,17 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
     { value: 'Congé formation', label: 'Congé formation' }
   ];
 
-  constructor(private congeService: CongeService) {}
+  constructor(
+    private congeApiService: CongeApiService,
+    private token: TokenStorage
+  ) {}
 
   ngOnInit(): void {
     this.chargerDemandes();
     
-    // S'abonner aux notifications de mise à jour
-    this.demandesSubscription = this.congeService.demandesUpdatedNotification$.subscribe(
-      updated => {
-        if (updated) {
-          console.log('🔄 Notification de mise à jour reçue - rechargement des demandes');
-          this.chargerDemandes();
-        }
-      }
-    );
+    // S'abonner aux notifications de mise à jour (optionnel)
+    // Pour l'instant, on charge simplement les demandes
+    console.log('� Utilisateur connecté:', this.token.getUser()?.matriculeP || 'Non défini');
   }
 
   ngOnDestroy(): void {
@@ -68,20 +78,41 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
   }
 
   chargerDemandes() {
-    console.log('🔄 Chargement des demandes de congé...');
-    this.congeService.getMesDemandesConges().subscribe(
-      demandes => {
-        console.log('✅ Demandes chargées:', demandes.length);
-        console.log('📋 Détail des demandes:', demandes);
+    console.log('🔄 Chargement des demandes de congé en cours...');
+    
+    // Utiliser la nouvelle méthode pour ne récupérer que les demandes en cours
+    this.congeApiService.getDemandesEnCours().subscribe({
+      next: (demandes) => {
+        console.log('✅ Demandes en cours chargées:', demandes.length);
+        console.log('📋 Détail des demandes en cours:', demandes);
         this.demandes = demandes;
         this.appliquerFiltres();
+        
+        // Message si aucune demande en cours
+        if (demandes.length === 0) {
+          console.log('📭 Aucune demande de congé en cours');
+        }
       },
-      error => {
-        console.error('❌ Erreur lors du chargement des demandes:', error);
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des demandes en cours:', error);
         this.demandes = [];
         this.appliquerFiltres();
+        
+        // Gestion spécifique des erreurs d'authentification
+        if (error?.status === 401) {
+          console.warn('🚫 Utilisateur non authentifié - redirection vers login');
+          window.location.href = '/account/login';
+        }
       }
-    );
+    });
+  }
+
+  /**
+   * Actualise les demandes (appelée après ajout/annulation)
+   */
+  actualiserDemandes() {
+    console.log('🔄 Actualisation des demandes...');
+    this.chargerDemandes();
   }
 
   appliquerFiltres() {
@@ -135,23 +166,30 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
 
   // Méthode pour annuler une demande en attente
   annulerDemande(demande: DemandeConge) {
-    if (demande.statut === 'EN_ATTENTE') {
+    if (demande.statut === 'EN_ATTENTE' && demande.id) {
       if (confirm('Êtes-vous sûr de vouloir annuler cette demande ?')) {
-        this.congeService.annulerDemande(demande.id).subscribe(
-          success => {
-            if (success) {
-              demande.statut = 'ANNULE';
-              console.log('Demande annulée avec succès:', demande);
-              // Optionnel: recharger les données
-              // this.chargerDemandes();
-            }
+        console.log('🗑️ Annulation de la demande:', demande.id);
+        
+        this.congeApiService.annulerDemande(demande.id).subscribe({
+          next: (response) => {
+            console.log('✅ Demande annulée avec succès:', response);
+            // Recharger les données pour avoir l'état à jour
+            this.chargerDemandes();
           },
-          error => {
-            console.error('Erreur lors de l\'annulation:', error);
-            alert('Une erreur est survenue lors de l\'annulation de la demande.');
+          error: (error) => {
+            console.error('❌ Erreur lors de l\'annulation:', error);
+            
+            let errorMessage = 'Une erreur est survenue lors de l\'annulation de la demande.';
+            if (error?.error) {
+              errorMessage = typeof error.error === 'string' ? error.error : error.error.message || errorMessage;
+            }
+            
+            alert(errorMessage);
           }
-        );
+        });
       }
+    } else if (demande.statut !== 'EN_ATTENTE') {
+      alert('Seules les demandes en attente peuvent être annulées.');
     }
   }
 

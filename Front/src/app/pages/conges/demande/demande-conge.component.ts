@@ -1,7 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbCalendar, NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { CongeService, TypeConge, CongeRequest } from '../conge.service';
+import { CongeApiService } from '../conge-api.service';
+import { TokenStorage } from 'src/app/core/services/tokenservice.service';
+
+interface TypeConge {
+  idType: number;
+  nomTypeconge: string;
+  maxAllowedDays: number;
+}
+
+interface CongeRequest {
+  typeConge: string;
+  dateDebut: string;
+  dateFin: string;
+  duree: number;
+  commentaire?: string;
+}
 
 @Component({
   selector: 'app-demande-conge',
@@ -20,7 +35,8 @@ export class DemandeCongeComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private calendar: NgbCalendar,
-    private congeService: CongeService
+    private congeApiService: CongeApiService,
+    private token: TokenStorage
   ) {}
 
   ngOnInit(): void {
@@ -29,14 +45,26 @@ export class DemandeCongeComponent implements OnInit {
   }
 
   chargerTypesConges() {
-    this.congeService.getTypesConges().subscribe(
-      types => {
-        this.typesConges = types;
+    console.log('📋 Chargement des types de congés...');
+    this.congeApiService.getTypesConges().subscribe({
+      next: (response) => {
+        console.log('🔍 Réponse du service API:', response);
+        // L'API retourne maintenant un ApiResponse avec les données mappées
+        const types = response?.data || response;
+        this.typesConges = Array.isArray(types) ? types : [];
+        
+        // Filtrer les types valides
+        this.typesConges = this.typesConges.filter(type => 
+          type && type.idType !== null && type.idType !== undefined && type.nomTypeconge
+        );
+        
+        console.log('✅ Types de congés chargés:', this.typesConges);
       },
-      error => {
-        console.error('Erreur lors du chargement des types de congés:', error);
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des types de congés:', error);
+        this.typesConges = [];
       }
-    );
+    });
   }
 
   initForm() {
@@ -46,8 +74,8 @@ export class DemandeCongeComponent implements OnInit {
       typeConge: ['', Validators.required],
       dateDebut: [today, Validators.required],
       dateFin: ['', Validators.required],
-      commentaire: ['', [Validators.maxLength(500)]],
-      fichierJustificatif: ['']
+      commentaire: ['', [Validators.maxLength(500)]]
+      // Suppression du champ fichierJustificatif
     });
   }
 
@@ -64,19 +92,21 @@ export class DemandeCongeComponent implements OnInit {
     
     // Préparation des données au format CongeRequest
     const formValue = this.demandeForm.value;
-    const demandeData = {
+    const demandeData: CongeRequest = {
       typeConge: this.getTypeCongeNom(formValue.typeConge),
-      dateDebut: this.ngbDateToDate(formValue.dateDebut), // Déjà au format ISO string
-      dateFin: this.ngbDateToDate(formValue.dateFin),     // Déjà au format ISO string
+      dateDebut: this.ngbDateToDate(formValue.dateDebut), // Au format ISO string
+      dateFin: this.ngbDateToDate(formValue.dateFin),     // Au format ISO string
       duree: this.calculerDuree(),
-      commentaire: formValue.commentaire,
-      fichierJustificatif: formValue.fichierJustificatif
+      commentaire: formValue.commentaire
+      // Suppression du champ fichierJustificatif
     };
 
+    console.log('📤 Envoi de la demande:', demandeData);
+
     // Envoi de la demande
-    this.congeService.creerDemande(demandeData).subscribe(
-      response => {
-        console.log('Demande créée avec succès:', response);
+    this.congeApiService.creerDemandeConge(demandeData).subscribe({
+      next: (response) => {
+        console.log('✅ Demande créée avec succès:', response);
         alert('Votre demande de congé a été soumise avec succès !');
         
         // Reset du formulaire
@@ -85,12 +115,18 @@ export class DemandeCongeComponent implements OnInit {
         this.demandeForm.reset();
         this.initForm();
       },
-      error => {
-        console.error('Erreur lors de la création de la demande:', error);
-        alert('Une erreur est survenue lors de la soumission de votre demande.');
+      error: (error) => {
+        console.error('❌ Erreur lors de la création de la demande:', error);
+        
+        let errorMessage = 'Une erreur est survenue lors de la soumission de votre demande.';
+        if (error?.error) {
+          errorMessage = typeof error.error === 'string' ? error.error : error.error.message || errorMessage;
+        }
+        
+        alert(errorMessage);
         this.submitting = false;
       }
-    );
+    });
   }
 
   onReset() {
@@ -117,19 +153,16 @@ export class DemandeCongeComponent implements OnInit {
     return 0;
   }
 
-  onFileChange(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.demandeForm.patchValue({
-        fichierJustificatif: file
-      });
-    }
-  }
-
   // Méthodes utilitaires
   private getTypeCongeNom(typeId: string): string {
-    const type = this.typesConges.find(t => t.id.toString() === typeId);
-    return type ? type.nom : '';
+    if (!typeId || !this.typesConges) {
+      return '';
+    }
+    
+    const type = this.typesConges.find(t => 
+      t && t.idType !== null && t.idType !== undefined && t.idType.toString() === typeId
+    );
+    return type ? type.nomTypeconge : '';
   }
 
   private ngbDateToDate(ngbDate: NgbDate): string {
