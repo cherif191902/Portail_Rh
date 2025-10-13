@@ -32,14 +32,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(httpSecurityCorsCustomizer -> httpSecurityCorsCustomizer.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowCredentials(true);
-                    config.addAllowedOrigin("http://localhost:4200");
-                    config.addAllowedHeader("*");
-                    config.addAllowedMethod("*");
-                    return config;
-                }))
+                .cors(httpSecurityCorsCustomizer -> httpSecurityCorsCustomizer.configurationSource(corsConfigurationSource()))
                 .csrf(csrfCustomizer -> csrfCustomizer.disable())
                 .exceptionHandling(exceptionHandlingCustomizer ->
                         exceptionHandlingCustomizer.authenticationEntryPoint(authEntryPoint))
@@ -57,6 +50,7 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/webjars/**"
                                 ).permitAll()
+                                .requestMatchers("/api/rh/**").hasAnyRole("RH", "ADMIN")
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
@@ -79,14 +73,38 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter();
     }
     @Bean
-    public CorsFilter corsFilter() {
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        // Autoriser les deux ports pour le développement
+        configuration.addAllowedOriginPattern("http://localhost:4200");
+        configuration.addAllowedOriginPattern("http://127.0.0.1:4200");
+        configuration.addAllowedOriginPattern("http://localhost:8089");
+        configuration.addAllowedOriginPattern("http://127.0.0.1:8089");
+        
+        // Headers autorisés
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedHeader("Content-Type");
+        configuration.addAllowedHeader("Authorization");
+        configuration.addAllowedHeader("Accept");
+        configuration.addAllowedHeader("X-Requested-With");
+        
+        // Méthodes HTTP autorisées
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("DELETE");
+        configuration.addAllowedMethod("OPTIONS");
+        configuration.addAllowedMethod("PATCH");
+        configuration.addAllowedMethod("HEAD");
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:4200");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        return new CorsFilter(corsConfigurationSource());
     }
 }

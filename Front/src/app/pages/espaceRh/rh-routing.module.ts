@@ -5,7 +5,9 @@ import { HistoriqueRhComponent } from './historique-rh/historique-rh.component';
 import { GestionutilisateurComponent } from './gestionutilisateur/gestionutilisateur.component';
 import { GestionServiceComponent } from './gestion-service/gestion-service.component';
 import { GestionTypeCongeComponent } from './gestion-type-conge/gestion-type-conge.component';
-import { AffectationsComponent } from './affectations/affectations.component';
+import { AffectationChefsComponent } from './affectation-chefs/affectation-chefs.component';
+import { AffectationTableComponent } from '../affectation-table/affectation-table.component';
+import { EmployesInfoComponent } from './employes-info/employes-info.component';
 import { ValidationCongesComponent } from './validation-conges/validation-conges.component';
 import { HistoriqueDecisionsComponent } from './historique-decisions/historique-decisions.component';
 import { RhDashboardComponent } from './rh-dashboard/rh-dashboard.component';
@@ -51,7 +53,15 @@ const routes: Routes = [
     },
     {
         path: 'affectations',
-        component: AffectationsComponent
+        component: AffectationChefsComponent
+    },
+    {
+        path: 'tableau-affectations',
+        component: AffectationTableComponent
+    },
+    {
+        path: 'employes-info',
+        component: EmployesInfoComponent
     },
     {
         path: 'validation-conges',

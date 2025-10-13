@@ -18,7 +18,7 @@ import { HistoriqueRhComponent } from './historique-rh/historique-rh.component';
 import { GestionutilisateurComponent } from './gestionutilisateur/gestionutilisateur.component';
 import { GestionServiceComponent } from './gestion-service/gestion-service.component';
 import { GestionTypeCongeComponent } from './gestion-type-conge/gestion-type-conge.component';
-import { AffectationsComponent } from './affectations/affectations.component';
+
 import { ValidationCongesComponent } from './validation-conges/validation-conges.component';
 import { HistoriqueDecisionsComponent } from './historique-decisions/historique-decisions.component';
 import { RhDashboardComponent } from './rh-dashboard/rh-dashboard.component';
@@ -26,6 +26,9 @@ import { StatistiquesRhComponent } from './statistiques-rh/statistiques-rh.compo
 import { RapportsRhComponent } from './rapports-rh/rapports-rh.component';
 import { ConfigurationRhComponent } from './configuration-rh/configuration-rh.component';
 import { NotificationsRhComponent } from './notifications-rh/notifications-rh.component';
+import { AffectationChefsComponent } from './affectation-chefs/affectation-chefs.component';
+import { AffectationTableComponent } from '../affectation-table/affectation-table.component';
+import { EmployesInfoComponent } from './employes-info/employes-info.component';
 
 @NgModule({
   declarations: [
@@ -34,14 +37,17 @@ import { NotificationsRhComponent } from './notifications-rh/notifications-rh.co
     GestionutilisateurComponent,
     GestionServiceComponent,
     GestionTypeCongeComponent,
-    AffectationsComponent,
+
     ValidationCongesComponent,
     HistoriqueDecisionsComponent,
     RhDashboardComponent,
     StatistiquesRhComponent,
     RapportsRhComponent,
     ConfigurationRhComponent,
-    NotificationsRhComponent
+    NotificationsRhComponent,
+    AffectationChefsComponent,
+    AffectationTableComponent,
+    EmployesInfoComponent
   ],
   imports: [
     CommonModule,

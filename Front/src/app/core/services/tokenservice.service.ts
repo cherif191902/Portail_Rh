@@ -5,10 +5,17 @@ const USER_KEY = 'auth-user';
   providedIn: 'root'
 })
 export class TokenStorage {
+  private userCache: any = null;
+  private userCacheTime: number = 0;
+  private readonly CACHE_DURATION = 5000; // 5 secondes de cache
+
  constructor() { }
 
 signOut(): void {
   window.sessionStorage.clear();
+  // Invalider le cache
+  this.userCache = null;
+  this.userCacheTime = 0;
 }
 
 public saveToken(token: string): void {
@@ -23,18 +30,25 @@ public getToken(): string | null {
 public saveUser(user: any): void {
   window.sessionStorage.removeItem(USER_KEY);
   window.sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  // Invalider le cache
+  this.userCache = null;
+  this.userCacheTime = 0;
 }
 
 public getUser(): any {
+  // Vérifier le cache
+  const now = Date.now();
+  if (this.userCache && (now - this.userCacheTime) < this.CACHE_DURATION) {
+    return this.userCache;
+  }
+
   const user = window.sessionStorage.getItem(USER_KEY);
   if (user) {
     try {
       const userData = JSON.parse(user);
-      console.log('🔍 Données utilisateur brutes:', userData);
 
       // Mapper les rôles selon différents formats possibles
       const mappedRoles = this.mapRoles(userData.roles);
-      console.log('🎭 Rôles mappés:', mappedRoles);
 
       // Adapter les données pour la compatibilité avec l'ancien système
       const adaptedUser = {
@@ -44,37 +58,42 @@ public getUser(): any {
         roles: mappedRoles // Rôles mappés en format string
       };
 
-      console.log('👤 Utilisateur adapté:', adaptedUser);
+      // Mettre en cache
+      this.userCache = adaptedUser;
+      this.userCacheTime = now;
+
       return adaptedUser;
     } catch (error) {
       console.error('❌ Erreur parsing user data:', error);
-      return { roles: ['ROLE_USER'], role_portail: 'ROLE_USER' };
+      const errorUser = { roles: ['ROLE_USER'], role_portail: 'ROLE_USER' };
+      this.userCache = errorUser;
+      this.userCacheTime = now;
+      return errorUser;
     }
   }
-  console.warn('⚠️ Aucune donnée utilisateur en session');
-  return {};
+  
+  const emptyUser = {};
+  this.userCache = emptyUser;
+  this.userCacheTime = now;
+  return emptyUser;
 }
 
 /**
  * Mapper les rôles selon différents formats possibles
  */
 private mapRoles(rawRoles: any): string[] {
-  console.log('🔄 Mapping des rôles:', rawRoles);
   
   if (!rawRoles) {
-    console.log('⚠️ Pas de rôles fournis, retour ROLE_USER par défaut');
     return ['ROLE_USER'];
   }
 
   // Si c'est déjà un tableau de strings
   if (Array.isArray(rawRoles) && rawRoles.length > 0 && typeof rawRoles[0] === 'string') {
-    console.log('✅ Rôles déjà en format string[]');
     return rawRoles;
   }
 
   // Si c'est un tableau d'objets avec différentes propriétés possibles
   if (Array.isArray(rawRoles) && rawRoles.length > 0 && typeof rawRoles[0] === 'object') {
-    console.log('🔧 Conversion des objets rôles');
     return rawRoles.map(role => {
       // Priorité aux propriétés les plus courantes
       if (role.nomRole) return role.nomRole;
@@ -89,12 +108,10 @@ private mapRoles(rawRoles: any): string[] {
 
   // Si c'est un string unique
   if (typeof rawRoles === 'string') {
-    console.log('📝 Rôle unique en string');
     return [rawRoles];
   }
 
   // Tableau vide ou autre format non reconnu
-  console.log('⚠️ Format de rôles non reconnu, retour ROLE_USER par défaut');
   return ['ROLE_USER'];
 }
 
@@ -111,9 +128,7 @@ private mapRoleIdToName(roleId: number): string {
     6: 'ROLE_CHEF_B'        // Chef niveau B
   };
 
-  const mappedRole = roleMapping[roleId] || 'ROLE_USER';
-  console.log(`🏷️ Mapping ID ${roleId} -> ${mappedRole}`);
-  return mappedRole;
+  return roleMapping[roleId] || 'ROLE_USER';
 }
 // tokenservice.service.ts
 public getNiveauFromToken(): number | null {

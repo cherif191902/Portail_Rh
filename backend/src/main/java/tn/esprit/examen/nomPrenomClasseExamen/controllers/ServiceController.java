@@ -48,12 +48,37 @@ public class ServiceController {
             m.put("idService", s.getIdService());
             m.put("nomService", s.getNomService());
             m.put("libService", s.getLibService());
-            if (s.getChef() != null) {
+            // Chef A
+            if (s.getChefA() != null) {
+                java.util.Map<String,Object> chefA = new java.util.HashMap<>();
+                chefA.put("id", s.getChefA().getId());
+                chefA.put("nom", s.getChefA().getNom());
+                chefA.put("prenom", s.getChefA().getPrenom());
+                chefA.put("matriculeP", s.getChefA().getMatriculeP());
+                m.put("chefA", chefA);
+            } else {
+                m.put("chefA", null);
+            }
+            
+            // Chef B
+            if (s.getChefB() != null) {
+                java.util.Map<String,Object> chefB = new java.util.HashMap<>();
+                chefB.put("id", s.getChefB().getId());
+                chefB.put("nom", s.getChefB().getNom());
+                chefB.put("prenom", s.getChefB().getPrenom());
+                chefB.put("matriculeP", s.getChefB().getMatriculeP());
+                m.put("chefB", chefB);
+            } else {
+                m.put("chefB", null);
+            }
+            
+            // Compatibilité - prendre chef A comme chef principal
+            if (s.getChefA() != null) {
                 java.util.Map<String,Object> chef = new java.util.HashMap<>();
-                chef.put("id", s.getChef().getId());
-                chef.put("nom", s.getChef().getNom());
-                chef.put("prenom", s.getChef().getPrenom());
-                chef.put("matriculeP", s.getChef().getMatriculeP());
+                chef.put("id", s.getChefA().getId());
+                chef.put("nom", s.getChefA().getNom());
+                chef.put("prenom", s.getChefA().getPrenom());
+                chef.put("matriculeP", s.getChefA().getMatriculeP());
                 m.put("chef", chef);
             } else {
                 m.put("chef", null);
@@ -89,17 +114,18 @@ public class ServiceController {
         Role chefRole = roleRepository.findByNomRole(ERole.ROLE_CHEF_SERVICE)
                 .orElseGet(() -> roleRepository.save(new Role(ERole.ROLE_CHEF_SERVICE)));
 
-        // Ancien chef : retirer le rôle si plus chef d'aucun service ensuite
-        Personnel oldChef = s.getChef();
-        if (oldChef != null && !oldChef.getId().equals(newChef.getId())) {
-            s.setChef(null); // détacher pour l'instant
-            // Vérifier si l'ancien chef est chef d'autres services
+        // Ancien Chef A : retirer le rôle si plus chef d'aucun service ensuite
+        Personnel oldChefA = s.getChefA();
+        if (oldChefA != null && !oldChefA.getId().equals(newChef.getId())) {
+            s.setChefA(null); // détacher pour l'instant
+            // Vérifier si l'ancien chef est encore chef d'autres services (A ou B)
             boolean stillChefElsewhere = serviceRepository.findAll().stream()
-                    .anyMatch(serv -> serv.getChef() != null && serv.getChef().getId().equals(oldChef.getId()));
+                    .anyMatch(serv -> (serv.getChefA() != null && serv.getChefA().getId().equals(oldChefA.getId())) ||
+                                     (serv.getChefB() != null && serv.getChefB().getId().equals(oldChefA.getId())));
             if (!stillChefElsewhere) {
-                if (oldChef.getRoles() != null) {
-                    oldChef.getRoles().removeIf(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE);
-                    personnelRepository.save(oldChef);
+                if (oldChefA.getRoles() != null) {
+                    oldChefA.getRoles().removeIf(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE);
+                    personnelRepository.save(oldChefA);
                 }
             }
         }
@@ -114,12 +140,13 @@ public class ServiceController {
             personnelRepository.save(newChef);
         }
 
-        s.setChef(newChef);
+        s.setChefA(newChef); // Affecter comme Chef A par défaut
         serviceRepository.save(s);
 
         java.util.Map<String,Object> res = new java.util.HashMap<>();
         res.put("idService", s.getIdService());
-        res.put("chefId", s.getChef() != null ? s.getChef().getId() : null);
+        res.put("chefAId", s.getChefA() != null ? s.getChefA().getId() : null);
+        res.put("chefBId", s.getChefB() != null ? s.getChefB().getId() : null);
         res.put("chefRoles", newChef.getRoles().stream().map(r -> r.getNomRole().name()).toList());
         return ResponseEntity.ok(res);
     }

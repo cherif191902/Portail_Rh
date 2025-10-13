@@ -170,7 +170,6 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
    */
  initialize(): void {
   const user = this.token.getUser();
-  console.log('🔍 Initialisation sidebar - Utilisateur:', user);
   
   // Amélioration de la récupération des rôles
   let roles: string[] = [];
@@ -193,11 +192,8 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
     roles = [user?.role_portail || 'ROLE_USER'];
   }
   
-  console.log('🎭 Rôles détectés:', roles);
-  
   // Toujours afficher au minimum les éléments de base pour les utilisateurs connectés
   if (!user || roles.length === 0) {
-    console.warn('⚠️ Aucun rôle détecté, chargement des éléments par défaut');
     roles = ['ROLE_USER']; // Rôle par défaut
   }
 
@@ -324,22 +320,9 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   * Méthode de diagnostic pour identifier les problèmes de rôles
   */
  public diagnoseRoleIssues(): void {
+   // Diagnostic des rôles (logs supprimés pour éviter le spam)
    const user = this.token.getUser();
-   console.log('🔍 === DIAGNOSTIC DES RÔLES ===');
-   console.log('Utilisateur complet:', user);
-   console.log('Rôles detectés:', user?.roles);
-   console.log('Type des rôles:', typeof user?.roles);
-   console.log('Est un tableau?:', Array.isArray(user?.roles));
-   
-   if (Array.isArray(user?.roles) && user.roles.length > 0) {
-     console.log('Premier rôle:', user.roles[0]);
-     console.log('Type du premier rôle:', typeof user.roles[0]);
-     console.log('Structure du premier rôle:', user.roles[0]);
-   }
-   
-   console.log('Role portail:', user?.role_portail);
-   console.log('Nombre d\'éléments de menu:', this.menuItems.length);
-   console.log('=== FIN DIAGNOSTIC ===');
+   // Cette méthode est disponible pour le debug mais les logs sont supprimés
  }
 
   /**

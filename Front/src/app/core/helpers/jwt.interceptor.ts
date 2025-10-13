@@ -33,19 +33,14 @@ export class JwtInterceptor implements HttpInterceptor {
             // Debugging: log whether a token was found and the target URL (without revealing token contents)
             try {
                 if (token) {
-                    const masked = token.length > 10 ? token.substring(0, 5) + '...' + token.substring(token.length - 5) : '***';
-                    // Use console.log to ensure visibility during debugging
-                    console.log(`[JwtInterceptor] attaching Authorization header for request to ${request.url} (token=${masked})`);
                     request = request.clone({
                         setHeaders: {
                             Authorization: `Bearer ${token}`
                         }
                     });
-                } else {
-                    console.log(`[JwtInterceptor] no token found for request to ${request.url}`);
                 }
             } catch (e) {
-                console.log('[JwtInterceptor] error while processing token for request', e);
+                console.error('[JwtInterceptor] error while processing token for request', e);
             }
         }
 

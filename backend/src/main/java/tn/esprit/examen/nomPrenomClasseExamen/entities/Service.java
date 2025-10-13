@@ -28,9 +28,14 @@ public class Service {
     private List<Personnel> personnels = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chef_id")
+    @JoinColumn(name = "chef_a_id")
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
-    private Personnel chef;
+    private Personnel chefA;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_b_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
+    private Personnel chefB;
     
     // Constructeurs
     public Service() {}
@@ -49,6 +54,42 @@ public class Service {
     public void removePersonnel(Personnel personnel) {
         personnels.remove(personnel);
         personnel.setService(null);
+    }
+
+    /**
+     * Vérifier si le service a au moins un chef
+     */
+    public boolean hasAnyChef() {
+        return chefA != null || chefB != null;
+    }
+
+    /**
+     * Vérifier si le service a les deux chefs
+     */
+    public boolean hasFullChefs() {
+        return chefA != null && chefB != null;
+    }
+
+    /**
+     * Obtenir le chef (pour compatibilité avec l'ancien système)
+     * @deprecated Utiliser chefA ou chefB
+     */
+    @Deprecated
+    public Personnel getChef() {
+        return chefA != null ? chefA : chefB;
+    }
+
+    /**
+     * Définir un chef (pour compatibilité avec l'ancien système) 
+     * @deprecated Utiliser setChefA ou setChefB
+     */
+    @Deprecated
+    public void setChef(Personnel chef) {
+        if (this.chefA == null) {
+            this.chefA = chef;
+        } else if (this.chefB == null) {
+            this.chefB = chef;
+        }
     }
     
     @Override

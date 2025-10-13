@@ -1,0 +1,181 @@
+/* Styles personnalisés pour le tableau d'affectations */
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border-radius: 0.375rem;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: calc(0.375rem - 1px) calc(0.375rem - 1px) 0 0;
+}
+
+.table th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+}
+
+.table td {
+  padding: 0.875rem 0.75rem;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.btn-group-sm > .btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+}
+
+.form-select-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+/* Messages d'alerte personnalisés */
+.alert {
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Cartes statistiques */
+.card.border-primary {
+  border-color: #0d6efd !important;
+}
+
+.card.border-success {
+  border-color: #198754 !important;
+}
+
+.card.border-info {
+  border-color: #0dcaf0 !important;
+}
+
+.card.border-warning {
+  border-color: #ffc107 !important;
+}
+
+/* Boutons personnalisés */
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+  }
+  
+  .btn-group > .btn {
+    border-radius: 0.25rem !important;
+    margin-bottom: 0.25rem;
+  }
+  
+  .avatar-sm {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}
+
+/* Animation pour les alertes */
+.alert {
+  animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Amélioration de l'accessibilité */
+.btn:focus,
+.form-select:focus,
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Indicateur de chargement sur les boutons */
+.btn[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Style pour les options désactivées */
+option:disabled {
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+/* Amélioration visuelle des sélecteurs */
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+}
+
+/* Messages d'état vides */
+.text-muted .fas {
+  opacity: 0.5;
+}
+
+/* Amélioration des tooltips si ajoutés */
+.btn [data-bs-toggle="tooltip"] {
+  cursor: help;
+}

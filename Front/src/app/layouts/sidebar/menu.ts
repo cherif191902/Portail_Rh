@@ -147,16 +147,16 @@ export const MENU: MenuItem[] = [
             },
             {
                 id: 202,
-                label: 'MENUITEMS.GESTION_SERVICE.TEXT',
-                icon: 'bx-building-house',
-                link: '/RH/Service',
+                label: 'MENUITEMS.RH_TABLEAU_AFFECTATIONS.TEXT',
+                icon: 'bx-table',
+                link: '/RH/tableau-affectations',
                 parentId: 200
             },
             {
                 id: 203,
-                label: 'MENUITEMS.GESTION_UTILISATEUR.TEXT',
-                icon: 'bx-user-circle',
-                link: '/RH/gestionUtilisateur',
+                label: 'MENUITEMS.RH_EMPLOYES_INFO.TEXT',
+                icon: 'bx-group',
+                link: '/RH/employes-info',
                 parentId: 200
             }
         ]

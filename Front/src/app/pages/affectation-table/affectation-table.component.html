@@ -1,0 +1,310 @@
+<div class="container-fluid">
+  <!-- En-tête -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1">Gestion des Affectations RH</h2>
+      <p class="text-muted mb-0">Liaison des services avec leurs chefs A et B pour la validation des congés</p>
+    </div>
+    <button 
+      class="btn btn-primary"
+      [disabled]="loading"
+      (click)="addNewAffectation()">
+      <i class="fas fa-plus me-2"></i>
+      Nouvelle affectation
+    </button>
+  </div>
+
+  <!-- Messages d'alerte -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="clearMessages()"></button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="clearMessages()"></button>
+  </div>
+
+  <!-- Formulaire de nouvelle affectation -->
+  <div *ngIf="showNewForm" class="card mb-4">
+    <div class="card-header bg-light">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-plus-circle me-2"></i>
+        Nouvelle Affectation
+      </h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="newAffectationForm" (ngSubmit)="saveNewAffectation()">
+        <div class="row">
+          <!-- Service -->
+          <div class="col-md-3">
+            <label class="form-label">Service *</label>
+            <select 
+              class="form-select"
+              formControlName="serviceId"
+              [class.is-invalid]="newAffectationForm.get('serviceId')?.invalid && newAffectationForm.get('serviceId')?.touched">
+              <option value="">Sélectionner un service</option>
+              <option 
+                *ngFor="let service of services" 
+                [value]="service.idService">
+                {{ service.nomService }} - {{ service.libService }}
+              </option>
+            </select>
+            <div *ngIf="newAffectationForm.get('serviceId')?.invalid && newAffectationForm.get('serviceId')?.touched" 
+                 class="invalid-feedback">
+              Service requis
+            </div>
+          </div>
+
+          <!-- Chef A -->
+          <div class="col-md-3">
+            <label class="form-label">Chef A</label>
+            <select 
+              class="form-select"
+              formControlName="chefAId">
+              <option value="">Aucun chef</option>
+              <option 
+                *ngFor="let chef of availableChefs" 
+                [value]="chef.id">
+                {{ chef.prenom }} {{ chef.nom }} ({{ chef.matriculeP }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Chef B -->
+          <div class="col-md-3">
+            <label class="form-label">Chef B</label>
+            <select 
+              class="form-select"
+              formControlName="chefBId">
+              <option value="">Aucun chef</option>
+              <option 
+                *ngFor="let chef of availableChefs" 
+                [value]="chef.id"
+                [disabled]="chef.id === newAffectationForm.get('chefAId')?.value">
+                {{ chef.prenom }} {{ chef.nom }} ({{ chef.matriculeP }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Actions -->
+          <div class="col-md-3 d-flex align-items-end">
+            <button 
+              type="submit"
+              class="btn btn-success me-2"
+              [disabled]="loading || newAffectationForm.invalid">
+              <i class="fas fa-save me-1"></i>
+              Enregistrer
+            </button>
+            <button 
+              type="button"
+              class="btn btn-secondary"
+              (click)="cancelNewAffectation()">
+              <i class="fas fa-times me-1"></i>
+              Annuler
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tableau des affectations -->
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-table me-2"></i>
+        Tableau des Affectations
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <!-- Loading indicator -->
+      <div *ngIf="loading" class="text-center p-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-2 text-muted">Chargement des données...</p>
+      </div>
+
+      <!-- Tableau -->
+      <div *ngIf="!loading" class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">Nom du Service</th>
+              <th scope="col">Chef A</th>
+              <th scope="col">Chef B</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let affectation of affectations; trackBy: trackByServiceId" 
+                class="align-middle">
+              
+              <!-- Nom du service -->
+              <td>
+                <div class="fw-bold">{{ affectation.nomService }}</div>
+                <small class="text-muted">{{ affectation.libService }}</small>
+              </td>
+
+              <!-- Chef A -->
+              <td>
+                <div *ngIf="!affectation.isEditing">
+                  <div *ngIf="affectation.chefA" class="d-flex align-items-center">
+                    <div class="avatar-sm bg-success rounded-circle d-flex align-items-center justify-content-center me-2">
+                      <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold">{{ affectation.chefA.prenom }} {{ affectation.chefA.nom }}</div>
+                      <small class="text-muted">{{ affectation.chefA.matriculeP }}</small>
+                    </div>
+                  </div>
+                  <div *ngIf="!affectation.chefA" class="text-muted fst-italic">
+                    <i class="fas fa-user-slash me-1"></i>
+                    Non assigné
+                  </div>
+                </div>
+                <div *ngIf="affectation.isEditing">
+                  <select 
+                    class="form-select form-select-sm"
+                    [value]="affectation.chefA?.id || ''"
+                    (change)="onChefAChange(affectation, $any($event.target).value)">
+                    <option value="">Aucun chef</option>
+                    <option 
+                      *ngFor="let chef of getAvailableChefsForService(affectation.serviceId)" 
+                      [value]="chef.id"
+                      [disabled]="affectation.chefB?.id === chef.id">
+                      {{ chef.prenom }} {{ chef.nom }} ({{ chef.matriculeP }})
+                    </option>
+                  </select>
+                </div>
+              </td>
+
+              <!-- Chef B -->
+              <td>
+                <div *ngIf="!affectation.isEditing">
+                  <div *ngIf="affectation.chefB" class="d-flex align-items-center">
+                    <div class="avatar-sm bg-info rounded-circle d-flex align-items-center justify-content-center me-2">
+                      <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold">{{ affectation.chefB.prenom }} {{ affectation.chefB.nom }}</div>
+                      <small class="text-muted">{{ affectation.chefB.matriculeP }}</small>
+                    </div>
+                  </div>
+                  <div *ngIf="!affectation.chefB" class="text-muted fst-italic">
+                    <i class="fas fa-user-slash me-1"></i>
+                    Non assigné
+                  </div>
+                </div>
+                <div *ngIf="affectation.isEditing">
+                  <select 
+                    class="form-select form-select-sm"
+                    [value]="affectation.chefB?.id || ''"
+                    (change)="onChefBChange(affectation, $any($event.target).value)">
+                    <option value="">Aucun chef</option>
+                    <option 
+                      *ngFor="let chef of getAvailableChefsForService(affectation.serviceId)" 
+                      [value]="chef.id"
+                      [disabled]="affectation.chefA?.id === chef.id">
+                      {{ chef.prenom }} {{ chef.nom }} ({{ chef.matriculeP }})
+                    </option>
+                  </select>
+                </div>
+              </td>
+
+              <!-- Actions -->
+              <td>
+                <div *ngIf="!affectation.isEditing" class="btn-group btn-group-sm">
+                  <button 
+                    class="btn btn-outline-primary"
+                    (click)="editAffectation(affectation)"
+                    [disabled]="loading">
+                    <i class="fas fa-edit"></i>
+                    Modifier
+                  </button>
+                  <button 
+                    class="btn btn-outline-danger"
+                    (click)="deleteAffectation(affectation)"
+                    [disabled]="loading">
+                    <i class="fas fa-trash"></i>
+                    Supprimer
+                  </button>
+                </div>
+                <div *ngIf="affectation.isEditing" class="btn-group btn-group-sm">
+                  <button 
+                    class="btn btn-success"
+                    (click)="saveAffectation(affectation)"
+                    [disabled]="loading">
+                    <i class="fas fa-save"></i>
+                    Sauvegarder
+                  </button>
+                  <button 
+                    class="btn btn-secondary"
+                    (click)="cancelEdit(affectation)"
+                    [disabled]="loading">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Message si aucune donnée -->
+            <tr *ngIf="affectations.length === 0 && !loading">
+              <td colspan="4" class="text-center py-4">
+                <div class="text-muted">
+                  <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
+                  <p class="mb-0">Aucune affectation trouvée</p>
+                  <p class="small">Cliquez sur "Nouvelle affectation" pour commencer</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques en bas -->
+  <div class="row mt-4" *ngIf="!loading">
+    <div class="col-md-3">
+      <div class="card border-primary">
+        <div class="card-body text-center">
+          <i class="fas fa-building text-primary fa-2x mb-2"></i>
+          <h5 class="card-title">{{ services.length }}</h5>
+          <p class="card-text text-muted">Services totaux</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-success">
+        <div class="card-body text-center">
+          <i class="fas fa-users text-success fa-2x mb-2"></i>
+          <h5 class="card-title">{{ allChefs.length }}</h5>
+          <p class="card-text text-muted">Chefs disponibles</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-info">
+        <div class="card-body text-center">
+          <i class="fas fa-user-check text-info fa-2x mb-2"></i>
+          <h5 class="card-title">{{ getChefACount() }}</h5>
+          <p class="card-text text-muted">Chef A assignés</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-warning">
+        <div class="card-body text-center">
+          <i class="fas fa-user-plus text-warning fa-2x mb-2"></i>
+          <h5 class="card-title">{{ getChefBCount() }}</h5>
+          <p class="card-text text-muted">Chef B assignés</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
