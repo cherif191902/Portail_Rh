@@ -6,14 +6,7 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.MENU.TEXT',
         isTitle: true
     },
-    // Dashboard pour Employé (accessible à tous)
-    {
-        id: 5,
-        label: 'MENUITEMS.DASHBOARD.TEXT',
-        icon: 'bx-home-circle',
-        link: '/dashboards/default'
-        // Pas de requiredRoles = accessible à tous les utilisateurs connectés
-    },
+    // (Entrée dashboard générale supprimée - conservons uniquement les dashboards spécifiques)
     // Dashboard pour Chef
     {
         id: 6,
@@ -36,76 +29,8 @@ export const MENU: MenuItem[] = [
         link: '/dashboards/rh',
         requiredRoles: ['ROLE_RH', 'ROLE_ADMIN']
     },
-    // Section Congés (accessible à tous)
-    {
-        id: 20,
-        label: 'MENUITEMS.CONGES_SECTION.TEXT',
-        isTitle: true
-    },
-    {
-        id: 21,
-        label: 'MENUITEMS.CONGES_GROUP.TEXT',
-        icon: 'bx-calendar-event',
-        subItems: [
-            {
-                id: 211,
-                label: 'MENUITEMS.NOUVELLE_DEMANDE_CONGE.TEXT',
-                icon: 'bx-plus-circle',
-                link: '/conges/demande',
-                parentId: 21
-            },
-            {
-                id: 212,
-                label: 'MENUITEMS.MES_CONGES.TEXT',
-                icon: 'bx-list-ul',
-                link: '/conges/list',
-                parentId: 21
-            },
-            {
-                id: 213,
-                label: 'MENUITEMS.SUIVI_CONGES.TEXT',
-                icon: 'bx-search',
-                link: '/conges/suivi',
-                parentId: 21
-            }
-        ]
-    },
-    // Section Chef
-    {
-        id: 30,
-        label: 'MENUITEMS.CHEF_SECTION.TEXT',
-        isTitle: true,
-        requiredRoles: ['ROLE_CHEF_SERVICE', 'ROLE_CHEF_A', 'ROLE_CHEF_B']
-    },
-    {
-        id: 31,
-        label: 'MENUITEMS.ESPACE_CHEF.TEXT',
-        icon: 'bx-user-voice',
-        requiredRoles: ['ROLE_CHEF_SERVICE', 'ROLE_CHEF_A', 'ROLE_CHEF_B'],
-        subItems: [
-            {
-                id: 311,
-                label: 'MENUITEMS.DEMANDE_CHEF.TEXT',
-                icon: 'bx-task',
-                link: '/chef/demandes',
-                parentId: 31
-            },
-            {
-                id: 312,
-                label: 'MENUITEMS.HISTORIQUE_CHEF.TEXT',
-                icon: 'bx-history',
-                link: '/chef/historique',
-                parentId: 31
-            },
-            {
-                id: 313,
-                label: 'MENUITEMS.MON_EQUIPE.TEXT',
-                icon: 'bx-group',
-                link: '/chef/equipe',
-                parentId: 31
-            }
-        ]
-    },
+    // Section Congés supprimée (gérée via l'espace RH uniquement)
+    // Section Chef supprimée - accès chef géré différemment
     {
         id: 15,
         label: 'MENUITEMS.ADMIN_SECTION.TEXT',
