@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { TokenStorage } from '../core/services/tokenservice.service';
 
 // Interfaces
 export interface Chef {
@@ -74,18 +75,28 @@ export interface AffectationResponse {
 export class AffectationSimpleService {
   private apiUrl = 'http://localhost:8089/api/rh';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private tokenStorage: TokenStorage
+  ) {}
 
   // Méthode pour obtenir les headers d'authentification
   private getAuthHeaders(): HttpHeaders {
-    // Recherche du token dans différents emplacements de stockage
-    let token = 
-      sessionStorage.getItem('auth-token') ||
-      sessionStorage.getItem('token') || 
-      sessionStorage.getItem('authToken') ||
-      localStorage.getItem('accessToken') ||
-      localStorage.getItem('token') ||
-      localStorage.getItem('authToken');
+    // Utilisation du TokenStorage en premier
+    let token = this.tokenStorage.getToken();
+    
+    // Fallback vers les autres emplacements si pas trouvé
+    if (!token) {
+      token = 
+        sessionStorage.getItem('auth-token') ||
+        sessionStorage.getItem('token') || 
+        sessionStorage.getItem('authToken') ||
+        localStorage.getItem('accessToken') ||
+        localStorage.getItem('token') ||
+        localStorage.getItem('authToken');
+    }
+    
+    console.log('🔑 Token trouvé:', token ? `Présent (${token.length} chars)` : 'ABSENT');
     
     if (token && !token.startsWith('Bearer ')) {
       token = 'Bearer ' + token;
@@ -94,7 +105,7 @@ export class AffectationSimpleService {
     const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
-    };
+    } as any;
 
     if (token) {
       headers['Authorization'] = token;
@@ -141,7 +152,7 @@ export class AffectationSimpleService {
       );
   }
 
-  // Récupérer les chefs disponibles (avec rôle CHEF_SERVICE)
+  // Récupérer les chefs disponibles (avec rôles CHEF_A ou CHEF_B)
   getChefsDisponibles(): Observable<Chef[]> {
     const headers = this.getAuthHeaders();
     console.log('📡 Appel API getChefsDisponibles avec headers:', headers);
@@ -154,6 +165,24 @@ export class AffectationSimpleService {
         }),
         catchError(error => {
           console.error('❌ Erreur getChefsDisponibles:', error);
+          throw error;
+        })
+      );
+  }
+
+  // Récupérer les personnels d'un service spécifique (pour l'affectation des chefs)
+  getPersonnelsParService(serviceId: number): Observable<Chef[]> {
+    const headers = this.getAuthHeaders();
+    console.log('📡 Récupération des personnels du service:', serviceId);
+    
+    return this.http.get<Chef[]>(`${this.apiUrl}/services/${serviceId}/personnels`, { headers })
+      .pipe(
+        map(personnels => {
+          console.log('✅ Personnels du service:', personnels);
+          return personnels;
+        }),
+        catchError(error => {
+          console.error('❌ Erreur getPersonnelsParService:', error);
           throw error;
         })
       );
@@ -244,10 +273,32 @@ export class AffectationSimpleService {
   }
 
   /**
-   * Supprimer l'affectation d'un chef A ou B
+   * Supprimer l'affectation d'un chef A ou B (version optimisée)
    */
   supprimerAffectationChef(serviceId: number, typeChef: 'CHEF_A' | 'CHEF_B'): Observable<AffectationResponse> {
+    console.log(`🗑️ Suppression ${typeChef} pour service ${serviceId}`);
+    
     return this.http.delete<AffectationResponse>(`${this.apiUrl}/affectations/chef/${serviceId}/${typeChef}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      map(response => {
+        console.log('✅ Suppression réussie:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('❌ Erreur suppression:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Version simplifiée pour suppression optimisée
+   */
+  supprimerChef(serviceId: number, typeChef: string): Observable<any> {
+    console.log(`🗑️ Suppression rapide ${typeChef} pour service ${serviceId}`);
+    
+    return this.http.delete(`${this.apiUrl}/affectations/chef/${serviceId}/${typeChef}`, {
       headers: this.getAuthHeaders()
     });
   }
@@ -282,5 +333,72 @@ export class AffectationSimpleService {
         return results;
       })
     );
+  }
+
+  // ===== NOUVELLES MÉTHODES AVEC SERVICE CENTRALISÉ =====
+
+  /**
+   * Affecter un chef selon spécifications : remplacement, inversion, affectation simple
+   * PUT /api/rh/affectations/chef/{serviceId}/{role}/{userId}
+   */
+  affecterChefAvecMiseAJour(serviceId: number, role: 'CHEF_A' | 'CHEF_B', userId: number): Observable<AffectationResponse> {
+    const headers = this.getAuthHeaders();
+    const roleParam = `ROLE_${role}`; // Convertir CHEF_A → ROLE_CHEF_A pour backend
+    console.log('📡 Affectation chef avec logique complète:', { serviceId, role: roleParam, userId });
+    
+    return this.http.put<AffectationResponse>(`${this.apiUrl}/affectations/chef/${serviceId}/${roleParam}/${userId}`, {}, { headers })
+      .pipe(
+        map(response => {
+          console.log('✅ Chef affecté avec mise à jour complète:', response);
+          return response;
+        }),
+        catchError(error => {
+          console.error('❌ Erreur affectation chef avec mise à jour:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Supprimer un chef selon spécifications : NULL + ROLE_USER + mise à jour congés
+   * DELETE /api/rh/affectations/chef/{serviceId}/{role}
+   */
+  supprimerChefAvecMiseAJour(serviceId: number, role: 'CHEF_A' | 'CHEF_B'): Observable<AffectationResponse> {
+    const headers = this.getAuthHeaders();
+    const roleParam = `ROLE_${role}`; // Convertir CHEF_A → ROLE_CHEF_A pour backend
+    console.log('📡 Suppression chef avec logique complète:', { serviceId, role: roleParam });
+    
+    return this.http.delete<AffectationResponse>(`${this.apiUrl}/affectations/chef/${serviceId}/${roleParam}`, { headers })
+      .pipe(
+        map(response => {
+          console.log('✅ Chef supprimé avec nettoyage complet:', response);
+          return response;
+        }),
+        catchError(error => {
+          console.error('❌ Erreur suppression chef avec mise à jour:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Vérifier la cohérence globale du système
+   * GET /api/rh/affectations/coherence
+   */
+  verifierCoherenceGlobale(): Observable<AffectationResponse> {
+    const headers = this.getAuthHeaders();
+    console.log('📡 Vérification cohérence globale du système');
+    
+    return this.http.get<AffectationResponse>(`${this.apiUrl}/affectations/coherence`, { headers })
+      .pipe(
+        map(response => {
+          console.log('✅ Cohérence globale vérifiée:', response);
+          return response;
+        }),
+        catchError(error => {
+          console.error('❌ Erreur vérification cohérence globale:', error);
+          throw error;
+        })
+      );
   }
 }

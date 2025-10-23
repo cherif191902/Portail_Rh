@@ -15,12 +15,14 @@ import { SharedModule } from '../../shared/shared.module';
 import { DemandeCongeComponent } from './demande';
 import { SuiviDemandesComponent } from './suivi';
 import { HistoriqueCongesComponent } from './historique';
+import { MesDemandesComponent } from './mes-demandes/mes-demandes.component';
 
 @NgModule({
   declarations: [
     DemandeCongeComponent,
     SuiviDemandesComponent,
-    HistoriqueCongesComponent
+    HistoriqueCongesComponent,
+    MesDemandesComponent
   ],
   imports: [
     CommonModule,

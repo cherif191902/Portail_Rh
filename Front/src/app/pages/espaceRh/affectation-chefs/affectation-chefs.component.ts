@@ -32,9 +32,18 @@ export class AffectationChefsComponent implements OnInit {
   // Données principales
   services: Service[] = [];
   chefsDisponibles: Chef[] = [];
+  personnelsService: Chef[] = []; // Personnels du service sélectionné (pour Chef A et Chef B)
   affectations: Affectation[] = [];
   
-  // Formulaires
+  // Nouveau formulaire unifié
+  selectedServiceId: number | null = null;
+  selectedChefAId: number | null = null;
+  selectedChefBId: number | null = null;
+  currentChefA: Chef | null = null;
+  currentChefB: Chef | null = null;
+  loadingPersonnels = false;
+  
+  // Anciens formulaires (conservés pour compatibilité)
   affectationForm: AffectationForm = {
     chefId: null,
     serviceId: null
@@ -45,7 +54,6 @@ export class AffectationChefsComponent implements OnInit {
     nouveauChefId: null
   };
 
-  // Nouveau formulaire pour Chef A et Chef B
   affectationChefForm: AffectationChefForm = {
     serviceId: null,
     chefAId: null,
@@ -344,9 +352,9 @@ export class AffectationChefsComponent implements OnInit {
   }
 
   /**
-   * Supprimer l'affectation d'un Chef A
+   * Supprimer l'affectation d'un Chef A (version optimisée)
    */
-  supprimerChefA(serviceId: number): void {
+  async supprimerChefA(serviceId: number): Promise<void> {
     if (!confirm('Êtes-vous sûr de vouloir supprimer l\'affectation du Chef A ?')) {
       return;
     }
@@ -354,34 +362,34 @@ export class AffectationChefsComponent implements OnInit {
     this.loadingAction = true;
     this.clearMessage();
 
-    this.affectationService.supprimerAffectationChef(serviceId, 'CHEF_A').subscribe({
-      next: (response) => {
-        this.loadingAction = false;
-        if (response.success) {
-          this.showMessage('✅ ' + response.message, 'success');
-          this.loadData();
-        } else {
-          this.showMessage('❌ ' + response.message, 'error');
-        }
-      },
-      error: (error) => {
-        this.loadingAction = false;
-        console.error('❌ Erreur suppression Chef A:', error);
-        
-        let errorMessage = 'Erreur lors de la suppression du Chef A';
-        if (error.error && error.error.message) {
-          errorMessage = error.error.message;
-        }
-        
-        this.showMessage('❌ ' + errorMessage, 'error');
+    try {
+      await this.affectationService.supprimerChef(serviceId, 'CHEF_A').toPromise();
+      this.showMessage('✅ Chef A supprimé avec succès', 'success');
+      this.refreshData(); // Rafraîchissement ciblé
+    } catch (error: any) {
+      console.error('❌ Erreur suppression Chef A:', error);
+      
+      let errorMessage = 'Erreur lors de la suppression du Chef A';
+      if (error?.status === 401) {
+        errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+      } else if (error?.status === 403) {
+        errorMessage = 'Accès non autorisé. Permissions insuffisantes.';
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
       }
-    });
+      
+      this.showMessage('❌ ' + errorMessage, 'error');
+    } finally {
+      this.loadingAction = false;
+    }
   }
 
   /**
-   * Supprimer l'affectation d'un Chef B
+   * Supprimer l'affectation d'un Chef B (version optimisée)
    */
-  supprimerChefB(serviceId: number): void {
+  async supprimerChefB(serviceId: number): Promise<void> {
     if (!confirm('Êtes-vous sûr de vouloir supprimer l\'affectation du Chef B ?')) {
       return;
     }
@@ -389,28 +397,28 @@ export class AffectationChefsComponent implements OnInit {
     this.loadingAction = true;
     this.clearMessage();
 
-    this.affectationService.supprimerAffectationChef(serviceId, 'CHEF_B').subscribe({
-      next: (response) => {
-        this.loadingAction = false;
-        if (response.success) {
-          this.showMessage('✅ ' + response.message, 'success');
-          this.loadData();
-        } else {
-          this.showMessage('❌ ' + response.message, 'error');
-        }
-      },
-      error: (error) => {
-        this.loadingAction = false;
-        console.error('❌ Erreur suppression Chef B:', error);
-        
-        let errorMessage = 'Erreur lors de la suppression du Chef B';
-        if (error.error && error.error.message) {
-          errorMessage = error.error.message;
-        }
-        
-        this.showMessage('❌ ' + errorMessage, 'error');
+    try {
+      await this.affectationService.supprimerChef(serviceId, 'CHEF_B').toPromise();
+      this.showMessage('✅ Chef B supprimé avec succès', 'success');
+      this.refreshData(); // Rafraîchissement ciblé
+    } catch (error: any) {
+      console.error('❌ Erreur suppression Chef B:', error);
+      
+      let errorMessage = 'Erreur lors de la suppression du Chef B';
+      if (error?.status === 401) {
+        errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+      } else if (error?.status === 403) {
+        errorMessage = 'Accès non autorisé. Permissions insuffisantes.';
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
       }
-    });
+      
+      this.showMessage('❌ ' + errorMessage, 'error');
+    } finally {
+      this.loadingAction = false;
+    }
   }
 
   // ===== UTILITY METHODS =====
@@ -499,6 +507,57 @@ export class AffectationChefsComponent implements OnInit {
   }
 
   /**
+   * Obtenir les personnels du service sélectionné (pour Chef A et Chef B)
+   */
+  getPersonnelsService(): Chef[] {
+    return this.personnelsService.filter(personnel => 
+      // Exclure les personnels déjà affectés comme Chef A ou Chef B
+      personnel.id !== this.affectationChefForm.chefAId && 
+      personnel.id !== this.affectationChefForm.chefBId
+    );
+  }
+
+  /**
+   * Méthode appelée quand le service change dans le formulaire Chef A/B
+   */
+  onServiceChangeForChefs(): void {
+    if (this.affectationChefForm.serviceId) {
+      console.log('🔄 Changement de service pour affectation Chef A/B:', this.affectationChefForm.serviceId);
+      
+      // Réinitialiser les sélections de chefs
+      this.affectationChefForm.chefAId = null;
+      this.affectationChefForm.chefBId = null;
+      
+      // Charger les personnels du service
+      this.chargerPersonnelsService(this.affectationChefForm.serviceId);
+    } else {
+      // Vider la liste si aucun service sélectionné
+      this.personnelsService = [];
+      this.affectationChefForm.chefAId = null;
+      this.affectationChefForm.chefBId = null;
+    }
+  }
+
+  /**
+   * Charger les personnels d'un service spécifique
+   */
+  private chargerPersonnelsService(serviceId: number): void {
+    console.log('📡 Chargement des personnels du service:', serviceId);
+    
+    this.affectationService.getPersonnelsParService(serviceId).subscribe({
+      next: (personnels) => {
+        this.personnelsService = personnels;
+        console.log('✅ Personnels du service chargés:', this.personnelsService.length);
+      },
+      error: (error) => {
+        console.error('❌ Erreur chargement personnels du service:', error);
+        this.showMessage('Erreur lors du chargement des personnels du service.', 'error');
+        this.personnelsService = [];
+      }
+    });
+  }
+
+  /**
    * Obtenir les services sans chef
    */
   getServicesLibres(): Service[] {
@@ -527,6 +586,13 @@ export class AffectationChefsComponent implements OnInit {
       chefId: null,
       serviceId: null
     };
+    
+    // Réinitialiser aussi le nouveau formulaire unifié
+    this.selectedServiceId = null;
+    this.resetServiceSelection();
+    
+    // Recharger les données
+    this.loadData();
   }
 
   /**
@@ -548,16 +614,33 @@ export class AffectationChefsComponent implements OnInit {
       chefAId: null,
       chefBId: null
     };
+    // Vider la liste des personnels du service
+    this.personnelsService = [];
   }
 
   // ===== UTILITY AND DEBUG METHODS =====
 
   /**
-   * Actualiser les données
+   * Actualiser les données (version optimisée)
    */
   refreshData(): void {
-    console.log('🔄 Actualisation des données...');
-    this.loadData();
+    console.log('🔄 Rafraîchissement rapide des données...');
+
+    forkJoin({
+      services: this.affectationService.getServices(),
+      affectations: this.affectationService.getAllAffectations()
+    }).subscribe({
+      next: (data) => {
+        this.services = data.services;
+        this.affectations = data.affectations;
+        console.log('✅ Données rafraîchies rapidement');
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du rafraîchissement:', error);
+        // Fallback vers rechargement complet si erreur
+        this.loadData();
+      }
+    });
   }
 
   /**
@@ -641,6 +724,257 @@ export class AffectationChefsComponent implements OnInit {
         this.showMessage('❌ Échec de connexion au backend. Vérifiez la console.', 'error');
       }
     });
+  }
+
+  // ===== NOUVELLES MÉTHODES POUR LE FORMULAIRE UNIFIÉ =====
+
+  /**
+   * Méthode appelée lors du changement de service
+   */
+  onServiceChange(): void {
+    if (this.selectedServiceId) {
+      console.log('🔄 Changement de service:', this.selectedServiceId);
+      this.loadServiceDetails(this.selectedServiceId);
+      this.loadPersonnelsForService(this.selectedServiceId);
+    } else {
+      this.resetServiceSelection();
+    }
+  }
+
+  /**
+   * Charger les détails du service sélectionné (chefs actuels)
+   */
+  private loadServiceDetails(serviceId: number): void {
+    // Trouver le service dans la liste
+    const service = this.services.find(s => s.idService === serviceId);
+    if (service) {
+      // Récupérer les chefs actuels depuis les affectations
+      const affectation = this.affectations.find(a => a.serviceId === serviceId);
+      this.currentChefA = affectation?.chefA || null;
+      this.currentChefB = affectation?.chefB || null;
+      
+      // 🔄 INITIALISER LES CHAMPS AVEC LES CHEFS ACTUELS
+      this.selectedChefAId = this.currentChefA?.id || null;
+      this.selectedChefBId = this.currentChefB?.id || null;
+      
+      console.log('📋 Service sélectionné:', service.nomService);
+      console.log('👤 Chef A actuel:', this.currentChefA);
+      console.log('👤 Chef B actuel:', this.currentChefB);
+      console.log('🔧 Champs initialisés - Chef A ID:', this.selectedChefAId);
+      console.log('🔧 Champs initialisés - Chef B ID:', this.selectedChefBId);
+    }
+  }
+
+  /**
+   * Charger les personnels du service sélectionné
+   */
+  private loadPersonnelsForService(serviceId: number): void {
+    this.loadingPersonnels = true;
+    this.personnelsService = [];
+    
+    this.affectationService.getPersonnelsParService(serviceId).subscribe({
+      next: (personnels) => {
+        this.personnelsService = personnels;
+        this.loadingPersonnels = false;
+        console.log('✅ Personnels du service chargés:', this.personnelsService.length);
+      },
+      error: (error) => {
+        console.error('❌ Erreur chargement personnels du service:', error);
+        this.showMessage('Erreur lors du chargement des personnels du service.', 'error');
+        this.loadingPersonnels = false;
+        this.personnelsService = [];
+      }
+    });
+  }
+
+  /**
+   * Obtenir les personnels disponibles pour affectation
+   */
+  getAvailablePersonnels(type: 'CHEF_A' | 'CHEF_B' | 'ALL'): Chef[] {
+    if (!this.personnelsService.length) {
+      return [];
+    }
+
+    return this.personnelsService.filter(personnel => {
+      // Exclure les chefs déjà affectés selon le type demandé
+      if (type === 'CHEF_A') {
+        return personnel.id !== this.currentChefB?.id;
+      } else if (type === 'CHEF_B') {
+        return personnel.id !== this.currentChefA?.id;
+      }
+      return true; // Pour 'ALL', retourner tous les personnels
+    });
+  }
+
+  /**
+   * Affecter un chef (Chef A ou Chef B) avec mise à jour automatique complète
+   */
+  affecterChef(typeChef: 'CHEF_A' | 'CHEF_B'): void {
+    if (!this.selectedServiceId) {
+      this.showMessage('Veuillez sélectionner un service.', 'error');
+      return;
+    }
+
+    const chefId = typeChef === 'CHEF_A' ? this.selectedChefAId : this.selectedChefBId;
+    if (!chefId) {
+      this.showMessage(`Veuillez sélectionner un ${typeChef.replace('_', ' ')}.`, 'error');
+      return;
+    }
+
+    // Confirmer l'action si un chef est déjà en place
+    const currentChef = typeChef === 'CHEF_A' ? this.currentChefA : this.currentChefB;
+    if (currentChef) {
+      const confirmMessage = `Remplacer ${currentChef.prenom} ${currentChef.nom} par ${this.getPersonnelName(chefId)} comme ${typeChef.replace('_', ' ')} ?`;
+      if (!confirm(confirmMessage)) {
+        return;
+      }
+    }
+
+    this.loadingAction = true;
+    this.clearMessage();
+
+    // Utiliser le nouveau service centralisé
+    this.affectationService.affecterChefAvecMiseAJour(this.selectedServiceId, typeChef, chefId).subscribe({
+      next: (response) => {
+        this.loadingAction = false;
+        if (response.success) {
+          // Message de succès avec toasts
+          this.showMessage(`✅ ${response.message} Toutes les références ont été mises à jour automatiquement.`, 'success');
+          
+          // Réinitialiser la sélection
+          if (typeChef === 'CHEF_A') {
+            this.selectedChefAId = null;
+          } else {
+            this.selectedChefBId = null;
+          }
+          
+          // Recharger toutes les données pour refléter les changements
+          this.loadData();
+          // Petite pause pour laisser le temps au backend de finaliser
+          setTimeout(() => {
+            this.onServiceChange();
+          }, 500);
+        } else {
+          this.showMessage(`❌ ${response.message}`, 'error');
+        }
+      },
+      error: (error) => {
+        this.loadingAction = false;
+        console.error(`❌ Erreur affectation ${typeChef}:`, error);
+        let errorMessage = `Erreur lors de l'affectation du ${typeChef.replace('_', ' ')}`;
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        }
+        this.showMessage(`❌ ${errorMessage}`, 'error');
+      }
+    });
+  }
+
+  /**
+   * Supprimer un chef (Chef A ou Chef B) avec mise à jour automatique complète
+   */
+  supprimerChef(typeChef: 'CHEF_A' | 'CHEF_B'): void {
+    if (!this.selectedServiceId) {
+      this.showMessage('Veuillez sélectionner un service.', 'error');
+      return;
+    }
+
+    const currentChef = typeChef === 'CHEF_A' ? this.currentChefA : this.currentChefB;
+    if (!currentChef) {
+      this.showMessage(`Aucun ${typeChef.replace('_', ' ')} à supprimer.`, 'error');
+      return;
+    }
+
+    const confirmMessage = `Êtes-vous sûr de vouloir supprimer ${currentChef.prenom} ${currentChef.nom} de son poste de ${typeChef.replace('_', ' ')} ?
+    
+    Cette action va automatiquement :
+    • Retirer son rôle de chef
+    • Mettre à jour toutes les références dans les demandes de congé
+    • Assurer la cohérence des données`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    this.loadingAction = true;
+    this.clearMessage();
+
+    // Utiliser le nouveau service centralisé
+    this.affectationService.supprimerChefAvecMiseAJour(this.selectedServiceId, typeChef).subscribe({
+      next: (response) => {
+        this.loadingAction = false;
+        if (response.success) {
+          this.showMessage(`✅ ${response.message} Toutes les références ont été nettoyées automatiquement.`, 'success');
+          
+          // Recharger toutes les données pour refléter les changements
+          this.loadData();
+          // Petite pause pour laisser le temps au backend de finaliser
+          setTimeout(() => {
+            this.onServiceChange();
+          }, 500);
+        } else {
+          this.showMessage(`❌ ${response.message}`, 'error');
+        }
+      },
+      error: (error) => {
+        this.loadingAction = false;
+        console.error(`❌ Erreur suppression ${typeChef}:`, error);
+        let errorMessage = `Erreur lors de la suppression du ${typeChef.replace('_', ' ')}`;
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        }
+        this.showMessage(`❌ ${errorMessage}`, 'error');
+      }
+    });
+  }
+
+  /**
+   * Vérifier la cohérence globale du système
+   */
+  verifierCoherenceGlobale(): void {
+    this.loadingAction = true;
+    this.clearMessage();
+
+    this.affectationService.verifierCoherenceGlobale().subscribe({
+      next: (response) => {
+        this.loadingAction = false;
+        if (response.success) {
+          if (response.data && response.data.length > 0) {
+            const incohérences = response.data.map((inc: any) => `• ${inc}`).join('\n');
+            this.showMessage(`⚠️ Incohérences détectées :\n${incohérences}`, 'warning');
+          } else {
+            this.showMessage('✅ Toutes les données sont cohérentes ! RH unique assigné, chefs correctement affectés.', 'success');
+          }
+        } else {
+          this.showMessage(`❌ ${response.message}`, 'error');
+        }
+      },
+      error: (error) => {
+        this.loadingAction = false;
+        console.error('❌ Erreur vérification cohérence globale:', error);
+        this.showMessage('❌ Erreur lors de la vérification de cohérence globale', 'error');
+      }
+    });
+  }
+
+  /**
+   * Obtenir le nom d'un personnel par son ID
+   */
+  private getPersonnelName(personnelId: number): string {
+    const personnel = this.personnelsService.find(p => p.id === personnelId);
+    return personnel ? `${personnel.prenom} ${personnel.nom}` : 'Personnel inconnu';
+  }
+
+  /**
+   * Réinitialiser la sélection de service
+   */
+  private resetServiceSelection(): void {
+    this.selectedChefAId = null;
+    this.selectedChefBId = null;
+    this.currentChefA = null;
+    this.currentChefB = null;
+    this.personnelsService = [];
+    this.loadingPersonnels = false;
   }
 
 }

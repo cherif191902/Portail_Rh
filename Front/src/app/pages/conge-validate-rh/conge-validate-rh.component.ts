@@ -27,7 +27,7 @@ export class CongeValidateRhComponent implements OnInit {
     
     console.log('🔄 Chargement des demandes RH en attente...');
     
-    this.congeApiService.getDemandesEnAttenteRh().subscribe({
+    this.congeApiService.getDemandesRhHierarchique().subscribe({
       next: (demandes) => {
         this.demandes = demandes;
         this.isLoading = false;
@@ -79,7 +79,7 @@ export class CongeValidateRhComponent implements OnInit {
 
         console.log('✅ Validation de la demande ID:', demande.id);
         
-        return this.congeApiService.validerConge(demande.id, validationData).toPromise()
+        return this.congeApiService.validerRhHierarchique(demande.id, validationData).toPromise()
           .then(response => {
             console.log('✅ Demande validée avec succès:', response);
             return response;
@@ -137,7 +137,7 @@ export class CongeValidateRhComponent implements OnInit {
 
         console.log('❌ Refus de la demande ID:', demande.id);
         
-        return this.congeApiService.refuserConge(demande.id, validationData).toPromise()
+        return this.congeApiService.validerRhHierarchique(demande.id, validationData).toPromise()
           .then(response => {
             console.log('❌ Demande refusée avec succès:', response);
             return response;

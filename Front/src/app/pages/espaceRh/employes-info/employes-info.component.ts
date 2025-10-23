@@ -2,28 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TokenStorage } from '../../../core/services/tokenservice.service';
+import { EmployesService, EmployeComplet, Service, ServiceComplet } from '../../../services/employes.service';
 
-export interface Employe {
-  id: number;
-  nom: string;
-  prenom: string;
-  matriculeP: string;
-  email: string;
-  dateEmbauche?: string;
-  phone?: string;
-  service?: {
-    idService: number;
-    nomService: string;
-    libService: string;
-  };
-  roles: string[];
+// Interface pour compatibilité avec le code existant
+export interface Employe extends EmployeComplet {
   isActive?: boolean;
-}
-
-export interface Service {
-  idService: number;
-  nomService: string;
-  libService: string;
 }
 
 @Component({
@@ -53,14 +36,13 @@ export class EmployesInfoComponent implements OnInit {
   searchText = '';
 
   // Colonnes du tableau
-  displayedColumns = ['nomComplet', 'service', 'roles', 'matricule', 'email', 'actions'];
-
-  private baseUrl = 'http://localhost:8089/api';
+  displayedColumns = ['nomComplet', 'service', 'chefs', 'rhResponsable', 'roles', 'email', 'actions'];
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private tokenStorage: TokenStorage
+    private tokenStorage: TokenStorage,
+    private employesService: EmployesService
   ) {
     this.searchForm = this.fb.group({
       searchText: [''],
@@ -101,20 +83,94 @@ export class EmployesInfoComponent implements OnInit {
   }
 
   /**
-   * Headers avec token d'authentification
+   * Debug de l'authentification - méthode temporaire
    */
-  private getHttpHeaders(): HttpHeaders {
-    const token = this.tokenStorage.getToken();
-    console.log('Token récupéré:', token ? 'Token présent' : 'Aucun token');
+  debugAuthentication(): void {
+    console.log('🔧 === DEBUG AUTHENTIFICATION ===');
     
-    if (!token) {
-      console.warn('Aucun token d\'authentification trouvé');
+    const token = this.tokenStorage.getToken();
+    const user = this.tokenStorage.getUser();
+    
+    console.log('🔑 Token:', token ? `Présent (${token.length} chars)` : 'ABSENT');
+    console.log('👤 User object:', user);
+    console.log('🏷️ User roles:', user?.roles);
+    console.log('🛡️ hasRhPermissions():', this.employesService.hasRhPermissions());
+    
+    // Afficher les items du sessionStorage
+    console.log('💾 SessionStorage auth-token:', sessionStorage.getItem('auth-token'));
+    console.log('💾 SessionStorage auth-user:', sessionStorage.getItem('auth-user'));
+    
+    // Test simple d'appel API
+    console.log('🧪 Test appel API simple...');
+    try {
+      const headers = this.employesService['getHttpHeaders']();
+      console.log('📡 Headers générés:', headers);
+    } catch (error) {
+      console.error('❌ Erreur génération headers:', error);
     }
     
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
+    alert(`Debug Auth - Token: ${token ? 'Présent' : 'ABSENT'} | User: ${user?.username || user?.email || 'ABSENT'} | Roles: ${user?.roles?.join(', ') || 'AUCUN'}`);
+  }
+
+  /**
+   * Test de l'ancien endpoint - méthode temporaire
+   */
+  async testOldEndpoint(): Promise<void> {
+    console.log('🧪 === TEST ANCIEN ENDPOINT ===');
+    
+    try {
+      const token = this.tokenStorage.getToken();
+      if (!token) {
+        alert('❌ Aucun token trouvé !');
+        return;
+      }
+
+      console.log('🔑 Token trouvé, test appel API...');
+
+      // Test direct avec l'ancien endpoint qui marche
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      });
+
+      const result = await this.http.get('http://localhost:8089/api/services/personnels', { headers }).toPromise();
+      
+      console.log('✅ Ancien endpoint fonctionne !', result);
+      alert(`✅ Ancien endpoint OK ! ${Array.isArray(result) ? result.length : 0} employés trouvés`);
+      
+      // Utiliser ces données temporairement
+      if (Array.isArray(result)) {
+        this.employes = result as any[];
+        this.filteredEmployes = [...this.employes];
+        this.totalItems = this.employes.length;
+        console.log('📊 Données temporaires chargées:', this.employes.length, 'employés');
+      }
+
+    } catch (error: any) {
+      console.error('❌ Ancien endpoint échoue aussi:', error);
+      alert(`❌ Ancien endpoint échoue : ${error.status} ${error.statusText}`);
+    }
+  }
+
+  /**
+   * Vérifie la cohérence globale du système
+   */
+  async verifierCoherenceGlobale(): Promise<void> {
+    try {
+      console.log('🔍 Vérification de la cohérence globale...');
+      const result = await this.employesService.verifierCoherenceGlobale().toPromise();
+      
+      if (result && result.coherent) {
+        console.log('✅ Système cohérent !');
+        alert('✅ Système cohérent ! Toutes les données sont correctes.');
+      } else {
+        console.warn('⚠️ Incohérences détectées:', result);
+        alert('⚠️ Des incohérences ont été détectées. Consultez les logs pour plus de détails.');
+      }
+    } catch (error: any) {
+      console.error('❌ Erreur lors de la vérification:', error);
+      alert('❌ Erreur lors de la vérification de cohérence. Consultez les logs.');
+    }
   }
 
   /**
@@ -125,29 +181,24 @@ export class EmployesInfoComponent implements OnInit {
     this.error = null;
     
     try {
-      // Vérifier d'abord si l'utilisateur est connecté
-      const token = this.tokenStorage.getToken();
-      if (!token) {
-        throw new Error('Utilisateur non authentifié. Veuillez vous reconnecter.');
-      }
-
-      console.log('Chargement des données employés et services...');
+      console.log('🚀 Chargement données employés...');
       
-      // Charger les employés, services et extraire les rôles
-      const [employesData, servicesData] = await Promise.all([
-        this.http.get<Employe[]>(`${this.baseUrl}/users/all`, { headers: this.getHttpHeaders() }).toPromise(),
-        this.http.get<Service[]>(`${this.baseUrl}/services`, { headers: this.getHttpHeaders() }).toPromise()
+      // Charger les employés et services en parallèle selon les spécifications
+      const [services, employes] = await Promise.all([
+        this.employesService.getAllServices().toPromise(),
+        this.employesService.getAllEmployesComplet().toPromise()
       ]);
-
-      this.employes = employesData || [];
-      this.services = servicesData || [];
       
-      // Extraire tous les rôles uniques
+      this.services = services || [];
+      this.employes = employes || [];
+      
+      console.log(`✅ Chargé: ${this.employes.length} employés, ${this.services.length} services`);
+      
+      // Extraire les rôles uniques
       const allRoles = new Set<string>();
       this.employes.forEach(emp => {
         if (emp.roles) {
           emp.roles.forEach(role => {
-            // Nettoyer le nom du rôle (enlever ROLE_ si présent)
             const cleanRole = role.replace('ROLE_', '');
             allRoles.add(cleanRole);
           });
@@ -155,26 +206,19 @@ export class EmployesInfoComponent implements OnInit {
       });
       
       this.roles = Array.from(allRoles).sort();
-      
-      // Associer les services aux employés
-      this.associateServicesWithEmployees();
-      
-      // Appliquer les filtres initiaux
       this.applyFilters();
       
     } catch (error: any) {
-      console.error('Erreur lors du chargement des données:', error);
+      console.error('❌ Erreur chargement:', error);
       
       if (error.status === 401) {
         this.error = 'Session expirée. Veuillez vous reconnecter.';
-        // Optionnel : rediriger vers la page de login
-        // this.router.navigate(['/auth/login']);
       } else if (error.status === 403) {
-        this.error = 'Accès non autorisé. Vous n\'avez pas les permissions nécessaires.';
+        this.error = 'Accès non autorisé. Permissions insuffisantes.';
       } else if (error.status === 0) {
-        this.error = 'Erreur de connexion au serveur. Vérifiez que le backend est démarré.';
+        this.error = 'Erreur de connexion. Vérifiez que le backend est démarré.';
       } else {
-        this.error = error.message || 'Erreur lors du chargement des données des employés';
+        this.error = error.message || 'Erreur lors du chargement des données';
       }
     } finally {
       this.loading = false;
@@ -182,36 +226,40 @@ export class EmployesInfoComponent implements OnInit {
   }
 
   /**
-   * Associe les services aux employés (si cette info n'est pas directement fournie par l'API)
-   */
-  associateServicesWithEmployees(): void {
-    // Cette méthode peut être étendue si l'API ne fournit pas directement l'info du service
-    // Pour l'instant, on suppose que l'info est déjà incluse dans la réponse de l'API
-  }
-
-  /**
    * Vérifie l'état de l'authentification
    */
   checkAuthentication(): boolean {
+    console.log('🔐 Vérification de l\'authentification...');
+    
     const token = this.tokenStorage.getToken();
     const user = this.tokenStorage.getUser();
     
-    if (!token || !user) {
-      this.error = 'Vous devez être connecté pour accéder à cette page.';
+    console.log('🔑 Token présent:', !!token);
+    console.log('👤 Utilisateur présent:', !!user);
+    
+    if (!token) {
+      console.error('❌ Aucun token trouvé');
+      this.error = 'Vous devez être connecté pour accéder à cette page. Veuillez vous reconnecter.';
       return false;
     }
     
-    // Vérifier si l'utilisateur a les permissions RH
-    const userRoles = user.roles || [];
-    const hasRhPermission = userRoles.some((role: string) => 
-      ['ROLE_ADMIN', 'ROLE_RH', 'ADMIN', 'RH'].includes(role)
-    );
+    if (!user) {
+      console.error('❌ Aucun utilisateur trouvé');
+      this.error = 'Session invalide. Veuillez vous reconnecter.';
+      return false;
+    }
     
-    if (!hasRhPermission) {
+    console.log('👤 Utilisateur:', user.username || user.email);
+    console.log('🏷️ Rôles utilisateur:', user.roles);
+    
+    // Vérifier les permissions RH
+    if (!this.employesService.hasRhPermissions()) {
+      console.warn('⚠️ Permissions insuffisantes');
       this.error = 'Vous n\'avez pas les permissions nécessaires pour accéder aux informations des employés.';
       return false;
     }
     
+    console.log('✅ Authentification valide');
     return true;
   }
 
@@ -336,6 +384,80 @@ export class EmployesInfoComponent implements OnInit {
   }
 
   /**
+   * Obtient le nom complet d'une personne (pour chefs et RH)
+   */
+  getPersonnelName(personnel: any): string {
+    if (!personnel) return '';
+    return `${personnel.prenom} ${personnel.nom}`;
+  }
+
+  /**
+   * Obtient les noms des chefs du service
+   */
+  getChefNames(employe: Employe): string {
+    if (!employe.service) return 'Aucun chef';
+    
+    const service = employe.service as any;
+    const chefs = [];
+    
+    // Vérifier les chefs selon les différents formats possibles
+    if (service.chefA || service.chef_a_id) {
+      const chefA = service.chefA || service.chefADetails;
+      if (chefA) {
+        chefs.push(`Chef A: ${this.getPersonnelName(chefA)}`);
+      } else if (service.chef_a_id) {
+        chefs.push(`Chef A: ID ${service.chef_a_id}`);
+      }
+    }
+    
+    if (service.chefB || service.chef_b_id) {
+      const chefB = service.chefB || service.chefBDetails;
+      if (chefB) {
+        chefs.push(`Chef B: ${this.getPersonnelName(chefB)}`);
+      } else if (service.chef_b_id) {
+        chefs.push(`Chef B: ID ${service.chef_b_id}`);
+      }
+    }
+    
+    return chefs.length > 0 ? chefs.join(' | ') : 'Aucun chef assigné';
+  }
+
+  /**
+   * Obtient le nom du RH responsable
+   */
+  getRhName(employe: Employe): string {
+    if (!employe.service) {
+      return 'Aucun RH assigné';
+    }
+    
+    const service = employe.service as any;
+    
+    // Vérifier le RH selon les différents formats possibles
+    if (service.rhResponsable) {
+      return this.getPersonnelName(service.rhResponsable);
+    } else if (service.rh_responsable_id) {
+      return `RH ID: ${service.rh_responsable_id}`;
+    }
+    
+    return 'Aucun RH assigné';
+  }
+
+  /**
+   * Obtient la description complète du service avec hiérarchie
+   */
+  getServiceDescription(employe: Employe): string {
+    if (!employe.service) return 'Non assigné';
+    
+    const parts = [employe.service.nomService];
+    
+    if (employe.service.libService && employe.service.libService !== employe.service.nomService) {
+      parts.push(`(${employe.service.libService})`);
+    }
+    
+    return parts.join(' ');
+  }
+
+  /**
    * Obtient la classe CSS pour le badge du rôle principal
    */
   getRoleBadgeClass(employe: Employe): string {
@@ -345,7 +467,6 @@ export class EmployesInfoComponent implements OnInit {
     switch (mainRole) {
       case 'ADMIN': return 'badge-danger';
       case 'RH': return 'badge-primary';
-      case 'CHEF_SERVICE':
       case 'CHEF_A':
       case 'CHEF_B': return 'badge-warning';
       case 'USER': return 'badge-success';
@@ -377,25 +498,27 @@ export class EmployesInfoComponent implements OnInit {
    * Export des données
    */
   exportToCSV(): void {
-    const headers = ['Nom complet', 'Service', 'Rôles', 'Matricule', 'Email'];
+    const headers = ['Nom complet', 'Service', 'Chefs', 'RH Responsable', 'Rôles', 'Matricule', 'Email'];
     const data = this.filteredEmployes.map(emp => [
       this.getFullName(emp),
       this.getServiceName(emp),
+      this.getChefNames(emp),
+      this.getRhName(emp),
       this.formatRoles(emp.roles),
       emp.matriculeP,
-      emp.email
+      emp.email || ''
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...data.map(row => row.join(','))
+      ...data.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'employes-info.csv';
+    link.download = `employes-info-complet-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     window.URL.revokeObjectURL(url);
   }
@@ -404,9 +527,24 @@ export class EmployesInfoComponent implements OnInit {
    * Rafraîchit les données
    */
   refresh(): void {
-    this.error = null; // Réinitialiser l'erreur
+    this.error = null;
     if (this.checkAuthentication()) {
       this.loadData();
+    }
+  }
+
+  /**
+   * Test d'authentification avec le backend
+   */
+  async testAuthentication(): Promise<void> {
+    try {
+      console.log('🧪 Test authentification backend...');
+      const result = await this.employesService.testAuthentication().toPromise();
+      console.log('✅ Auth test réussi:', result);
+      alert(`✅ Auth OK: ${result.user} - ${result.authorities}`);
+    } catch (error: any) {
+      console.error('❌ Auth test échoué:', error);
+      alert(`❌ Auth échoué: ${error.status} ${error.message}`);
     }
   }
 

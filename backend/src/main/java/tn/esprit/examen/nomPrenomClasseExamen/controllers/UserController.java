@@ -25,17 +25,17 @@ public class UserController {
     private ServiceRepository serviceRepository;
 
     /**
-     * Récupère la liste des chefs disponibles avec le rôle CHEF_SERVICE
+     * Récupère la liste des chefs disponibles avec les rôles CHEF_A ou CHEF_B
      * Exclut les chefs déjà affectés à d'autres services si nécessaire
      */
     @GetMapping("/chefs")
     @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllChefs() {
         try {
-            // Récupérer tous les personnels avec le rôle CHEF_SERVICE
+            // Récupérer tous les personnels avec les rôles CHEF_A ou CHEF_B
             List<Personnel> chefs = personnelRepository.findAll().stream()
                 .filter(p -> p.getRoles() != null && 
-                           p.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE))
+                           p.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_A || r.getNomRole() == ERole.ROLE_CHEF_B))
                 .collect(Collectors.toList());
 
             // Transformer en format simple pour l'API
@@ -78,7 +78,7 @@ public class UserController {
         try {
             List<Personnel> allChefs = personnelRepository.findAll().stream()
                 .filter(p -> p.getRoles() != null && 
-                           p.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE))
+                           p.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_A || r.getNomRole() == ERole.ROLE_CHEF_B))
                 .collect(Collectors.toList());
 
             List<Map<String, Object>> availableChefs = allChefs.stream()

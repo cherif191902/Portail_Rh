@@ -83,274 +83,254 @@
   </div>
 </div>
 
-<!-- Section CRUD -->
+<!-- Formulaire Unique de Gestion des Chefs -->
 <div class="row">
-  <!-- Boutons de navigation -->
-  <div class="col-12 mb-3">
-    <div class="btn-group" role="group">
-      <button type="button" 
-              class="btn"
-              [class.btn-primary]="modeOperation === 'view'"
-              [class.btn-outline-primary]="modeOperation !== 'view'"
-              (click)="modeOperation = 'view'">
-        <i class="bx bx-list-ul me-1"></i>
-        Visualiser
-      </button>
-      <button type="button" 
-              class="btn"
-              [class.btn-success]="modeOperation === 'create'"
-              [class.btn-outline-success]="modeOperation !== 'create'"
-              (click)="activerModeCreation()">
-        <i class="bx bx-plus me-1"></i>
-        Créer
-      </button>
-    </div>
-    
-    <button *ngIf="modeOperation !== 'view'" 
-            type="button" 
-            class="btn btn-secondary ms-2"
-            (click)="annulerOperation()">
-      <i class="bx bx-x me-1"></i>
-      Annuler
-    </button>
-  </div>
-</div>
-
-<!-- Formulaire de création -->
-<div class="row" *ngIf="modeOperation === 'create'">
-  <div class="col-lg-6">
-    <div class="card border-success">
-      <div class="card-header bg-success-subtle">
-        <h5 class="card-title mb-0 text-success">
-          <i class="bx bx-plus-circle me-2"></i>
-          Nouvelle Affectation
-        </h5>
-      </div>
-      <div class="card-body">
-        <form (ngSubmit)="onSubmitAffectation()" #createForm="ngForm">
-          <!-- Sélection du Chef -->
-          <div class="mb-3">
-            <label for="create-chef" class="form-label">Chef <span class="text-danger">*</span></label>
-            <select class="form-select" 
-                    id="create-chef"
-                    name="chefId"
-                    [(ngModel)]="affectationForm.chefId"
-                    required>
-              <option [ngValue]="null">-- Sélectionner un Chef --</option>
-              <option *ngFor="let chef of getChefsLibres()" 
-                      [ngValue]="chef.id">
-                {{ chef.prenom }} {{ chef.nom }}
-                <span *ngIf="chef.email"> ({{ chef.email }})</span>
-              </option>
-            </select>
-            <div class="form-text">
-              Chefs libres disponibles: {{ getChefsLibres().length }}
-            </div>
-          </div>
-
-          <!-- Sélection du Service -->
-          <div class="mb-3">
-            <label for="create-service" class="form-label">Service <span class="text-danger">*</span></label>
-            <select class="form-select" 
-                    id="create-service"
-                    name="serviceId"
-                    [(ngModel)]="affectationForm.serviceId"
-                    required>
-              <option [ngValue]="null">-- Sélectionner un Service --</option>
-              <option *ngFor="let service of getServicesLibres()" 
-                      [ngValue]="service.idService">
-                {{ service.nomService }}
-                <small *ngIf="service.libService" class="text-muted"> - {{ service.libService }}</small>
-              </option>
-            </select>
-            <div class="form-text">
-              Services sans chef: {{ getServicesLibres().length }}
-            </div>
-          </div>
-
-          <!-- Boutons -->
-          <div class="d-flex gap-2">
-            <button type="button" 
-                    class="btn btn-light" 
-                    (click)="resetForm()"
-                    [disabled]="loadingAction">
-              <i class="bx bx-reset me-1"></i>
-              Réinitialiser
-            </button>
-            <button type="submit" 
-                    class="btn btn-success flex-fill"
-                    [disabled]="loadingAction || !createForm.form.valid">
-              <i class="bx" 
-                 [class.bx-check]="!loadingAction" 
-                 [class.bx-loader-alt]="loadingAction"
-                 [class.bx-spin]="loadingAction" 
-                 class="me-2"></i>
-              {{ loadingAction ? 'Création...' : 'Créer Affectation' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Nouveau formulaire Chef A / Chef B -->
-  <div class="col-lg-6">
-    <div class="card border-info">
-      <div class="card-header bg-info-subtle">
-        <h5 class="card-title mb-0 text-info">
+  <div class="col-12">
+    <div class="card border-primary">
+      <div class="card-header bg-primary-subtle">
+        <h5 class="card-title mb-0 text-primary">
           <i class="bx bx-group me-2"></i>
-          Affectation Chef A & Chef B
+          Gestion des Chefs de Service
         </h5>
+        <p class="card-text mt-2 mb-0 text-muted">
+          Sélectionnez un service pour affecter ou modifier ses chefs A et B
+        </p>
       </div>
+
       <div class="card-body">
         <!-- Sélection du Service -->
-        <div class="mb-3">
-          <label for="chef-service" class="form-label">Service <span class="text-danger">*</span></label>
-          <select class="form-select" 
-                  id="chef-service"
-                  name="serviceId"
-                  [(ngModel)]="affectationChefForm.serviceId">
-            <option [ngValue]="null">-- Sélectionner un Service --</option>
-            <option *ngFor="let service of services" 
-                    [ngValue]="service.idService">
-              {{ service.nomService }}
-              <small *ngIf="service.libService" class="text-muted"> - {{ service.libService }}</small>
-            </option>
-          </select>
-        </div>
-
-        <!-- Sélection Chef A -->
-        <div class="mb-3">
-          <label for="chef-a" class="form-label">Chef A</label>
-          <select class="form-select" 
-                  id="chef-a"
-                  name="chefAId"
-                  [(ngModel)]="affectationChefForm.chefAId">
-            <option [ngValue]="null">-- Sélectionner Chef A --</option>
-            <option *ngFor="let chef of getChefsLibres()" 
-                    [ngValue]="chef.id">
-              {{ chef.prenom }} {{ chef.nom }}
-            </option>
-          </select>
-          <button type="button" 
-                  class="btn btn-outline-success btn-sm mt-2"
-                  (click)="affecterChefA()"
-                  [disabled]="!affectationChefForm.serviceId || !affectationChefForm.chefAId || loadingAction">
-            <i class="bx bx-check me-1"></i>
-            Affecter Chef A
-          </button>
-        </div>
-
-        <!-- Sélection Chef B -->
-        <div class="mb-3">
-          <label for="chef-b" class="form-label">Chef B</label>
-          <select class="form-select" 
-                  id="chef-b"
-                  name="chefBId"
-                  [(ngModel)]="affectationChefForm.chefBId">
-            <option [ngValue]="null">-- Sélectionner Chef B --</option>
-            <option *ngFor="let chef of getChefsLibres()" 
-                    [ngValue]="chef.id">
-              {{ chef.prenom }} {{ chef.nom }}
-            </option>
-          </select>
-          <button type="button" 
-                  class="btn btn-outline-primary btn-sm mt-2"
-                  (click)="affecterChefB()"
-                  [disabled]="!affectationChefForm.serviceId || !affectationChefForm.chefBId || loadingAction">
-            <i class="bx bx-check me-1"></i>
-            Affecter Chef B
-          </button>
-        </div>
-
-        <!-- Bouton Reset -->
-        <div class="d-flex gap-2">
-          <button type="button" 
-                  class="btn btn-light" 
-                  (click)="resetAffectationChefForm()"
-                  [disabled]="loadingAction">
-            <i class="bx bx-reset me-1"></i>
-            Réinitialiser
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Formulaire de modification -->
-<div class="row" *ngIf="modeOperation === 'edit' && selectedAffectation">
-  <div class="col-lg-6">
-    <div class="card border-warning">
-      <div class="card-header bg-warning-subtle">
-        <h5 class="card-title mb-0 text-warning">
-          <i class="bx bx-edit me-2"></i>
-          Modifier Affectation
-        </h5>
-      </div>
-      <div class="card-body">
-        <div class="alert alert-info mb-3">
-          <strong>Service:</strong> {{ selectedAffectation.nomService }}<br>
-          <strong>Chef A:</strong> 
-          <span *ngIf="selectedAffectation.chefA">
-            {{ selectedAffectation.chefA.prenom }} {{ selectedAffectation.chefA.nom }}
-          </span>
-          <span *ngIf="!selectedAffectation.chefA" class="text-muted">Non assigné</span><br>
-          <strong>Chef B:</strong> 
-          <span *ngIf="selectedAffectation.chefB">
-            {{ selectedAffectation.chefB.prenom }} {{ selectedAffectation.chefB.nom }}
-          </span>
-          <span *ngIf="!selectedAffectation.chefB" class="text-muted">Non assigné</span>
-        </div>
-
-        <form (ngSubmit)="onSubmitModification()" #editForm="ngForm">
-          <!-- Nouveau Chef -->
-          <div class="mb-3">
-            <label for="edit-chef" class="form-label">Nouveau Chef <span class="text-danger">*</span></label>
-            <select class="form-select" 
-                    id="edit-chef"
-                    name="nouveauChefId"
-                    [(ngModel)]="modificationForm.nouveauChefId"
-                    required>
-              <option [ngValue]="null">-- Sélectionner un nouveau Chef --</option>
-              <option *ngFor="let chef of getChefsLibres()" 
-                      [ngValue]="chef.id">
-                {{ chef.prenom }} {{ chef.nom }}
-                <span *ngIf="chef.email"> ({{ chef.email }})</span>
+        <div class="row mb-4">
+          <div class="col-12">
+            <label for="service-selector" class="form-label fw-bold">
+              <i class="bx bx-building me-2"></i>
+              Sélectionner un Service <span class="text-danger">*</span>
+            </label>
+            <select class="form-select form-select-lg" 
+                    id="service-selector"
+                    [(ngModel)]="selectedServiceId"
+                    (ngModelChange)="onServiceChange()"
+                    [disabled]="loading">
+              <option [ngValue]="null">-- Choisir un service à gérer --</option>
+              <option *ngFor="let service of services" 
+                      [ngValue]="service.idService">
+                {{ service.nomService }}
+                <span *ngIf="service.libService" class="text-muted"> - {{ service.libService }}</span>
               </option>
             </select>
+            
+            <!-- Loader -->
+            <div *ngIf="loadingPersonnels" class="d-flex align-items-center mt-2">
+              <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+              <small class="text-muted">Chargement des personnels du service...</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section de gestion des chefs (visible seulement si un service est sélectionné) -->
+        <div *ngIf="selectedServiceId" class="border-top pt-4">
+          <div class="row">
+            <!-- Chef A -->
+            <div class="col-lg-6">
+              <div class="card border-success mb-3">
+                <div class="card-header bg-success-subtle">
+                  <h6 class="card-title mb-0 text-success">
+                    <i class="bx bx-user-check me-2"></i>
+                    Chef A (Niveau Principal)
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <!-- Statut actuel -->
+                  <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <strong>Statut actuel :</strong>
+                      <span *ngIf="currentChefA" class="badge bg-success">
+                        <i class="bx bx-user me-1"></i>
+                        {{ currentChefA.prenom }} {{ currentChefA.nom }}
+                      </span>
+                      <span *ngIf="!currentChefA" class="badge bg-secondary">
+                        <i class="bx bx-user-x me-1"></i>
+                        Aucun chef assigné
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Sélection nouveau Chef A -->
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <span *ngIf="!currentChefA">Affecter un Chef A :</span>
+                      <span *ngIf="currentChefA">Modifier le Chef A :</span>
+                    </label>
+                    <select class="form-select" 
+                            [(ngModel)]="selectedChefAId"
+                            [disabled]="loadingPersonnels">
+                      <option [ngValue]="null">-- Sélectionner un personnel --</option>
+                      <option *ngFor="let personnel of getAvailablePersonnels('CHEF_A')" 
+                              [ngValue]="personnel.id"
+                              [class.text-primary]="personnel.id === currentChefA?.id"
+                              [class.fw-bold]="personnel.id === currentChefA?.id">
+                        {{ personnel.prenom }} {{ personnel.nom }}
+                        <span *ngIf="personnel.email" class="text-muted"> - {{ personnel.email }}</span>
+                        <span *ngIf="personnel.id === currentChefA?.id" class="text-primary"> (Chef actuel)</span>
+                      </option>
+                    </select>
+                    <div *ngIf="selectedChefAId === currentChefA?.id" class="form-text text-primary">
+                      <i class="bx bx-info-circle me-1"></i>
+                      Ce personnel est déjà affecté comme Chef A
+                    </div>
+                  </div>
+
+                  <!-- Boutons d'action Chef A -->
+                  <div class="d-flex gap-2">
+                    <button type="button" 
+                            class="btn flex-fill"
+                            [class.btn-success]="!currentChefA"
+                            [class.btn-warning]="currentChefA && selectedChefAId !== currentChefA?.id"
+                            [class.btn-outline-secondary]="currentChefA && selectedChefAId === currentChefA?.id"
+                            (click)="affecterChef('CHEF_A')"
+                            [disabled]="!selectedChefAId || loadingAction || (currentChefA && selectedChefAId === currentChefA?.id)">
+                      <i class="bx me-1" 
+                         [class.bx-check]="!currentChefA"
+                         [class.bx-edit]="currentChefA && selectedChefAId !== currentChefA?.id"
+                         [class.bx-check-double]="currentChefA && selectedChefAId === currentChefA?.id"></i>
+                      <span *ngIf="!currentChefA">Affecter Chef A</span>
+                      <span *ngIf="currentChefA && selectedChefAId !== currentChefA?.id">Modifier Chef A</span>
+                      <span *ngIf="currentChefA && selectedChefAId === currentChefA?.id">Chef A actuel</span>
+                    </button>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chef B -->
+            <div class="col-lg-6">
+              <div class="card border-primary mb-3">
+                <div class="card-header bg-primary-subtle">
+                  <h6 class="card-title mb-0 text-primary">
+                    <i class="bx bx-user-plus me-2"></i>
+                    Chef B (Niveau Secondaire)
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <!-- Statut actuel -->
+                  <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <strong>Statut actuel :</strong>
+                      <span *ngIf="currentChefB" class="badge bg-primary">
+                        <i class="bx bx-user me-1"></i>
+                        {{ currentChefB.prenom }} {{ currentChefB.nom }}
+                      </span>
+                      <span *ngIf="!currentChefB" class="badge bg-secondary">
+                        <i class="bx bx-user-x me-1"></i>
+                        Aucun chef assigné
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Sélection nouveau Chef B -->
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <span *ngIf="!currentChefB">Affecter un Chef B :</span>
+                      <span *ngIf="currentChefB">Modifier le Chef B :</span>
+                    </label>
+                    <select class="form-select" 
+                            [(ngModel)]="selectedChefBId"
+                            [disabled]="loadingPersonnels">
+                      <option [ngValue]="null">-- Sélectionner un personnel --</option>
+                      <option *ngFor="let personnel of getAvailablePersonnels('CHEF_B')" 
+                              [ngValue]="personnel.id"
+                              [class.text-primary]="personnel.id === currentChefB?.id"
+                              [class.fw-bold]="personnel.id === currentChefB?.id">
+                        {{ personnel.prenom }} {{ personnel.nom }}
+                        <span *ngIf="personnel.email" class="text-muted"> - {{ personnel.email }}</span>
+                        <span *ngIf="personnel.id === currentChefB?.id" class="text-primary"> (Chef actuel)</span>
+                      </option>
+                    </select>
+                    <div *ngIf="selectedChefBId === currentChefB?.id" class="form-text text-primary">
+                      <i class="bx bx-info-circle me-1"></i>
+                      Ce personnel est déjà affecté comme Chef B
+                    </div>
+                  </div>
+
+                  <!-- Boutons d'action Chef B -->
+                  <div class="d-flex gap-2">
+                    <button type="button" 
+                            class="btn flex-fill"
+                            [class.btn-primary]="!currentChefB"
+                            [class.btn-warning]="currentChefB && selectedChefBId !== currentChefB?.id"
+                            [class.btn-outline-secondary]="currentChefB && selectedChefBId === currentChefB?.id"
+                            (click)="affecterChef('CHEF_B')"
+                            [disabled]="!selectedChefBId || loadingAction || (currentChefB && selectedChefBId === currentChefB?.id)">
+                      <i class="bx me-1" 
+                         [class.bx-check]="!currentChefB"
+                         [class.bx-edit]="currentChefB && selectedChefBId !== currentChefB?.id"
+                         [class.bx-check-double]="currentChefB && selectedChefBId === currentChefB?.id"></i>
+                      <span *ngIf="!currentChefB">Affecter Chef B</span>
+                      <span *ngIf="currentChefB && selectedChefBId !== currentChefB?.id">Modifier Chef B</span>
+                      <span *ngIf="currentChefB && selectedChefBId === currentChefB?.id">Chef B actuel</span>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-outline-danger"
+                            (click)="supprimerChef('CHEF_B')"
+                            [disabled]="!currentChefB || loadingAction"
+                            *ngIf="currentChefB">
+                      <i class="bx bx-trash me-1"></i>
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Boutons -->
-          <div class="d-flex gap-2">
-            <button type="button" 
-                    class="btn btn-light" 
-                    (click)="annulerOperation()"
-                    [disabled]="loadingAction">
-              <i class="bx bx-x me-1"></i>
-              Annuler
-            </button>
-            <button type="submit" 
-                    class="btn btn-warning flex-fill"
-                    [disabled]="loadingAction || !editForm.form.valid">
-              <i class="bx" 
-                 [class.bx-save]="!loadingAction" 
-                 [class.bx-loader-alt]="loadingAction"
-                 [class.bx-spin]="loadingAction" 
-                 class="me-2"></i>
-              {{ loadingAction ? 'Modification...' : 'Modifier Affectation' }}
-            </button>
+          <!-- Actions globales -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex gap-2">
+                  <button type="button" 
+                          class="btn btn-outline-secondary"
+                          (click)="resetForm()"
+                          [disabled]="loadingAction">
+                    <i class="bx bx-refresh me-2"></i>
+                    Actualiser les données
+                  </button>
+                  
+                  <button type="button" 
+                          class="btn btn-outline-info"
+                          (click)="verifierCoherenceGlobale()"
+                          [disabled]="loadingAction"
+                          title="Vérifier la cohérence globale : RH unique, chefs corrects, congés cohérents">
+                    <i class="bx bx-shield-check me-2"></i>
+                    Vérifier Cohérence Globale
+                  </button>
+                </div>
+                
+                <!-- Informations sur le service -->
+                <div class="text-muted small">
+                  <i class="bx bx-info-circle me-1"></i>
+                  Personnels disponibles: {{ getAvailablePersonnels('ALL').length }}
+                </div>
+              </div>
+            </div>
           </div>
-        </form>
+        </div>
+
+        <!-- Message d'aide si aucun service sélectionné -->
+        <div *ngIf="!selectedServiceId" class="text-center py-5">
+          <i class="bx bx-info-circle display-4 text-muted mb-3"></i>
+          <h5 class="text-muted">Sélectionnez un service pour commencer</h5>
+          <p class="text-muted">
+            Choisissez un service dans la liste déroulante ci-dessus pour gérer ses chefs A et B.
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-
-
-<!-- Liste des affectations (Mode visualisation) -->
-<div class="row mt-4" *ngIf="modeOperation === 'view'">
+<!-- Tableau de visualisation des affectations -->
+<div class="row mt-4">
   <div class="col-12">
     <div class="card">
       <div class="card-header">
@@ -497,14 +477,7 @@
                               title="Affecter Chef B">
                         <i class="bx bx-plus"></i>
                       </button>
-                      <button *ngIf="affectation.hasChefB" 
-                              type="button" 
-                              class="btn btn-outline-danger btn-sm"
-                              (click)="supprimerChefB(affectation.serviceId)"
-                              [disabled]="loadingAction"
-                              title="Supprimer Chef B">
-                        <i class="bx bx-trash"></i>
-                      </button>
+                     
                     </div>
                   </div>
                 </td>

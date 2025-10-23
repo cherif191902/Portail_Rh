@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
@@ -49,6 +49,7 @@ export class CongeApiService {
   private readonly API_BASE_URL = environment.apiUrl || 'http://localhost:8089/api';
 
   private readonly CONGE_ENDPOINT = '/conge';
+  private readonly VALIDATION_ENDPOINT = '/conge/validation';
   
   private httpOptions = {
     headers: new HttpHeaders({
@@ -66,11 +67,14 @@ export class CongeApiService {
    */
   private getAuthHeaders(): { headers: HttpHeaders } {
     const token = sessionStorage.getItem('auth-token');
+    console.log('🔑 Token récupéré:', token ? 'Token présent (longueur: ' + token.length + ')' : 'Aucun token');
+    
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     });
     
+    console.log('📋 Headers générés:', headers.keys());
     return { headers };
   }
 
@@ -90,15 +94,24 @@ export class CongeApiService {
     console.error('Erreur API Congé:', error);
     let errorMessage = 'Une erreur est survenue';
     
-    if (error.error && error.error.message) {
+    // Éviter de traiter les statuts HTTP 200 comme des erreurs
+    if (error.status === 200 || error.statusText === 'OK') {
+      console.warn('Réponse HTTP 200 traitée comme erreur, probablement un problème de format de réponse');
+      errorMessage = 'Réponse inattendue du serveur';
+    } else if (error.error && error.error.message) {
       errorMessage = error.error.message;
-    } else if (error.message) {
+    } else if (error.message && error.message !== 'OK') {
       errorMessage = error.message;
-    } else if (typeof error.error === 'string') {
+    } else if (typeof error.error === 'string' && error.error !== 'OK') {
       errorMessage = error.error;
+    } else if (error.status) {
+      errorMessage = `Erreur ${error.status}: ${error.statusText || 'Erreur serveur'}`;
     }
     
-    return throwError(() => new Error(errorMessage));
+    return throwError(() => ({
+      message: errorMessage,
+      originalError: error
+    }));
   }
 
   /**
@@ -121,6 +134,38 @@ export class CongeApiService {
       `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/submit`,
       requestBody,
       this.getAuthHeaders()
+    );
+  }
+
+  /**
+   * Vérifie s'il y a des conflits de dates avec les demandes existantes
+   */
+  verifierConflitsDates(dateDebut: string, dateFin: string): Observable<CongeResponse[]> {
+    return this.getMesDemandesConges().pipe(
+      map(demandes => {
+        return demandes.filter(demande => {
+          // Ignore les demandes refusées ou annulées
+          if (demande.statut && (
+            demande.statut.includes('REFUSE') || 
+            demande.statut === 'ANNULE' ||
+            demande.statut === 'REFUSE_PAR_CHEF_A' ||
+            demande.statut === 'REFUSE_PAR_CHEF_B' ||
+            demande.statut === 'REFUSE_PAR_RH'
+          )) {
+            return false;
+          }
+          
+          // Vérifier le chevauchement de dates
+          const debutNouvelle = new Date(dateDebut);
+          const finNouvelle = new Date(dateFin);
+          const debutExistante = new Date(demande.dateDebut);
+          const finExistante = new Date(demande.dateFin);
+          
+          // Pas de chevauchement si : fin_nouvelle < debut_existante OU debut_nouvelle > fin_existante
+          const pasDeChev = finNouvelle < debutExistante || debutNouvelle > finExistante;
+          return !pasDeChev; // Retourne true s'il y a chevauchement
+        });
+      })
     );
   }
 
@@ -176,6 +221,18 @@ export class CongeApiService {
     return this.http.delete<any>(
       `${this.API_BASE_URL}${this.CONGE_ENDPOINT}/cancel/${demandeId}`,
       this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('✅ Réponse de suppression réussie:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('🚨 Erreur dans annulerDemande service:', error);
+        console.error('🚨 Status de l\'erreur:', error.status);
+        console.error('🚨 Message de l\'erreur:', error.error);
+        console.error('🚨 Détail complet de l\'erreur:', JSON.stringify(error, null, 2));
+        return throwError(() => error);
+      })
     );
   }
 
@@ -380,9 +437,9 @@ export class CongeApiService {
     
     switch (conge.statut) {
       case 'En attente de validation Chef A':
-        return userRoles.includes('ROLE_CHEF_A') || userRoles.includes('ROLE_CHEF_SERVICE') || userRoles.includes('ROLE_ADMIN');
+        return userRoles.includes('ROLE_CHEF_A') || userRoles.includes('ROLE_ADMIN');
       case 'En attente de validation Chef B':
-        return userRoles.includes('ROLE_CHEF_B') || userRoles.includes('ROLE_CHEF_SERVICE') || userRoles.includes('ROLE_ADMIN');
+        return userRoles.includes('ROLE_CHEF_B') || userRoles.includes('ROLE_ADMIN');
       case 'En attente de validation RH':
         return userRoles.includes('ROLE_RH') || userRoles.includes('ROLE_ADMIN');
       default:
@@ -448,5 +505,155 @@ export class CongeApiService {
       default:
         return 'mdi mdi-help-circle';
     }
+  }
+
+  // ========== NOUVELLES MÉTHODES POUR LE WORKFLOW HIÉRARCHIQUE ==========
+
+  /**
+   * Récupère les demandes en attente selon le rôle de l'utilisateur connecté
+   */
+  getMyPendingDemandes(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/my-pending`,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('📋 Mes demandes en attente récupérées:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère l'historique des validations de l'utilisateur connecté
+   */
+  getMyValidationHistory(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/my-history`,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('📜 Historique des validations récupéré:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère les demandes en attente pour Chef A
+   */
+  getDemandesChefA(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/chef-a/pending`,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('👔 Demandes Chef A récupérées:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère les demandes en attente pour Chef B
+   */
+  getDemandesChefB(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/chef-b/pending`,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('👔 Demandes Chef B récupérées:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère les demandes en attente pour RH (nouveau endpoint)
+   */
+  getDemandesRhHierarchique(): Observable<CongeResponse[]> {
+    return this.http.get<CongeResponse[]>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/rh/pending`,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('🏢 Demandes RH hiérarchiques récupérées:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Validation Chef A
+   */
+  validerChefA(congeId: number, validationData: ValidationCongeRequest): Observable<CongeResponse> {
+    return this.http.post<CongeResponse>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/${congeId}/chef-a`,
+      validationData,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('✅ Validation Chef A réussie:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Validation Chef B
+   */
+  validerChefB(congeId: number, validationData: ValidationCongeRequest): Observable<CongeResponse> {
+    return this.http.post<CongeResponse>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/${congeId}/chef-b`,
+      validationData,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('✅ Validation Chef B réussie:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Validation RH (nouveau endpoint hiérarchique)
+   */
+  validerRhHierarchique(congeId: number, validationData: ValidationCongeRequest): Observable<CongeResponse> {
+    return this.http.post<CongeResponse>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/${congeId}/rh`,
+      validationData,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('✅ Validation RH hiérarchique réussie:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Endpoint universel de validation/refus selon le rôle
+   */
+  validerCongeUniversel(congeId: number, validationData: ValidationCongeRequest): Observable<CongeResponse> {
+    return this.http.post<CongeResponse>(
+      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/${congeId}/valider`,
+      validationData,
+      this.getAuthHeaders()
+    ).pipe(
+      map(response => {
+        console.log('✅ Validation universelle réussie:', response);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
   }
 }

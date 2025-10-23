@@ -19,7 +19,7 @@ import java.util.List;
 public class PointageController {
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<Map<String, Object>> getMyPointages() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String matricule = auth.getName(); // Le matricule est utilisé comme username
@@ -52,7 +52,7 @@ public class PointageController {
     }
 
     @PostMapping("/pointer")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<Map<String, Object>> pointer(@RequestBody Map<String, String> request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String matricule = auth.getName();
@@ -71,7 +71,7 @@ public class PointageController {
     }
 
     @GetMapping("/historique")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<List<Map<String, Object>>> getHistorique(
             @RequestParam(required = false) String dateDebut,
             @RequestParam(required = false) String dateFin) {
@@ -96,7 +96,7 @@ public class PointageController {
     }
 
     @GetMapping("/stats")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<Map<String, Object>> getStatistiques() {
         Map<String, Object> stats = new HashMap<>();
         
@@ -112,7 +112,7 @@ public class PointageController {
     }
 
     @GetMapping("/presence-temps-reel")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<List<Map<String, Object>>> getPresenceTempsReel() {
         List<Map<String, Object>> presence = new ArrayList<>();
         

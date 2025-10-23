@@ -936,7 +936,7 @@ class TokenStorage {
      */
     mapRoleIdToName(roleId) {
         const roleMapping = {
-            1: 'ROLE_CHEF_SERVICE',
+            // 1: 'ROLE_CHEF_SERVICE', // Chef de service (SUPPRIMÉ - utiliser CHEF_A/CHEF_B)
             2: 'ROLE_ADMIN',
             3: 'ROLE_USER',
             4: 'ROLE_RH',
@@ -6774,7 +6774,7 @@ const MENU = [
         label: 'MENUITEMS.CHEF_DASHBOARD.TEXT',
         icon: 'bx-group',
         link: '/dashboards/chef',
-        requiredRoles: ['ROLE_CHEF_SERVICE', 'ROLE_CHEF_A', 'ROLE_CHEF_B']
+        requiredRoles: ['ROLE_CHEF_A', 'ROLE_CHEF_B']
     },
     {
         id: 10,
@@ -6790,8 +6790,28 @@ const MENU = [
         link: '/dashboards/rh',
         requiredRoles: ['ROLE_RH', 'ROLE_ADMIN']
     },
-    // Section Congés supprimée (gérée via l'espace RH uniquement)
-    // Section Chef supprimée - accès chef géré différemment
+    // Section Employé (congés uniquement, sans titre de section)
+    {
+        id: 13,
+        label: 'MENUITEMS.CONGES_GROUP.TEXT',
+        icon: 'bx-calendar-event',
+        subItems: [
+            {
+                id: 131,
+                label: 'MENUITEMS.NOUVELLE_DEMANDE_CONGE.TEXT',
+                icon: 'bx-plus-circle',
+                link: '/conges/demande',
+                parentId: 13
+            },
+            {
+                id: 132,
+                label: 'MENUITEMS.MES_CONGES.TEXT',
+                icon: 'bx-list-ul',
+                link: '/conges/mes-demandes',
+                parentId: 13
+            }
+        ]
+    },
     {
         id: 15,
         label: 'MENUITEMS.ADMIN_SECTION.TEXT',
@@ -6904,13 +6924,6 @@ const MENU = [
                 label: 'MENUITEMS.RH_AFFECTATIONS.TEXT',
                 icon: 'bx-git-merge',
                 link: '/RH/affectations',
-                parentId: 200
-            },
-            {
-                id: 202,
-                label: 'MENUITEMS.RH_TABLEAU_AFFECTATIONS.TEXT',
-                icon: 'bx-table',
-                link: '/RH/tableau-affectations',
                 parentId: 200
             },
             {

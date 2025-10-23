@@ -37,6 +37,28 @@ public class ServiceController {
         return ResponseEntity.ok(m);
     }
 
+    @GetMapping("/auth-test")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> testAuthentication() {
+        java.util.Map<String,Object> m = new java.util.HashMap<>();
+        m.put("authenticated", true);
+        m.put("timestamp", System.currentTimeMillis());
+        
+        // Récupérer les détails de l'utilisateur connecté
+        try {
+            org.springframework.security.core.Authentication auth = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                m.put("principal", auth.getName());
+                m.put("authorities", auth.getAuthorities().toString());
+            }
+        } catch (Exception e) {
+            m.put("auth_error", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(m);
+    }
+
     @GetMapping("/services")
     @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllServicesWithPersonnels() {
@@ -110,9 +132,9 @@ public class ServiceController {
         Service s = os.get();
         Personnel newChef = op.get();
 
-        // Charger le rôle chef service
-        Role chefRole = roleRepository.findByNomRole(ERole.ROLE_CHEF_SERVICE)
-                .orElseGet(() -> roleRepository.save(new Role(ERole.ROLE_CHEF_SERVICE)));
+        // Charger le rôle chef A
+        Role chefARole = roleRepository.findByNomRole(ERole.ROLE_CHEF_A)
+                .orElseGet(() -> roleRepository.save(new Role(ERole.ROLE_CHEF_A)));
 
         // Ancien Chef A : retirer le rôle si plus chef d'aucun service ensuite
         Personnel oldChefA = s.getChefA();
@@ -124,7 +146,7 @@ public class ServiceController {
                                      (serv.getChefB() != null && serv.getChefB().getId().equals(oldChefA.getId())));
             if (!stillChefElsewhere) {
                 if (oldChefA.getRoles() != null) {
-                    oldChefA.getRoles().removeIf(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE);
+                    oldChefA.getRoles().removeIf(r -> r.getNomRole() == ERole.ROLE_CHEF_A);
                     personnelRepository.save(oldChefA);
                 }
             }
@@ -134,9 +156,9 @@ public class ServiceController {
         if (newChef.getRoles() == null) {
             newChef.setRoles(new java.util.HashSet<>());
         }
-        boolean hasChefRole = newChef.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE);
-        if (!hasChefRole) {
-            newChef.getRoles().add(chefRole);
+        boolean hasChefARole = newChef.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_A);
+        if (!hasChefARole) {
+            newChef.getRoles().add(chefARole);
             personnelRepository.save(newChef);
         }
 
@@ -182,13 +204,32 @@ public class ServiceController {
         }
     }
 
+    @GetMapping("/personnels/complet")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getAllPersonnelsComplet() {
+        try {
+            List<Personnel> list = personnelRepository.findAll();
+            return ResponseEntity.ok(mapPersonnelsComplet(list));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            java.util.Map<String,Object> err = new java.util.HashMap<>();
+            err.put("error", "Failed to load personnels complet");
+            err.put("details", ex.getMessage());
+            return ResponseEntity.status(500).body(err);
+        }
+    }
+
     @GetMapping("/chefs")
     @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllChefs() {
-        // role name stored as enum name, e.g. ROLE_CHEF_SERVICE
+        // role name stored as enum name, e.g. ROLE_CHEF_A, ROLE_CHEF_B
         try {
-            List<Personnel> list = personnelRepository.findByRolesNomRole(tn.esprit.examen.nomPrenomClasseExamen.entities.ERole.ROLE_CHEF_SERVICE);
-            return ResponseEntity.ok(mapPersonnels(list));
+            List<Personnel> chefA = personnelRepository.findByRolesNomRole(tn.esprit.examen.nomPrenomClasseExamen.entities.ERole.ROLE_CHEF_A);
+            List<Personnel> chefB = personnelRepository.findByRolesNomRole(tn.esprit.examen.nomPrenomClasseExamen.entities.ERole.ROLE_CHEF_B);
+            List<Personnel> allChefs = new java.util.ArrayList<>();
+            allChefs.addAll(chefA);
+            allChefs.addAll(chefB);
+            return ResponseEntity.ok(mapPersonnels(allChefs));
         } catch (Exception ex) {
             ex.printStackTrace();
             java.util.Map<String,Object> err = new java.util.HashMap<>();
@@ -202,7 +243,13 @@ public class ServiceController {
     @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllNonChefs() {
         try {
-            List<Personnel> list = personnelRepository.findAllByNotRole(tn.esprit.examen.nomPrenomClasseExamen.entities.ERole.ROLE_CHEF_SERVICE);
+            // Récupérer tous les personnels qui ne sont ni CHEF_A ni CHEF_B
+            List<Personnel> allPersonnels = personnelRepository.findAll();
+            List<Personnel> list = allPersonnels.stream()
+                .filter(p -> p.getRoles() == null || p.getRoles().stream()
+                    .noneMatch(r -> r.getNomRole() == tn.esprit.examen.nomPrenomClasseExamen.entities.ERole.ROLE_CHEF_A || 
+                                  r.getNomRole() == tn.esprit.examen.nomPrenomClasseExamen.entities.ERole.ROLE_CHEF_B))
+                .collect(java.util.stream.Collectors.toList());
             return ResponseEntity.ok(mapPersonnels(list));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -230,6 +277,77 @@ public class ServiceController {
                 }
             }
             m.put("roles", roles);
+            out.add(m);
+        }
+        return out;
+    }
+
+    // helper to map personnel entities with complete service and chef information
+    private java.util.List<java.util.Map<String,Object>> mapPersonnelsComplet(List<Personnel> list) {
+        java.util.List<java.util.Map<String,Object>> out = new java.util.ArrayList<>();
+        for (Personnel p : list) {
+            java.util.Map<String,Object> m = new java.util.HashMap<>();
+            m.put("id", p.getId());
+            m.put("nom", p.getNom());
+            m.put("prenom", p.getPrenom());
+            m.put("matriculeP", p.getMatriculeP());
+            m.put("email", p.getEmail());
+            m.put("department", p.getDepartment());
+            m.put("numTel", p.getNumTel());
+            m.put("poste", p.getPoste());
+            m.put("niveau", p.getNiveau());
+
+            // map roles to strings
+            java.util.List<String> roles = new java.util.ArrayList<>();
+            if (p.getRoles() != null) {
+                for (tn.esprit.examen.nomPrenomClasseExamen.entities.Role r : p.getRoles()) {
+                    if (r != null && r.getNomRole() != null) roles.add(r.getNomRole().name());
+                }
+            }
+            m.put("roles", roles);
+
+            // map service information with chef details
+            if (p.getService() != null) {
+                Service service = p.getService();
+                java.util.Map<String,Object> serviceInfo = new java.util.HashMap<>();
+                serviceInfo.put("idService", service.getIdService());
+                serviceInfo.put("nomService", service.getNomService());
+                serviceInfo.put("libService", service.getLibService());
+
+                // Add chef information
+                if (service.getChefA() != null) {
+                    java.util.Map<String,Object> chefAInfo = new java.util.HashMap<>();
+                    chefAInfo.put("id", service.getChefA().getId());
+                    chefAInfo.put("nom", service.getChefA().getNom());
+                    chefAInfo.put("prenom", service.getChefA().getPrenom());
+                    chefAInfo.put("matriculeP", service.getChefA().getMatriculeP());
+                    serviceInfo.put("chefA", chefAInfo);
+                }
+
+                if (service.getChefB() != null) {
+                    java.util.Map<String,Object> chefBInfo = new java.util.HashMap<>();
+                    chefBInfo.put("id", service.getChefB().getId());
+                    chefBInfo.put("nom", service.getChefB().getNom());
+                    chefBInfo.put("prenom", service.getChefB().getPrenom());
+                    chefBInfo.put("matriculeP", service.getChefB().getMatriculeP());
+                    serviceInfo.put("chefB", chefBInfo);
+                }
+
+                // Add RH information
+                if (service.getRhResponsable() != null) {
+                    java.util.Map<String,Object> rhInfo = new java.util.HashMap<>();
+                    rhInfo.put("id", service.getRhResponsable().getId());
+                    rhInfo.put("nom", service.getRhResponsable().getNom());
+                    rhInfo.put("prenom", service.getRhResponsable().getPrenom());
+                    rhInfo.put("matriculeP", service.getRhResponsable().getMatriculeP());
+                    serviceInfo.put("rhResponsable", rhInfo);
+                }
+
+                m.put("service", serviceInfo);
+            } else {
+                m.put("service", null);
+            }
+
             out.add(m);
         }
         return out;

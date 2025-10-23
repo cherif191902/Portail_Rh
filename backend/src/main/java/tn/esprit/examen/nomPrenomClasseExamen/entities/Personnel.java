@@ -51,9 +51,37 @@ public class Personnel implements UserDetails {
     @JoinColumn(name = "responsable_id")
     private Personnel responsable;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rh_responsable_id")
+    private Personnel rhResponsable;
+
+    // Relations directes vers les chefs A et B du service
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_a_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
+    private Personnel chefA;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chef_b_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
+    private Personnel chefB;
+
     @OneToMany(mappedBy = "responsable", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Personnel> subordonnes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "rhResponsable", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Personnel> employes = new ArrayList<>();
+
+    // Relations inverses pour les chefs
+    @OneToMany(mappedBy = "chefA", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Personnel> employesSousChefA = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chefB", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Personnel> employesSousChefB = new ArrayList<>();
 
     @OneToMany(mappedBy = "personnel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -179,7 +207,7 @@ public class Personnel implements UserDetails {
     }
 
     public boolean isChefService() {
-        return hasRole(ERole.ROLE_CHEF_SERVICE);
+        return hasRole(ERole.ROLE_CHEF_A) || hasRole(ERole.ROLE_CHEF_B);
     }
 
     public boolean isUser() {

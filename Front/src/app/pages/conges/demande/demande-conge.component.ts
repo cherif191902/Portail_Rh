@@ -89,7 +89,44 @@ export class DemandeCongeComponent implements OnInit {
     }
 
     this.submitting = true;
+
+    // Vérification préventive des conflits de dates
+    const formValue = this.demandeForm.value;
+    const dateDebut = this.ngbDateToDate(formValue.dateDebut);
+    const dateFin = this.ngbDateToDate(formValue.dateFin);
     
+    console.log('🔍 Vérification des conflits pour les dates:', dateDebut, 'à', dateFin);
+    
+    this.congeApiService.verifierConflitsDates(dateDebut, dateFin).subscribe({
+      next: (conflits) => {
+        if (conflits.length > 0) {
+          console.warn('⚠️ Conflits détectés:', conflits);
+          
+          const detailsConflits = conflits.map(c => 
+            `• Demande #${c.id} : ${c.dateDebut} au ${c.dateFin} (${c.statut})`
+          ).join('\n');
+          
+          const message = `⚠️ Conflit de dates détecté !\n\n` +
+                         `Les dates sélectionnées (${dateDebut} au ${dateFin}) chevauchent avec :\n\n${detailsConflits}\n\n` +
+                         `👉 Veuillez modifier les dates ou gérer les demandes existantes dans "Mes demandes".`;
+          
+          alert(message);
+          this.submitting = false;
+          return;
+        }
+        
+        // Aucun conflit, procéder à la soumission
+        this.procederSoumission();
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la vérification des conflits:', error);
+        // En cas d'erreur de vérification, procéder quand même (le backend fera la vérification)
+        this.procederSoumission();
+      }
+    });
+  }
+
+  private procederSoumission() {
     // Préparation des données au format CongeRequest
     const formValue = this.demandeForm.value;
     const demandeData: CongeRequest = {
@@ -119,8 +156,18 @@ export class DemandeCongeComponent implements OnInit {
         console.error('❌ Erreur lors de la création de la demande:', error);
         
         let errorMessage = 'Une erreur est survenue lors de la soumission de votre demande.';
-        if (error?.error) {
-          errorMessage = typeof error.error === 'string' ? error.error : error.error.message || errorMessage;
+        
+        // Gestion spécifique des erreurs de chevauchement
+        if (error?.error && typeof error.error === 'string') {
+          if (error.error.includes('Chevauchement avec une autre demande')) {
+            errorMessage = '⚠️ Impossible de créer cette demande :\n\n' +
+                          'Les dates sélectionnées chevauchent avec une demande de congé existante.\n\n' +
+                          '👉 Veuillez vérifier vos demandes existantes dans "Mes demandes" et choisir des dates différentes.';
+          } else {
+            errorMessage = error.error;
+          }
+        } else if (error?.error?.message) {
+          errorMessage = error.error.message;
         }
         
         alert(errorMessage);

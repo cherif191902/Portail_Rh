@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Personnel;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Service;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.ERole;
+import tn.esprit.examen.nomPrenomClasseExamen.entities.Role;
 import tn.esprit.examen.nomPrenomClasseExamen.repositories.PersonnelRepository;
 import tn.esprit.examen.nomPrenomClasseExamen.repositories.ServiceRepository;
+import tn.esprit.examen.nomPrenomClasseExamen.repositories.RoleRepository;
+import tn.esprit.examen.nomPrenomClasseExamen.services.AffectationChefService;
 
 import tn.esprit.examen.nomPrenomClasseExamen.dto.AffectationChefRequest;
 
@@ -24,6 +27,12 @@ public class AffectationController {
 
     @Autowired
     private PersonnelRepository personnelRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private AffectationChefService affectationChefService;
 
     // ===== CRUD AFFECTATIONS =====
 
@@ -93,13 +102,114 @@ public class AffectationController {
     }
 
     /**
-     * Récupérer uniquement les chefs disponibles (avec rôle CHEF_SERVICE)
+     * Récupérer uniquement les chefs disponibles (avec rôles CHEF_A ou CHEF_B)
      */
     @GetMapping("/chefs-disponibles")
     @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
     public ResponseEntity<?> getChefsDisponibles() {
         try {
-            List<Personnel> chefs = personnelRepository.findByRolesNomRole(ERole.ROLE_CHEF_SERVICE);
+            List<Personnel> chefsA = personnelRepository.findByRolesNomRole(ERole.ROLE_CHEF_A);
+            List<Personnel> chefsB = personnelRepository.findByRolesNomRole(ERole.ROLE_CHEF_B);
+            List<Personnel> chefs = new ArrayList<>();
+            chefs.addAll(chefsA);
+            chefs.addAll(chefsB);
+            List<Map<String, Object>> result = new ArrayList<>();
+            
+            for (Personnel chef : chefs) {
+                Map<String, Object> chefInfo = new HashMap<>();
+                chefInfo.put("id", chef.getId());
+                chefInfo.put("nom", chef.getNom());
+                chefInfo.put("prenom", chef.getPrenom());
+                chefInfo.put("email", chef.getEmail());
+                chefInfo.put("matriculeP", chef.getMatriculeP());
+                
+                // Vérifier s'il est déjà chef d'un service
+                boolean dejaAffecte = serviceRepository.findAll().stream()
+                    .anyMatch(service -> service.getChef() != null && 
+                             service.getChef().getId().equals(chef.getId()));
+
+                chefInfo.put("dejaAffecte", dejaAffecte);
+                result.add(chefInfo);
+            }
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Erreur lors de la récupération des chefs: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * Récupérer uniquement les personnels d'un service spécifique (utilisateurs potentiels pour devenir chefs)
+     */
+    @GetMapping("/services/{serviceId}/personnels")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getPersonnelsParService(@PathVariable Long serviceId) {
+        try {
+            // Vérifier que le service existe
+            Optional<Service> serviceOpt = serviceRepository.findById(serviceId);
+            if (serviceOpt.isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Service introuvable");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            // Récupérer tous les personnels du service qui ont le rôle USER
+            List<Personnel> personnels = personnelRepository.findByServiceId(serviceId);
+            List<Map<String, Object>> result = new ArrayList<>();
+            
+            for (Personnel personnel : personnels) {
+                // Filtrer uniquement les utilisateurs avec ROLE_USER ou déjà chefs de ce service
+                boolean isUser = personnel.getRoles().stream()
+                    .anyMatch(role -> role.getNomRole() == ERole.ROLE_USER);
+                boolean isChefDeService = personnel.getRoles().stream()
+                    .anyMatch(role -> role.getNomRole() == ERole.ROLE_CHEF_A || role.getNomRole() == ERole.ROLE_CHEF_B);
+                
+                if (isUser || isChefDeService) {
+                    Map<String, Object> personnelInfo = new HashMap<>();
+                    personnelInfo.put("id", personnel.getId());
+                    personnelInfo.put("nom", personnel.getNom());
+                    personnelInfo.put("prenom", personnel.getPrenom());
+                    personnelInfo.put("email", personnel.getEmail());
+                    personnelInfo.put("matriculeP", personnel.getMatriculeP());
+                    
+                    // Indiquer le statut actuel
+                    if (isChefDeService) {
+                        String roleChef = personnel.getRoles().stream()
+                            .filter(role -> role.getNomRole() == ERole.ROLE_CHEF_A || role.getNomRole() == ERole.ROLE_CHEF_B)
+                            .map(role -> role.getNomRole().name())
+                            .findFirst()
+                            .orElse("");
+                        personnelInfo.put("statutActuel", roleChef.replace("ROLE_", ""));
+                    } else {
+                        personnelInfo.put("statutActuel", "USER");
+                    }
+                    
+                    result.add(personnelInfo);
+                }
+            }
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Erreur lors de la récupération des personnels: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * Récupérer uniquement les chefs disponibles (avec rôles CHEF_A ou CHEF_B) - ANCIEN
+     */
+    @GetMapping("/chefs-disponibles-old")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getChefsDisponiblesOld() {
+        try {
+            List<Personnel> chefsA = personnelRepository.findByRolesNomRole(ERole.ROLE_CHEF_A);
+            List<Personnel> chefsB = personnelRepository.findByRolesNomRole(ERole.ROLE_CHEF_B);
+            List<Personnel> chefs = new ArrayList<>();
+            chefs.addAll(chefsA);
+            chefs.addAll(chefsB);
             List<Map<String, Object>> result = new ArrayList<>();
             
             for (Personnel chef : chefs) {
@@ -174,14 +284,14 @@ public class AffectationController {
             Personnel chef = chefOpt.get();
             Service service = serviceOpt.get();
 
-            // Vérifier que le chef a bien le rôle CHEF_SERVICE
+            // Vérifier que le chef a bien le rôle CHEF_A ou CHEF_B
             boolean hasChefRole = chef.getRoles().stream()
-                .anyMatch(role -> role.getNomRole() == ERole.ROLE_CHEF_SERVICE);
+                .anyMatch(role -> role.getNomRole() == ERole.ROLE_CHEF_A || role.getNomRole() == ERole.ROLE_CHEF_B);
             
             if (!hasChefRole) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
-                error.put("message", "L'utilisateur n'a pas le rôle de chef de service");
+                error.put("message", "L'utilisateur n'a pas le rôle de chef (CHEF_A ou CHEF_B)");
                 return ResponseEntity.badRequest().body(error);
             }
 
@@ -260,14 +370,14 @@ public class AffectationController {
             Service service = serviceOpt.get();
             Personnel nouveauChef = nouveauChefOpt.get();
 
-            // Vérifier que le nouveau chef a le rôle CHEF_SERVICE
+            // Vérifier que le nouveau chef a le rôle CHEF_A ou CHEF_B
             boolean hasChefRole = nouveauChef.getRoles().stream()
-                .anyMatch(role -> role.getNomRole() == ERole.ROLE_CHEF_SERVICE);
+                .anyMatch(role -> role.getNomRole() == ERole.ROLE_CHEF_A || role.getNomRole() == ERole.ROLE_CHEF_B);
             
             if (!hasChefRole) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
-                error.put("message", "L'utilisateur n'a pas le rôle de chef de service");
+                error.put("message", "L'utilisateur n'a pas le rôle de chef (CHEF_A ou CHEF_B)");
                 return ResponseEntity.badRequest().body(error);
             }
 
@@ -393,7 +503,7 @@ public class AffectationController {
     // ===== NOUVEAUX ENDPOINTS CHEF A / CHEF B =====
 
     /**
-     * Affecter un chef A ou B à un service
+     * Affecter un chef A ou B à un service (version améliorée avec gestion automatique des rôles)
      */
     @PostMapping("/affectations/chef")
     @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
@@ -424,54 +534,50 @@ public class AffectationController {
 
             Service service = serviceOpt.get();
 
-            // Vérifier que le chef existe et a le bon rôle
-            Optional<Personnel> chefOpt = personnelRepository.findById(request.getChefId());
-            if (chefOpt.isEmpty()) {
+            // Vérifier que le personnel existe
+            Optional<Personnel> nouvearChefOpt = personnelRepository.findById(request.getChefId());
+            if (nouvearChefOpt.isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Chef introuvable");
+                response.put("message", "Personnel introuvable");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            Personnel chef = chefOpt.get();
-            boolean hasChefRole = chef.getRoles().stream()
-                    .anyMatch(role -> role.getNomRole() == ERole.ROLE_CHEF_SERVICE);
-
-            if (!hasChefRole) {
+            Personnel nouveauChef = nouvearChefOpt.get();
+            
+            // Vérifier que le personnel appartient au même service
+            if (nouveauChef.getService() == null || !nouveauChef.getService().getIdService().equals(request.getServiceId())) {
                 response.put("success", false);
-                response.put("message", "L'utilisateur sélectionné n'a pas le rôle CHEF_SERVICE");
+                response.put("message", "Le personnel doit appartenir au service où il va être affecté comme chef");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // Vérifier que le chef n'est pas déjà affecté ailleurs
-            List<Service> services = serviceRepository.findAll();
-            boolean dejaAffecte = services.stream()
-                    .anyMatch(s -> (s.getChefA() != null && s.getChefA().getId().equals(chef.getId())) ||
-                                  (s.getChefB() != null && s.getChefB().getId().equals(chef.getId())));
+            // 🔄 GESTION AUTOMATIQUE DES RÔLES ET AFFECTATIONS
 
-            if (dejaAffecte) {
-                response.put("success", false);
-                response.put("message", "Ce chef est déjà affecté à un autre service");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            // Vérifier que le poste n'est pas déjà occupé
-            if ("CHEF_A".equals(request.getTypeChef()) && service.getChefA() != null) {
-                response.put("success", false);
-                response.put("message", "Ce service a déjà un Chef A");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            if ("CHEF_B".equals(request.getTypeChef()) && service.getChefB() != null) {
-                response.put("success", false);
-                response.put("message", "Ce service a déjà un Chef B");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            // Effectuer l'affectation
+            // 1. Gérer l'ancien chef s'il y en a un
+            Personnel ancienChef = null;
             if ("CHEF_A".equals(request.getTypeChef())) {
-                service.setChefA(chef);
+                ancienChef = service.getChefA();
+                if (ancienChef != null && !ancienChef.getId().equals(nouveauChef.getId())) {
+                    // Retirer le rôle CHEF_A à l'ancien chef et lui remettre ROLE_USER
+                    this.changerRolePersonnel(ancienChef, ERole.ROLE_CHEF_A, ERole.ROLE_USER);
+                }
+            } else { // CHEF_B
+                ancienChef = service.getChefB();
+                if (ancienChef != null && !ancienChef.getId().equals(nouveauChef.getId())) {
+                    // Retirer le rôle CHEF_B à l'ancien chef et lui remettre ROLE_USER
+                    this.changerRolePersonnel(ancienChef, ERole.ROLE_CHEF_B, ERole.ROLE_USER);
+                }
+            }
+
+            // 2. Assigner le rôle approprié au nouveau chef
+            ERole nouveauRole = "CHEF_A".equals(request.getTypeChef()) ? ERole.ROLE_CHEF_A : ERole.ROLE_CHEF_B;
+            this.changerRolePersonnel(nouveauChef, ERole.ROLE_USER, nouveauRole);
+
+            // 3. Mettre à jour la table service
+            if ("CHEF_A".equals(request.getTypeChef())) {
+                service.setChefA(nouveauChef);
             } else {
-                service.setChefB(chef);
+                service.setChefB(nouveauChef);
             }
 
             serviceRepository.save(service);
@@ -489,7 +595,7 @@ public class AffectationController {
     }
 
     /**
-     * Supprimer l'affectation d'un chef A ou B
+     * Supprimer l'affectation d'un chef A ou B (version améliorée avec gestion automatique des rôles)
      */
     @DeleteMapping("/affectations/chef/{serviceId}/{typeChef}")
     @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
@@ -511,33 +617,155 @@ public class AffectationController {
             }
 
             Service service = serviceOpt.get();
+            Personnel ancienChef = null;
 
+            // 🔄 GESTION AUTOMATIQUE DES RÔLES LORS DE LA SUPPRESSION
             if ("CHEF_A".equals(typeChef)) {
                 if (service.getChefA() == null) {
                     response.put("success", false);
                     response.put("message", "Aucun Chef A affecté à ce service");
                     return ResponseEntity.badRequest().body(response);
                 }
+                ancienChef = service.getChefA();
                 service.setChefA(null);
-            } else {
+                
+                // Changer le rôle de CHEF_A vers USER
+                this.changerRolePersonnel(ancienChef, ERole.ROLE_CHEF_A, ERole.ROLE_USER);
+                
+            } else { // CHEF_B
                 if (service.getChefB() == null) {
                     response.put("success", false);
                     response.put("message", "Aucun Chef B affecté à ce service");
                     return ResponseEntity.badRequest().body(response);
                 }
+                ancienChef = service.getChefB();
                 service.setChefB(null);
+                
+                // Changer le rôle de CHEF_B vers USER
+                this.changerRolePersonnel(ancienChef, ERole.ROLE_CHEF_B, ERole.ROLE_USER);
             }
 
             serviceRepository.save(service);
 
             response.put("success", true);
-            response.put("message", "Affectation du Chef " + typeChef.replace("_", " ") + " supprimée avec succès");
+            response.put("message", "Affectation du Chef " + typeChef.replace("_", " ") + " supprimée avec succès. " +
+                                  ancienChef.getPrenom() + " " + ancienChef.getNom() + " est redevenu utilisateur standard.");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
             error.put("message", "Erreur lors de la suppression: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    // ===== MÉTHODES UTILITAIRES =====
+
+    /**
+     * Changer le rôle d'un personnel (retire l'ancien rôle et ajoute le nouveau)
+     * 🎯 Gestion automatique des rôles lors des affectations chef
+     */
+    private void changerRolePersonnel(Personnel personnel, ERole ancienRole, ERole nouveauRole) {
+        try {
+            // Récupérer les objets Role depuis la base
+            Optional<Role> ancienRoleObj = roleRepository.findByNomRole(ancienRole);
+            Optional<Role> nouveauRoleObj = roleRepository.findByNomRole(nouveauRole);
+
+            // Créer les rôles s'ils n'existent pas
+            Role roleAncien = ancienRoleObj.orElseGet(() -> roleRepository.save(new Role(ancienRole)));
+            Role roleNouveau = nouveauRoleObj.orElseGet(() -> roleRepository.save(new Role(nouveauRole)));
+
+            // Initialiser la collection de rôles si elle est null
+            if (personnel.getRoles() == null) {
+                personnel.setRoles(new HashSet<>());
+            }
+
+            // Retirer l'ancien rôle s'il existe
+            personnel.getRoles().removeIf(role -> role.getNomRole() == ancienRole);
+
+            // Ajouter le nouveau rôle s'il n'est pas déjà présent
+            boolean hasNewRole = personnel.getRoles().stream()
+                .anyMatch(role -> role.getNomRole() == nouveauRole);
+            
+            if (!hasNewRole) {
+                personnel.getRoles().add(roleNouveau);
+            }
+
+            // Sauvegarder les modifications
+            personnelRepository.save(personnel);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du changement de rôle pour " + personnel.getMatriculeP() + ": " + e.getMessage());
+        }
+    }
+
+    // ===== NOUVEAUX ENDPOINTS AVEC SERVICE CENTRALISÉ =====
+
+    /**
+     * Affecter un chef selon spécifications : remplacement, inversion, affectation simple
+     * PUT /api/rh/affectations/chef/{serviceId}/{role}/{userId}
+     * Compatible avec frontend : this.http.put(`${API_URL}/api/rh/affectations/chef/${serviceId}/${role}/${personnelId}`, {})
+     */
+    @PutMapping("/affectations/chef/{serviceId}/{role}/{userId}")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> affecterChef(@PathVariable Long serviceId, 
+                                         @PathVariable String role, 
+                                         @PathVariable Long userId) {
+        try {
+            Map<String, Object> response = new HashMap<>();
+
+            // Validation du rôle (frontend envoie ROLE_CHEF_A ou ROLE_CHEF_B)
+            if (!"ROLE_CHEF_A".equals(role) && !"ROLE_CHEF_B".equals(role)) {
+                response.put("success", false);
+                response.put("message", "Le rôle doit être ROLE_CHEF_A ou ROLE_CHEF_B");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Appel du service centralisé avec logique complète
+            String message = affectationChefService.affecterChef(serviceId, userId, role);
+
+            response.put("success", true);
+            response.put("message", message);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erreur lors de l'affectation: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * Vérifier la cohérence globale du système
+     * GET /api/rh/affectations/coherence
+     */
+    @GetMapping("/affectations/coherence")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> verifierCoherenceGlobale() {
+        try {
+            Map<String, Object> response = new HashMap<>();
+
+            // Utiliser le service centralisé pour la vérification globale
+            List<String> incoherences = affectationChefService.verifierCoherenceGlobale();
+
+            if (incoherences.isEmpty()) {
+                response.put("success", true);
+                response.put("message", "Toutes les données sont cohérentes");
+                response.put("data", new java.util.ArrayList<>());
+            } else {
+                response.put("success", false);
+                response.put("message", "Incohérences détectées");
+                response.put("data", incoherences);
+            }
+            
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erreur lors de la vérification: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
         }
     }

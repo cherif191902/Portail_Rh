@@ -14,7 +14,9 @@ export class GuardChefService implements CanActivate, CanLoad {
   canActivate(){
     const user = this.token.getUser();
     const userRoles = user.roles || [];
-    if(this.token.getToken() && (userRoles.includes("ROLE_CHEF") || user.role_portail === "ROLE_CHEF")){
+    const hasChefRole = userRoles.includes("ROLE_CHEF") || userRoles.includes("ROLE_CHEF_A") || userRoles.includes("ROLE_CHEF_B") || 
+                       user.role_portail === "ROLE_CHEF" || user.role_portail === "ROLE_CHEF_A" || user.role_portail === "ROLE_CHEF_B";
+    if(this.token.getToken() && hasChefRole){
     return true;
     }else{
     this.route.navigate(['/account/login']);
@@ -25,7 +27,9 @@ export class GuardChefService implements CanActivate, CanLoad {
   canLoad(){
     const user = this.token.getUser();
     const userRoles = user.roles || [];
-    if(this.token.getToken() && (userRoles.includes("ROLE_CHEF") || user.role_portail === "ROLE_CHEF")){
+    const hasChefRole = userRoles.includes("ROLE_CHEF") || userRoles.includes("ROLE_CHEF_A") || userRoles.includes("ROLE_CHEF_B") || 
+                       user.role_portail === "ROLE_CHEF" || user.role_portail === "ROLE_CHEF_A" || user.role_portail === "ROLE_CHEF_B";
+    if(this.token.getToken() && hasChefRole){
     return true;
     }else{
     this.route.navigate(['/account/login']);

@@ -20,6 +20,7 @@ export class SignupComponent implements OnInit {
   signupForm: FormGroup;
   services: any[] = [];
   chefs: any[] = [];
+  selectedServiceDetails: any = null;
   submitted = false;
   error = '';
   successmsg = false;
@@ -46,6 +47,15 @@ export class SignupComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       serviceId: ['', Validators.required]
     });
+
+    // Écouter les changements du service sélectionné pour affichage uniquement
+    this.signupForm.get('serviceId')?.valueChanges.subscribe(serviceId => {
+      if (serviceId) {
+        this.onServiceSelected(serviceId);
+      } else {
+        this.resetServiceDetails();
+      }
+    });
   }
 
   loadServices() {
@@ -58,6 +68,32 @@ export class SignupComponent implements OnInit {
         console.error('Erreur lors du chargement des services:', error);
       }
     );
+  }
+
+  /**
+   * Appelé quand un service est sélectionné
+   */
+  onServiceSelected(serviceId: number) {
+    console.log('📋 Service sélectionné:', serviceId);
+    this.authService.getServiceDetails(serviceId).subscribe(
+      (serviceDetails) => {
+        this.selectedServiceDetails = serviceDetails;
+        console.log('📋 Détails du service récupérés pour affichage:', serviceDetails);
+        console.log('ℹ️ Note: Les affectations chef_a_id, chef_b_id et rh_responsable_id seront faites automatiquement côté serveur lors de l\'inscription');
+      },
+      (error) => {
+        console.error('❌ Erreur lors du chargement des détails du service:', error);
+        this.resetServiceDetails();
+      }
+    );
+  }
+
+  /**
+   * Réinitialise les détails du service
+   */
+  resetServiceDetails() {
+    this.selectedServiceDetails = null;
+    console.log('🔄 Détails du service réinitialisés');
   }
 
 
@@ -84,12 +120,17 @@ export class SignupComponent implements OnInit {
       return;
     }
 
+    // Payload simplifié - seules les données utilisateur et service sont envoyées
+    // Les affectations chef_a_id, chef_b_id et rh_responsable_id se font automatiquement côté serveur
     const payload = {
       nom: this.signupForm.value.nom,
       prenom: this.signupForm.value.prenom,
       email: this.signupForm.value.email,
       serviceId: parseInt(this.signupForm.value.serviceId)
     };
+
+    console.log('📤 Envoi des données d\'inscription:', payload);
+    console.log('ℹ️ Les affectations des responsables seront faites automatiquement par le serveur');
 
     this.authService.register(payload).subscribe(
       (response) => {

@@ -46,7 +46,12 @@ public class CongeService {
             if ("REFUSE".equals(ex.getRepChefsNiveau1()) || "REFUSE".equals(ex.getRepChefsNiveau2()) || "REFUSE".equals(ex.getRepRh())) continue;
             // check overlap
             if (!(conge.getDateFin().isBefore(ex.getDateDeb()) || conge.getDateDeb().isAfter(ex.getDateFin()))) {
-                throw new IllegalArgumentException("Chevauchement avec une autre demande de congé (id=" + ex.getIdConge() + ")");
+                String conflictMessage = String.format(
+                    "Chevauchement détecté avec une demande existante (ID: %d) du %s au %s. " +
+                    "Veuillez choisir des dates différentes ou modifier/supprimer la demande existante.",
+                    ex.getIdConge(), ex.getDateDeb(), ex.getDateFin()
+                );
+                throw new IllegalArgumentException(conflictMessage);
             }
         }
 
@@ -55,12 +60,25 @@ public class CongeService {
         conge.setRepChefsNiveau1("EN_ATTENTE");
         conge.setRepChefsNiveau2("EN_ATTENTE");
         conge.setRepRh("EN_ATTENTE");
+        
+        // Auto-remplissage des validateurs à partir du service de l'employé
+        tn.esprit.examen.nomPrenomClasseExamen.entities.Service service = auteur.getService();
+        if (service != null) {
+            conge.setValidateurChefA(service.getChefA());
+            conge.setValidateurChefB(service.getChefB());
+            conge.setValidateurRh(service.getRhResponsable());
+        } else {
+            throw new IllegalArgumentException("L'employé n'est affecté à aucun service. Impossible de déterminer les validateurs.");
+        }
+        
+        // Initialiser le statut au premier niveau de validation
+        conge.setStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_A);
+        
         Conge saved = congeRepository.save(conge);
 
-        // notifier le chef du service si présent (niveau1)
-        Personnel chef = auteur.getResponsable() != null ? auteur.getResponsable() : (auteur.getService() == null ? null : auteur.getService().getPersonnels().stream().filter(Personnel::isChefService).findFirst().orElse(null));
-        if (chef != null) {
-            Notification n = new Notification("Nouvelle demande de congé de " + auteur.getNomComplet(), "CONGE", chef, auteur);
+        // Notifier le Chef A (premier validateur) s'il est défini
+        if (saved.getValidateurChefA() != null) {
+            Notification n = new Notification("Nouvelle demande de congé de " + auteur.getNomComplet(), "CONGE", saved.getValidateurChefA(), auteur);
             notificationRepository.save(n);
         }
 

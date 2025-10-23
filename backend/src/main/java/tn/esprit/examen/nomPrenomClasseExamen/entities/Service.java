@@ -36,6 +36,11 @@ public class Service {
     @JoinColumn(name = "chef_b_id")
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
     private Personnel chefB;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rh_responsable_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer","handler","roles","conges","subordonnes","notifications","notificationsEnvoyees","pointages","service"})
+    private Personnel rhResponsable;
     
     // Constructeurs
     public Service() {}
@@ -68,6 +73,20 @@ public class Service {
      */
     public boolean hasFullChefs() {
         return chefA != null && chefB != null;
+    }
+
+    /**
+     * Vérifier si le service a un RH responsable
+     */
+    public boolean hasRhResponsable() {
+        return rhResponsable != null;
+    }
+
+    /**
+     * Obtenir le chef responsable principal (Chef A prioritaire)
+     */
+    public Personnel getChefPrincipal() {
+        return chefA != null ? chefA : chefB;
     }
 
     /**

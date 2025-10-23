@@ -15,7 +15,7 @@ export class ChefDashboardComponent implements OnInit {
   subordinates: any[] = [];
   chefMatricule: string; // Get this from your auth service or localStorage
   pointages: any[] = [];
-  activeTab: 'team' | 'pointage' = 'team';
+    activeTab: 'equipe' | 'projets' | 'conges' = 'equipe';
   pointages$: Observable<Pointage[]>;
   groupedPointages$: Observable<GroupedPointage[]>;
 selectedDate: Date = new Date();
@@ -38,27 +38,171 @@ selectedDate: Date = new Date();
 
   loadDemandesPourChef() {
     this.chefMatricule = this.chefMatricule || this.token.getUser()?.matriculeP;
-    if (!this.chefMatricule) return;
-    // Use CongeService via chefServ (or inject CongeService directly) — chefServ has wrapper
-    this.congeService.getDemandesPourChef().subscribe({
-      next: (data:any) => this.demandesChef = Array.isArray(data) ? data : [],
-      error: (err:any) => console.error('Failed to load demandes for chef', err)
+    if (!this.chefMatricule) {
+      console.error('❌ Aucun matricule chef trouvé');
+      return;
+    }
+
+    console.log('🔄 Chargement des demandes pour chef:', this.chefMatricule);
+    
+    // Utiliser le nouvel endpoint hiérarchique
+    this.congeService.getMyPendingDemandes().subscribe({
+      next: (data: any) => {
+        this.demandesChef = Array.isArray(data) ? data : [];
+        console.log('✅ Demandes chargées:', this.demandesChef.length);
+        
+        // Log détaillé pour debugging
+        if (this.demandesChef.length > 0) {
+          console.log('📋 Première demande:', this.demandesChef[0]);
+        } else {
+          console.warn('⚠️ Aucune demande trouvée - Lancement du diagnostic');
+          this.runDiagnostic();
+        }
+      },
+      error: (err: any) => {
+        console.error('❌ Erreur lors du chargement des demandes:', err);
+        if (err.status === 401) {
+          console.error('🔒 Erreur d\'authentification - Token JWT invalide?');
+          // Vérifier le token
+          const token = sessionStorage.getItem('auth-token');
+          console.log('🔑 Token présent:', !!token);
+          console.log('🔑 Token longueur:', token?.length || 0);
+        }
+      }
+    });
+  }
+
+  /**
+   * Diagnostic pour identifier pourquoi aucune demande n'apparaît
+   */
+  runDiagnostic() {
+    console.log('🔍 Lancement du diagnostic Chef A...');
+    
+    this.congeService.getDiagnosticChefA().subscribe({
+      next: (diagnostic: any) => {
+        console.log('📊 Diagnostic Chef A:', diagnostic);
+        
+        // Afficher une alerte avec les résultats
+        Swal.fire({
+          title: 'Diagnostic Chef A',
+          html: `
+            <div class="text-start">
+              <strong>Chef:</strong> ${diagnostic.chefA_nom} (ID: ${diagnostic.chefA_id})<br>
+              <strong>Matricule:</strong> ${diagnostic.chefA_matricule}<br>
+              <strong>Total demandes assignées:</strong> ${diagnostic.total_demandes_assignees}<br>
+              <strong>Demandes par statut:</strong><br>
+              ${Object.entries(diagnostic.demandes_par_statut || {}).map(([statut, count]) => 
+                `&nbsp;&nbsp;• ${statut}: ${count}`).join('<br>')}
+              <br><br>
+              <strong>Demandes EN_ATTENTE_CHEF_A:</strong> ${diagnostic.en_attente_chef_a?.length || 0}
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonText: 'OK'
+        });
+      },
+      error: (err: any) => {
+        console.error('❌ Erreur diagnostic:', err);
+      }
+    });
+  }
+
+  runDiagnosticServices(): void {
+    console.log('🔍 Lancement du diagnostic des services...');
+    this.congeService.getDiagnosticServices().subscribe({
+      next: (diagnostic) => {
+        console.log('📊 Diagnostic Services:', diagnostic);
+        let servicesHtml = `<p><strong>Total services:</strong> ${diagnostic.total_services}</p><br>`;
+        
+        diagnostic.services.forEach((service: any) => {
+          servicesHtml += `
+            <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0;">
+              <h4>${service.nom} (ID: ${service.id})</h4>
+              <p><strong>Chef A:</strong> ${service.chef_a?.nom || 'Non assigné'}</p>
+              <p><strong>Chef B:</strong> ${service.chef_b?.nom || 'Non assigné'}</p>
+              <p><strong>RH:</strong> ${service.rh?.nom || 'Non assigné'}</p>
+              <p><strong>Employés:</strong> ${service.nb_employes}</p>
+            </div>
+          `;
+        });
+        
+        Swal.fire({
+          title: 'Diagnostic des Services',
+          html: `<div style="text-align: left; max-height: 400px; overflow-y: auto;">${servicesHtml}</div>`,
+          icon: 'info',
+          width: '800px'
+        });
+      },
+      error: (error) => {
+        console.error('❌ Erreur diagnostic services:', error);
+        Swal.fire('Erreur', 'Impossible d\'exécuter le diagnostic des services', 'error');
+      }
     });
   }
 
   approveRequest(id: number) {
-    if (!confirm('Approuver cette demande ?')) return;
-    this.congeService.chefDecisionSimple(id, 'APPROUVE').subscribe({
-      next: ()=> this.loadDemandesPourChef(),
-      error: (err:any)=> Swal.fire('Erreur','Impossible d\'approuver','error')
+    Swal.fire({
+      title: 'Valider cette demande ?',
+      text: 'La demande sera transmise au niveau suivant (Chef B)',
+      input: 'textarea',
+      inputPlaceholder: 'Commentaire (optionnel)',
+      showCancelButton: true,
+      confirmButtonText: '✅ Valider',
+      cancelButtonText: '❌ Annuler',
+      confirmButtonColor: '#28a745'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Utiliser l'API CongeApiService pour la validation hiérarchique
+        const validationData = {
+          action: 'VALIDER',
+          commentaire: result.value || 'Validé par Chef A'
+        };
+        
+        // TODO: Intégrer CongeApiService.validerChefA() ici
+        // Pour l'instant, utiliser l'ancienne méthode
+        this.congeService.chefDecisionSimple(id, 'APPROUVE', result.value).subscribe({
+          next: () => {
+            Swal.fire('Validé !', 'Demande transmise au Chef B', 'success');
+            this.loadDemandesPourChef();
+          },
+          error: (err: any) => {
+            console.error('❌ Erreur validation:', err);
+            Swal.fire('Erreur', 'Impossible de valider la demande', 'error');
+          }
+        });
+      }
     });
   }
 
   rejectRequest(id: number) {
-    if (!confirm('Refuser cette demande ?')) return;
-    this.congeService.chefDecisionSimple(id, 'REFUSE').subscribe({
-      next: ()=> this.loadDemandesPourChef(),
-      error: (err:any)=> Swal.fire('Erreur','Impossible de refuser','error')
+    Swal.fire({
+      title: 'Refuser cette demande ?',
+      text: 'Cette action refusera définitivement la demande',
+      input: 'textarea',
+      inputPlaceholder: 'Motif du refus (obligatoire)',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Veuillez indiquer un motif de refus !';
+        }
+        return null;
+      },
+      showCancelButton: true,
+      confirmButtonText: '❌ Refuser',
+      cancelButtonText: '↶ Annuler',
+      confirmButtonColor: '#dc3545'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.congeService.chefDecisionSimple(id, 'REFUSE', result.value).subscribe({
+          next: () => {
+            Swal.fire('Refusé !', 'Demande refusée définitivement', 'success');
+            this.loadDemandesPourChef();
+          },
+          error: (err: any) => {
+            console.error('❌ Erreur refus:', err);
+            Swal.fire('Erreur', 'Impossible de refuser la demande', 'error');
+          }
+        });
+      }
     });
   }
   loadSubordinates() {
@@ -80,10 +224,16 @@ selectedDate: Date = new Date();
     const user = localStorage.getItem('currentUser');
     return user ? JSON.parse(user) : null;
   }
-  switchTab(tab: 'team' | 'pointage') {
-    this.activeTab = tab;
-    if (tab === 'pointage') {
+  switchTab(tab: 'team' | 'conges' | 'pointage') {
+    // Mapper les anciens noms vers les nouveaux
+    if (tab === 'team') {
+      this.activeTab = 'equipe';
+    } else if (tab === 'pointage') {
+      this.activeTab = 'projets';
       this.loadPointages();
+    } else if (tab === 'conges') {
+      this.activeTab = 'conges';
+      this.loadDemandesPourChef();
     }
   }
   loadPointages() {

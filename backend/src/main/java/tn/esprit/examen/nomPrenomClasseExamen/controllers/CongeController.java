@@ -9,6 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.CongeRequestDto;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.DemandeCongeDto;
+import tn.esprit.examen.nomPrenomClasseExamen.dto.PersonnelDTO;
+import tn.esprit.examen.nomPrenomClasseExamen.dto.PersonnelMapper;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Conge;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Personnel;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.TypeConge;
@@ -109,7 +111,7 @@ public class CongeController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getMyConges() {
         logger.info("🔍 Récupération des congés pour l'utilisateur connecté");
         
@@ -223,24 +225,39 @@ public class CongeController {
         }
         
         Conge conge = c.get();
+        logger.info("📋 Demande trouvée: ID={}, Personnel={}, Statuts=[Chef1={}, Chef2={}, RH={}]", 
+                   id, conge.getPersonnel().getMatriculeP(), 
+                   conge.getRepChefsNiveau1(), conge.getRepChefsNiveau2(), conge.getRepRh());
         
         // Vérifier que l'utilisateur ne peut annuler que ses propres congés
         if (!conge.getPersonnel().getMatriculeP().equals(opt.get().getMatriculeP())) {
-            logger.warn("🚫 Tentative d'annulation non autorisée de la demande {} par {}", 
-                       id, opt.get().getMatriculeP());
+            logger.warn("🚫 Tentative d'annulation non autorisée de la demande {} par {} (propriétaire: {})", 
+                       id, opt.get().getMatriculeP(), conge.getPersonnel().getMatriculeP());
             return ResponseEntity.status(403).body("Accès refusé - Vous ne pouvez annuler que vos propres demandes");
         }
 
-        // Autoriser annulation tant que chef n'a pas approuvé
-        if (!"EN_ATTENTE".equals(conge.getRepChefsNiveau1())) {
-            logger.warn("⚠️ Tentative d'annulation d'une demande déjà traitée: {}", id);
-            return ResponseEntity.badRequest().body("Impossible d'annuler une demande déjà traitée par le chef");
+        // Autoriser annulation tant que la demande n'est pas encore approuvée ou refusée définitivement
+        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) || 
+            "REFUSE".equals(conge.getRepChefsNiveau1()) || 
+            "APPROUVE".equals(conge.getRepChefsNiveau2()) || 
+            "REFUSE".equals(conge.getRepChefsNiveau2()) || 
+            "APPROUVE".equals(conge.getRepRh()) || 
+            "REFUSE".equals(conge.getRepRh())) {
+            
+            logger.warn("⚠️ Tentative d'annulation d'une demande déjà traitée: {} (Statuts: Chef1={}, Chef2={}, RH={})", 
+                       id, conge.getRepChefsNiveau1(), conge.getRepChefsNiveau2(), conge.getRepRh());
+            return ResponseEntity.badRequest().body("Impossible d'annuler une demande déjà traitée (approuvée ou refusée)");
         }
 
         try {
             congeRepository.delete(conge);
             logger.info("✅ Demande de congé annulée avec succès: {}", id);
-            return ResponseEntity.ok("Demande de congé annulée avec succès");
+            
+            // Retourner une réponse JSON structurée
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Demande de congé annulée avec succès");
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("❌ Erreur lors de l'annulation: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body("Erreur: " + e.getMessage());
@@ -253,7 +270,7 @@ public class CongeController {
      * Récupère la liste des types de congés disponibles
      */
     @GetMapping("/types")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getTypesConges() {
         logger.info("🔍 Récupération des types de congés");
         
@@ -358,9 +375,9 @@ public class CongeController {
         return ResponseEntity.ok(response);
     }
 
-    // ---------- ROLE_CHEF_SERVICE : voir demandes de son service, approuver / refuser ----------
+    // ---------- ROLE_CHEF_A/CHEF_B : voir demandes de son service, approuver / refuser ----------
     @GetMapping("/chef/pending")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getPendingForChefService() {
         Optional<Personnel> opt = getCurrentPersonnel();
         if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
@@ -372,7 +389,7 @@ public class CongeController {
     }
 
     @GetMapping("/chef/pending/my")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getPendingForThisChef() {
         Optional<Personnel> opt = getCurrentPersonnel();
         if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
@@ -400,18 +417,30 @@ public class CongeController {
     }
 
     @GetMapping("/chef/employees")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getEmployeesForChef() {
-        Optional<Personnel> opt = getCurrentPersonnel();
-        if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
-        Personnel chef = opt.get();
-        if (chef.getService() == null) return ResponseEntity.badRequest().body("Chef sans service affecté");
-        java.util.List<Personnel> employees = personnelRepository.findByServiceId(chef.getService().getIdService());
-        return ResponseEntity.ok(employees);
+        try {
+            Optional<Personnel> opt = getCurrentPersonnel();
+            if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
+            
+            Personnel chef = opt.get();
+            if (chef.getService() == null) return ResponseEntity.badRequest().body("Chef sans service affecté");
+            
+            java.util.List<Personnel> employees = personnelRepository.findByServiceId(chef.getService().getIdService());
+            
+            // Utiliser le mapper pour éviter les références circulaires
+            PersonnelMapper mapper = new PersonnelMapper();
+            java.util.List<PersonnelDTO> employeeDTOs = mapper.toDTOList(employees);
+            
+            return ResponseEntity.ok(employeeDTOs);
+        } catch (Exception e) {
+            logger.error("❌ Erreur récupération employés pour chef:", e);
+            return ResponseEntity.internalServerError().body("Erreur lors de la récupération des employés");
+        }
     }
 
     @PostMapping("/chef/decision/{id}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> chefDecision(@PathVariable Long id, @RequestParam String decision, @RequestParam(required = false) String commentaire) {
         Optional<Personnel> opt = getCurrentPersonnel();
         if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
@@ -463,7 +492,7 @@ public class CongeController {
 
     // ---------- Compatibilité front existant (endpoints anciens) ----------
     @GetMapping("/getCng/{matricule}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<List<Object[]>> getCngForChart(@PathVariable String matricule) {
         // Retourne une liste [count, monthLabel] compatible avec le front
         List<Object[]> result = new ArrayList<>();
@@ -480,13 +509,13 @@ public class CongeController {
     }
 
     @GetMapping("/getAllCng")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getAllCongesCompat() {
         return ResponseEntity.ok(congeRepository.findAll());
     }
 
     @GetMapping("/getNbrCng/{matricule}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<List<Integer>> getNbrCngByMonth(@PathVariable String matricule) {
         // Retourne un tableau de 12 entiers (jan..dec) avec le nombre de congés de l'utilisateur
         List<Integer> months = new ArrayList<>(Collections.nCopies(12, 0));
@@ -501,7 +530,7 @@ public class CongeController {
     }
 
     @GetMapping("/getNbrCngMois")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<Map<String, Integer>> getNombreCongesParMoisCompat() {
         Map<String, Integer> stats = new LinkedHashMap<>();
         for (int i = 1; i <= 12; i++) stats.put(java.time.Month.of(i).name().toLowerCase(), 0);
@@ -518,21 +547,21 @@ public class CongeController {
     }
 
     @GetMapping("/notifications/{matricule}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getNotificationsCompat(@PathVariable String matricule) {
         List<tn.esprit.examen.nomPrenomClasseExamen.entities.Notification> notes = notificationRepository.findByDestinataireMatricule(matricule);
         return ResponseEntity.ok(notes);
     }
 
     @GetMapping("/get/{matricule}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getCongesByMatricule(@PathVariable String matricule) {
         List<Conge> list = congeRepository.findByPersonnelMatricule(matricule);
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/getTotalCongeThisYear/{matricule}/{year}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<Map<String, Object>> getTotalCongeThisYearCompat(
             @PathVariable String matricule,
             @PathVariable int year) {
@@ -611,14 +640,14 @@ public class CongeController {
     }
 
     @PutMapping("/notifications/read/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('RH') or hasRole('ADMIN') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('RH') or hasRole('ADMIN') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> markNotificationRead(@PathVariable Long id) {
         notificationRepository.markAsRead(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/notifications/mark-all-read/{matricule}")
-    @PreAuthorize("hasRole('USER') or hasRole('RH') or hasRole('ADMIN') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('RH') or hasRole('ADMIN') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> markAllRead(@PathVariable String matricule) {
         notificationRepository.markAllAsReadByMatricule(matricule);
         return ResponseEntity.ok().build();
@@ -633,19 +662,19 @@ public class CongeController {
 
     // Compat: getDemandeChef
     @GetMapping("/getDemandeChef/{serv}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getDemandeChef(@PathVariable Long serv) {
         return ResponseEntity.ok(congeRepository.findByServiceId(serv));
     }
 
     @GetMapping("/getDemandeChefNotNull/{serv}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getDemandeChefNotNull(@PathVariable Long serv) {
         return ResponseEntity.ok(congeRepository.findPendingForChefService(serv));
     }
 
     @GetMapping("/{id}/approvals")
-    @PreAuthorize("hasRole('USER') or hasRole('RH') or hasRole('ADMIN') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('RH') or hasRole('ADMIN') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getApprovals(@PathVariable Long id) {
         Optional<Conge> oc = congeRepository.findById(id);
         if (oc.isEmpty()) return ResponseEntity.notFound().build();
@@ -653,7 +682,7 @@ public class CongeController {
         return ResponseEntity.ok(approvals);
     }
     @PutMapping("/updateChef")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> updateChef(@RequestBody Conge conge) {
         // simple save (assume front fills repChefsNiveau1)
         Conge saved = congeRepository.save(conge);
@@ -661,7 +690,7 @@ public class CongeController {
     }
 
     @PutMapping("/approve/niveau1/{id}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> approveNiveau1(@PathVariable Long id, @RequestParam String decision) {
         Optional<Personnel> opt = getCurrentPersonnel();
         if (opt.isEmpty()) return ResponseEntity.badRequest().body("Utilisateur introuvable");
@@ -671,33 +700,33 @@ public class CongeController {
     }
 
     @PutMapping("/approve/niveau2/{id}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> approveNiveau2(@PathVariable Long id, @RequestParam String decision) {
         // reuse chefDecision for niveau2 for now
         return approveNiveau1(id, decision);
     }
 
     @PutMapping("/approve/niveau3/{id}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> approveNiveau3(@PathVariable Long id, @RequestParam String decision) {
         // reuse
         return approveNiveau1(id, decision);
     }
 
     @GetMapping("/getrepDemandeNiveau3/{serv}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getRepDemandeNiveau3(@PathVariable Long serv) {
         return ResponseEntity.ok(congeRepository.findByServiceId(serv));
     }
 
     @GetMapping("/getrepDemandeNiveau2/{serv}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getRepDemandeNiveau2(@PathVariable Long serv) {
         return ResponseEntity.ok(congeRepository.findByServiceId(serv));
     }
 
     @GetMapping("/getrepDemandeNiveau1/{serv}")
-    @PreAuthorize("hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<?> getRepDemandeNiveau1(@PathVariable Long serv) {
         return ResponseEntity.ok(congeRepository.findPendingForChefService(serv));
     }

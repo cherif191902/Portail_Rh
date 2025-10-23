@@ -17,7 +17,7 @@ public class TestController {
     }
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_SERVICE')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('RH') or hasRole('CHEF_A') or hasRole('CHEF_B')")
     public ResponseEntity<String> userEndpoint() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();

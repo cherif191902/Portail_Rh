@@ -1,0 +1,176 @@
+/* Mes Demandes de Congé - Styles spécifiques */
+
+.page-title-box {
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  
+  .card-title {
+    color: #495057;
+    font-weight: 600;
+  }
+}
+
+.table {
+  th {
+    font-weight: 600;
+    color: #495057;
+    border-color: #dee2e6;
+    vertical-align: middle;
+  }
+  
+  td {
+    vertical-align: middle;
+    border-color: #dee2e6;
+  }
+  
+  tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+  }
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  
+  &.bg-success {
+    background-color: #28a745 !important;
+  }
+  
+  &.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529;
+  }
+  
+  &.bg-danger {
+    background-color: #dc3545 !important;
+  }
+  
+  &.bg-info {
+    background-color: #17a2b8 !important;
+  }
+  
+  &.bg-secondary {
+    background-color: #6c757d !important;
+  }
+}
+
+.btn {
+  &.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  &.btn-danger {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0.125rem 0.375rem rgba(220, 53, 69, 0.3);
+    }
+  }
+  
+  &.btn-primary {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0.125rem 0.375rem rgba(0, 123, 255, 0.3);
+    }
+  }
+}
+
+.text-center.py-5 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+  
+  .display-4 {
+    font-size: 3rem;
+    opacity: 0.5;
+  }
+}
+
+.spinner-border {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.alert {
+  border: none;
+  border-radius: 0.5rem;
+  
+  &.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+  }
+}
+
+.card.bg-light {
+  background-color: #f8f9fa !important;
+  
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .page-title-box {
+    flex-direction: column;
+    align-items: flex-start !important;
+    
+    .page-title-right {
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .table {
+    font-size: 0.8rem;
+  }
+  
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+// Animation pour les transitions
+.card, .btn, .badge {
+  transition: all 0.15s ease-in-out;
+}
+
+// Amélioration de l'accessibilité
+.btn:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.table th {
+  position: relative;
+}
+
+// Style pour les tooltips (si utilisés)
+.tooltip {
+  font-size: 0.875rem;
+}
+
+// État de chargement
+.spinner-border + span {
+  color: #6c757d;
+  font-weight: 500;
+}

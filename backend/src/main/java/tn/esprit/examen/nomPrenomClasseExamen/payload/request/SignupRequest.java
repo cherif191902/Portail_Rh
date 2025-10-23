@@ -1,6 +1,7 @@
 package tn.esprit.examen.nomPrenomClasseExamen.payload.request;
 
 import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotNull;
 
 public class SignupRequest {
     @NotBlank
@@ -15,6 +16,9 @@ public class SignupRequest {
     @NotBlank
     @Size(max = 20)
     private String prenom;
+
+    @NotNull(message = "Le service est obligatoire")
+    private Integer serviceId;
 
     // Getters and Setters
     public String getEmail() {
@@ -39,5 +43,13 @@ public class SignupRequest {
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
+    }
+
+    public Integer getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Integer serviceId) {
+        this.serviceId = serviceId;
     }
 }

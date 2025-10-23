@@ -120,7 +120,7 @@ private mapRoles(rawRoles: any): string[] {
  */
 private mapRoleIdToName(roleId: number): string {
   const roleMapping = {
-    1: 'ROLE_CHEF_SERVICE', // Chef de service (ancien système)
+    // 1: 'ROLE_CHEF_SERVICE', // Chef de service (SUPPRIMÉ - utiliser CHEF_A/CHEF_B)
     2: 'ROLE_ADMIN',        // Administrateur
     3: 'ROLE_USER',         // Utilisateur standard/Employé
     4: 'ROLE_RH',           // Ressources Humaines

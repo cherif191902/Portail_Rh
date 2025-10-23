@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Conge;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Personnel;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.TypeConge;
+import tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -87,4 +88,66 @@ public interface CongeRepository extends JpaRepository<Conge, Long> {
     // Historique filtré par statut RH
     @Query("SELECT c FROM Conge c WHERE c.repRh = :status ORDER BY c.dateCong DESC")
     List<Conge> findRhHistoryByStatus(@Param("status") String status);
+    
+    // ===== NOUVELLES REQUÊTES POUR LE WORKFLOW HIÉRARCHIQUE =====
+    
+    // Demandes en attente de validation par Chef A
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_A AND c.validateurChefA.id = :chefId")
+    List<Conge> findPendingForChefA(@Param("chefId") Integer chefId);
+    
+    // Demandes en attente de validation par Chef A avec détails
+    @Query("SELECT c FROM Conge c " +
+           "LEFT JOIN FETCH c.personnel p " +
+           "LEFT JOIN FETCH p.service s " +
+           "LEFT JOIN FETCH c.typeConge tc " +
+           "WHERE c.statutConge = tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_A " +
+           "AND c.validateurChefA.id = :chefId " +
+           "ORDER BY c.dateCong DESC")
+    List<Conge> findPendingForChefAWithDetails(@Param("chefId") Integer chefId);
+    
+    // Demandes en attente de validation par Chef B
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_B AND c.validateurChefB.id = :chefId")
+    List<Conge> findPendingForChefB(@Param("chefId") Integer chefId);
+    
+    // Demandes en attente de validation par RH
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_RH AND c.validateurRh.id = :rhId")
+    List<Conge> findPendingForRhUser(@Param("rhId") Integer rhId);
+    
+    // Toutes les demandes en attente de validation RH (pour tous les RH)
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_RH")
+    List<Conge> findAllPendingForRh();
+    
+    // Demandes par statut du nouveau système
+    @Query("SELECT c FROM Conge c WHERE c.statutConge = :statut")
+    List<Conge> findByStatutConge(@Param("statut") tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge statut);
+    
+    // Historique des demandes traitées par un validateur spécifique
+    @Query("SELECT c FROM Conge c WHERE " +
+           "(c.validateurChefA.id = :validatorId AND c.dateValidationChefA IS NOT NULL) OR " +
+           "(c.validateurChefB.id = :validatorId AND c.dateValidationChefB IS NOT NULL) OR " +
+           "(c.validateurRh.id = :validatorId AND c.dateValidationRh IS NOT NULL) " +
+           "ORDER BY COALESCE(c.dateValidationRh, c.dateValidationChefB, c.dateValidationChefA) DESC")
+    List<Conge> findHistoriqueByValidator(@Param("validatorId") Integer validatorId);
+    
+    // Toutes les demandes assignées à un Chef A (pour diagnostic)
+    @Query("SELECT c FROM Conge c WHERE c.validateurChefA.id = :chefId ORDER BY c.dateCong DESC")
+    List<Conge> findByValidateurChefA(@Param("chefId") Integer chefId);
+    
+    // ===== NOUVELLES MÉTHODES POUR LA GESTION AUTOMATIQUE DES CHEFS =====
+    
+    // Trouver les congés validés par un Chef A spécifique (par Integer ID)
+    @Query("SELECT c FROM Conge c WHERE c.validateurChefA.id = :chefId")
+    List<Conge> findByValidateurChefAId(@Param("chefId") Integer chefId);
+    
+    // Trouver les congés validés par un Chef B spécifique (par Integer ID)  
+    @Query("SELECT c FROM Conge c WHERE c.validateurChefB.id = :chefId")
+    List<Conge> findByValidateurChefBId(@Param("chefId") Integer chefId);
+    
+    // Trouver les congés par personnel et statut
+    @Query("SELECT c FROM Conge c WHERE c.personnel.id = :personnelId AND c.statutConge IN :statuts")
+    List<Conge> findByPersonnelIdAndStatutIn(@Param("personnelId") Long personnelId, @Param("statuts") java.util.List<StatutConge> statuts);
+    
+    // Trouver tous les congés d'un service avec certains statuts
+    @Query("SELECT c FROM Conge c WHERE c.personnel.service.idService = :serviceId AND c.statutConge IN :statuts")
+    List<Conge> findByServiceAndStatutIn(@Param("serviceId") Long serviceId, @Param("statuts") java.util.List<StatutConge> statuts);
 }

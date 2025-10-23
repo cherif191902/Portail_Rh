@@ -15,10 +15,6 @@
             <i class="fas fa-sync-alt me-1" [class.fa-spin]="loading"></i>
             Actualiser
           </button>
-          <button class="btn btn-outline-primary" (click)="exportToCSV()" [disabled]="loading">
-            <i class="fas fa-download me-1"></i>
-            Exporter CSV
-          </button>
         </div>
       </div>
     </div>
@@ -37,146 +33,9 @@
     <button type="button" class="btn-close" (click)="error = null"></button>
   </div>
 
-  <!-- Filtres et recherche -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h5 class="card-title mb-0">
-        <i class="fas fa-filter me-2"></i>
-        Recherche et Filtres
-      </h5>
-    </div>
-    <div class="card-body">
-      <form [formGroup]="searchForm" class="row g-3">
-        <!-- Recherche générale -->
-        <div class="col-md-4">
-          <label class="form-label">
-            <i class="fas fa-search me-1"></i>
-            Recherche
-          </label>
-          <input 
-            type="text" 
-            class="form-control" 
-            formControlName="searchText"
-            placeholder="Nom, prénom, matricule ou email..."
-          >
-        </div>
 
-        <!-- Filtre par service -->
-        <div class="col-md-3">
-          <label class="form-label">
-            <i class="fas fa-building me-1"></i>
-            Service
-          </label>
-          <select class="form-select" formControlName="filterService">
-            <option value="">Tous les services</option>
-            <option *ngFor="let service of services" [value]="service.idService">
-              {{ service.nomService }}
-            </option>
-          </select>
-        </div>
 
-        <!-- Filtre par rôle -->
-        <div class="col-md-3">
-          <label class="form-label">
-            <i class="fas fa-user-tag me-1"></i>
-            Rôle
-          </label>
-          <select class="form-select" formControlName="filterRole">
-            <option value="">Tous les rôles</option>
-            <option *ngFor="let role of roles" [value]="role">
-              {{ role }}
-            </option>
-          </select>
-        </div>
 
-        <!-- Bouton reset -->
-        <div class="col-md-2 d-flex align-items-end">
-          <button 
-            type="button" 
-            class="btn btn-outline-secondary w-100"
-            (click)="resetFilters()">
-            <i class="fas fa-eraser me-1"></i>
-            Reset
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Statistiques rapides -->
-  <div class="row mb-4">
-    <div class="col-xl-3 col-md-6">
-      <div class="card border-primary">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">Total Employés</p>
-              <h4 class="mb-2 text-primary">{{ employes.length }}</h4>
-            </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-primary rounded-3">
-                <i class="fas fa-users font-size-24"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-      <div class="card border-success">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">Services</p>
-              <h4 class="mb-2 text-success">{{ services.length }}</h4>
-            </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-success rounded-3">
-                <i class="fas fa-building font-size-24"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-      <div class="card border-info">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">Résultats filtrés</p>
-              <h4 class="mb-2 text-info">{{ filteredEmployes.length }}</h4>
-            </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-info rounded-3">
-                <i class="fas fa-filter font-size-24"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-      <div class="card border-warning">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">Rôles différents</p>
-              <h4 class="mb-2 text-warning">{{ roles.length }}</h4>
-            </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-warning rounded-3">
-                <i class="fas fa-user-tag font-size-24"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Tableau des employés -->
   <div class="card">
@@ -184,7 +43,7 @@
       <h5 class="card-title mb-0">
         <i class="fas fa-table me-2"></i>
         Liste des Employés
-        <span class="badge bg-primary ms-2">{{ filteredEmployes.length }} résultat(s)</span>
+        <span class="badge bg-primary ms-2">{{ employes.length }} employé(s)</span>
       </h5>
     </div>
     <div class="card-body p-0">
@@ -198,144 +57,82 @@
 
       <!-- Tableau -->
       <div *ngIf="!loading" class="table-responsive">
-        <table class="table table-striped table-hover mb-0">
+        <table class="table table-striped table-hover">
           <thead class="table-dark">
             <tr>
-              <th scope="col" class="text-center">#</th>
-              <th scope="col">
-                <i class="fas fa-user me-1"></i>
-                Nom complet
-              </th>
-              <th scope="col">
-                <i class="fas fa-building me-1"></i>
-                Service
-              </th>
-              <th scope="col">
-                <i class="fas fa-user-tag me-1"></i>
-                Rôle(s)
-              </th>
-              <th scope="col">
-                <i class="fas fa-id-card me-1"></i>
-                Matricule
-              </th>
-              <th scope="col">
-                <i class="fas fa-envelope me-1"></i>
-                Email
-              </th>
-              <th scope="col" class="text-center">
-                <i class="fas fa-cogs me-1"></i>
-                Actions
-              </th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Service</th>
+              <th>Chef A</th>
+              <th>Chef B</th>
+              <th>Rôle</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let employe of getPaginatedEmployes(); let i = index; trackBy: trackByEmploye">
-              <!-- Index -->
-              <td class="text-center text-muted">
-                {{ (currentPage - 1) * itemsPerPage + i + 1 }}
-              </td>
-
-              <!-- Nom complet -->
+            <tr *ngFor="let employe of employes; trackBy: trackByEmploye">
+              <!-- Nom -->
               <td>
-                <div class="d-flex align-items-center">
-                  <div class="avatar-xs me-3">
-                    <span class="avatar-title bg-primary rounded-circle text-white">
-                      {{ employe.prenom.charAt(0) }}{{ employe.nom.charAt(0) }}
-                    </span>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">{{ getFullName(employe) }}</h6>
-                    <p class="text-muted mb-0 small">{{ employe.matriculeP }}</p>
-                  </div>
-                </div>
+                <strong>{{ employe.nom }} {{ employe.prenom }}</strong>
               </td>
-
-              <!-- Service -->
-              <td>
-                <div *ngIf="employe.service" class="d-flex align-items-center">
-                  <i class="fas fa-building text-primary me-2"></i>
-                  <div>
-                    <span class="fw-bold">{{ employe.service.nomService }}</span>
-                    <br>
-                    <small class="text-muted">{{ employe.service.libService }}</small>
-                  </div>
-                </div>
-                <div *ngIf="!employe.service" class="text-muted fst-italic">
-                  <i class="fas fa-building-slash me-1"></i>
-                  Non assigné
-                </div>
-              </td>
-
-              <!-- Rôles -->
-              <td>
-                <div *ngIf="employe.roles && employe.roles.length > 0">
-                  <span 
-                    class="badge me-1 mb-1"
-                    [ngClass]="getRoleBadgeClass(employe)"
-                    *ngFor="let role of employe.roles; let first = first">
-                    {{ role.replace('ROLE_', '') }}
-                  </span>
-                </div>
-                <div *ngIf="!employe.roles || employe.roles.length === 0" class="text-muted fst-italic">
-                  <i class="fas fa-user-slash me-1"></i>
-                  Aucun rôle
-                </div>
-              </td>
-
-              <!-- Matricule -->
-              <td>
-                <span class="badge bg-light text-dark font-monospace">
-                  {{ employe.matriculeP }}
-                </span>
-              </td>
-
+              
               <!-- Email -->
               <td>
                 <a [href]="'mailto:' + employe.email" class="text-decoration-none">
-                  <i class="fas fa-envelope me-1 text-primary"></i>
                   {{ employe.email }}
                 </a>
               </td>
-
-              <!-- Actions -->
-              <td class="text-center">
-                <div class="btn-group btn-group-sm" role="group">
-                  <button 
-                    class="btn btn-outline-info"
-                    (click)="voirDetails(employe)"
-                    title="Voir les détails">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button 
-                    class="btn btn-outline-warning"
-                    (click)="modifierEmploye(employe)"
-                    title="Modifier">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button 
-                    class="btn btn-outline-danger"
-                    (click)="supprimerEmploye(employe)"
-                    title="Supprimer">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
+              
+              <!-- Service -->
+              <td>
+                <span *ngIf="employe.service; else noService">
+                  {{ employe.service.nomService }}
+                </span>
+                <ng-template #noService>
+                  <span class="text-muted">-</span>
+                </ng-template>
+              </td>
+              
+              <!-- Chef A -->
+              <td>
+                <span *ngIf="employe.service?.chefA; else noChefA">
+                  {{ getPersonnelName(employe.service.chefA) }}
+                </span>
+                <ng-template #noChefA>
+                  <span class="text-muted">-</span>
+                </ng-template>
+              </td>
+              
+              <!-- Chef B -->
+              <td>
+                <span *ngIf="employe.service?.chefB; else noChefB">
+                  {{ getPersonnelName(employe.service.chefB) }}
+                </span>
+                <ng-template #noChefB>
+                  <span class="text-muted">-</span>
+                </ng-template>
+              </td>
+              
+              <!-- Rôle -->
+              <td>
+                <span *ngIf="employe.roles && employe.roles.length > 0; else noRole">
+                  <span 
+                    class="badge bg-secondary me-1"
+                    *ngFor="let role of employe.roles">
+                    {{ role.replace('ROLE_', '') }}
+                  </span>
+                </span>
+                <ng-template #noRole>
+                  <span class="text-muted">-</span>
+                </ng-template>
               </td>
             </tr>
-
-            <!-- Message si aucun employé trouvé -->
-            <tr *ngIf="filteredEmployes.length === 0 && !loading">
-              <td colspan="7" class="text-center py-4">
+            
+            <!-- Message si aucun employé -->
+            <tr *ngIf="employes.length === 0 && !loading">
+              <td colspan="6" class="text-center py-4">
                 <div class="text-muted">
-                  <i class="fas fa-users-slash fa-3x mb-3 d-block text-secondary"></i>
-                  <h5>Aucun employé trouvé</h5>
-                  <p class="mb-0">
-                    <span *ngIf="searchText || selectedService || selectedRole">
-                      Aucun employé ne correspond aux critères de recherche.
-                    </span>
-                    <span *ngIf="!searchText && !selectedService && !selectedRole">
-                      Aucun employé n'est enregistré dans le système.
-                    </span>
-                  </p>
+                  <i class="fas fa-users-slash fa-2x mb-3 d-block"></i>
+                  <p class="mb-0">Aucun employé trouvé</p>
                 </div>
               </td>
             </tr>
@@ -344,49 +141,12 @@
       </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="card-footer" *ngIf="filteredEmployes.length > 0 && !loading">
-      <div class="row align-items-center">
-        <div class="col-sm-6">
-          <div class="dataTables_info">
-            Affichage {{ (currentPage - 1) * itemsPerPage + 1 }} à 
-            {{ getMaxDisplayed() }} 
-            sur {{ filteredEmployes.length }} employé(s)
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <div class="dataTables_paginate paging_simple_numbers float-end">
-            <ul class="pagination pagination-rounded mb-0">
-              <!-- Bouton précédent -->
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <a class="page-link" (click)="onPageChange(currentPage - 1)" *ngIf="currentPage > 1">
-                  <i class="mdi mdi-chevron-left"></i>
-                </a>
-                <span class="page-link" *ngIf="currentPage === 1">
-                  <i class="mdi mdi-chevron-left"></i>
-                </span>
-              </li>
-
-              <!-- Numéros de pages -->
-              <li class="page-item" 
-                  *ngFor="let pageNum of getPageNumbers()" 
-                  [class.active]="pageNum === currentPage">
-                <a class="page-link" (click)="onPageChange(pageNum)">{{ pageNum }}</a>
-              </li>
-
-              <!-- Bouton suivant -->
-              <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
-                <a class="page-link" (click)="onPageChange(currentPage + 1)" *ngIf="currentPage < getTotalPages()">
-                  <i class="mdi mdi-chevron-right"></i>
-                </a>
-                <span class="page-link" *ngIf="currentPage === getTotalPages()">
-                  <i class="mdi mdi-chevron-right"></i>
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+    <!-- Footer avec compteur -->
+    <div class="card-footer text-muted" *ngIf="employes.length > 0">
+      <small>
+        <i class="fas fa-info-circle me-1"></i>
+        Total: {{ employes.length }} employé(s) affiché(s)
+      </small>
     </div>
   </div>
 </div>

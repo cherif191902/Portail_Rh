@@ -11,11 +11,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "CongesRoutingModule": () => (/* binding */ CongesRoutingModule)
 /* harmony export */ });
-/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/router */ 13252);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/router */ 13252);
 /* harmony import */ var _demande_demande_conge_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./demande/demande-conge.component */ 35410);
 /* harmony import */ var _suivi_suivi_demandes_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./suivi/suivi-demandes.component */ 23849);
 /* harmony import */ var _historique_historique_conges_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./historique/historique-conges.component */ 83792);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/core */ 14001);
+/* harmony import */ var _mes_demandes_mes_demandes_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mes-demandes/mes-demandes.component */ 35821);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 14001);
+
 
 
 
@@ -26,6 +28,10 @@ const routes = [
     {
         path: 'demande',
         component: _demande_demande_conge_component__WEBPACK_IMPORTED_MODULE_0__.DemandeCongeComponent
+    },
+    {
+        path: 'mes-demandes',
+        component: _mes_demandes_mes_demandes_component__WEBPACK_IMPORTED_MODULE_3__.MesDemandesComponent
     },
     {
         path: 'suivi',
@@ -39,9 +45,9 @@ const routes = [
 class CongesRoutingModule {
 }
 CongesRoutingModule.ɵfac = function CongesRoutingModule_Factory(t) { return new (t || CongesRoutingModule)(); };
-CongesRoutingModule.ɵmod = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdefineNgModule"]({ type: CongesRoutingModule });
-CongesRoutingModule.ɵinj = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdefineInjector"]({ imports: [[_angular_router__WEBPACK_IMPORTED_MODULE_4__.RouterModule.forChild(routes)], _angular_router__WEBPACK_IMPORTED_MODULE_4__.RouterModule] });
-(function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵsetNgModuleScope"](CongesRoutingModule, { imports: [_angular_router__WEBPACK_IMPORTED_MODULE_4__.RouterModule], exports: [_angular_router__WEBPACK_IMPORTED_MODULE_4__.RouterModule] }); })();
+CongesRoutingModule.ɵmod = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineNgModule"]({ type: CongesRoutingModule });
+CongesRoutingModule.ɵinj = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineInjector"]({ imports: [[_angular_router__WEBPACK_IMPORTED_MODULE_5__.RouterModule.forChild(routes)], _angular_router__WEBPACK_IMPORTED_MODULE_5__.RouterModule] });
+(function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵsetNgModuleScope"](CongesRoutingModule, { imports: [_angular_router__WEBPACK_IMPORTED_MODULE_5__.RouterModule], exports: [_angular_router__WEBPACK_IMPORTED_MODULE_5__.RouterModule] }); })();
 
 
 /***/ }),
@@ -56,18 +62,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "CongesModule": () => (/* binding */ CongesModule)
 /* harmony export */ });
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/common */ 28267);
-/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/common/http */ 83981);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/forms */ 18346);
-/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @ngx-translate/core */ 79686);
-/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ 44070);
-/* harmony import */ var simplebar_angular__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! simplebar-angular */ 6878);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/common */ 28267);
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/common/http */ 83981);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/forms */ 18346);
+/* harmony import */ var _ngx_translate_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @ngx-translate/core */ 79686);
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ 44070);
+/* harmony import */ var simplebar_angular__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! simplebar-angular */ 6878);
 /* harmony import */ var _conges_routing_module__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./conges-routing.module */ 98817);
 /* harmony import */ var _shared_shared_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../shared/shared.module */ 51382);
 /* harmony import */ var _demande__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./demande */ 56954);
 /* harmony import */ var _suivi__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./suivi */ 38666);
 /* harmony import */ var _historique__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./historique */ 36404);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 14001);
+/* harmony import */ var _mes_demandes_mes_demandes_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./mes-demandes/mes-demandes.component */ 35821);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 14001);
 
 
 
@@ -82,44 +89,46 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 class CongesModule {
 }
 CongesModule.ɵfac = function CongesModule_Factory(t) { return new (t || CongesModule)(); };
-CongesModule.ɵmod = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineNgModule"]({ type: CongesModule });
-CongesModule.ɵinj = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineInjector"]({ imports: [[
-            _angular_common__WEBPACK_IMPORTED_MODULE_6__.CommonModule,
-            _ngx_translate_core__WEBPACK_IMPORTED_MODULE_7__.TranslateModule,
-            _angular_common_http__WEBPACK_IMPORTED_MODULE_8__.HttpClientModule,
-            _angular_forms__WEBPACK_IMPORTED_MODULE_9__.FormsModule,
-            _angular_forms__WEBPACK_IMPORTED_MODULE_9__.ReactiveFormsModule,
+CongesModule.ɵmod = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineNgModule"]({ type: CongesModule });
+CongesModule.ɵinj = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineInjector"]({ imports: [[
+            _angular_common__WEBPACK_IMPORTED_MODULE_7__.CommonModule,
+            _ngx_translate_core__WEBPACK_IMPORTED_MODULE_8__.TranslateModule,
+            _angular_common_http__WEBPACK_IMPORTED_MODULE_9__.HttpClientModule,
+            _angular_forms__WEBPACK_IMPORTED_MODULE_10__.FormsModule,
+            _angular_forms__WEBPACK_IMPORTED_MODULE_10__.ReactiveFormsModule,
             _conges_routing_module__WEBPACK_IMPORTED_MODULE_0__.CongesRoutingModule,
             _shared_shared_module__WEBPACK_IMPORTED_MODULE_1__.SharedModule,
-            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbNavModule,
-            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbDropdownModule,
-            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbModalModule,
-            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbTooltipModule,
-            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbCollapseModule,
-            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbDatepickerModule,
-            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbPaginationModule,
-            simplebar_angular__WEBPACK_IMPORTED_MODULE_11__.SimplebarAngularModule
+            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbNavModule,
+            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbDropdownModule,
+            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbModalModule,
+            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbTooltipModule,
+            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbCollapseModule,
+            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbDatepickerModule,
+            _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbPaginationModule,
+            simplebar_angular__WEBPACK_IMPORTED_MODULE_12__.SimplebarAngularModule
         ]] });
-(function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵsetNgModuleScope"](CongesModule, { declarations: [_demande__WEBPACK_IMPORTED_MODULE_2__.DemandeCongeComponent,
+(function () { (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵsetNgModuleScope"](CongesModule, { declarations: [_demande__WEBPACK_IMPORTED_MODULE_2__.DemandeCongeComponent,
         _suivi__WEBPACK_IMPORTED_MODULE_3__.SuiviDemandesComponent,
-        _historique__WEBPACK_IMPORTED_MODULE_4__.HistoriqueCongesComponent], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_6__.CommonModule,
-        _ngx_translate_core__WEBPACK_IMPORTED_MODULE_7__.TranslateModule,
-        _angular_common_http__WEBPACK_IMPORTED_MODULE_8__.HttpClientModule,
-        _angular_forms__WEBPACK_IMPORTED_MODULE_9__.FormsModule,
-        _angular_forms__WEBPACK_IMPORTED_MODULE_9__.ReactiveFormsModule,
+        _historique__WEBPACK_IMPORTED_MODULE_4__.HistoriqueCongesComponent,
+        _mes_demandes_mes_demandes_component__WEBPACK_IMPORTED_MODULE_5__.MesDemandesComponent], imports: [_angular_common__WEBPACK_IMPORTED_MODULE_7__.CommonModule,
+        _ngx_translate_core__WEBPACK_IMPORTED_MODULE_8__.TranslateModule,
+        _angular_common_http__WEBPACK_IMPORTED_MODULE_9__.HttpClientModule,
+        _angular_forms__WEBPACK_IMPORTED_MODULE_10__.FormsModule,
+        _angular_forms__WEBPACK_IMPORTED_MODULE_10__.ReactiveFormsModule,
         _conges_routing_module__WEBPACK_IMPORTED_MODULE_0__.CongesRoutingModule,
         _shared_shared_module__WEBPACK_IMPORTED_MODULE_1__.SharedModule,
-        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbNavModule,
-        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbDropdownModule,
-        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbModalModule,
-        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbTooltipModule,
-        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbCollapseModule,
-        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbDatepickerModule,
-        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_10__.NgbPaginationModule,
-        simplebar_angular__WEBPACK_IMPORTED_MODULE_11__.SimplebarAngularModule] }); })();
+        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbNavModule,
+        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbDropdownModule,
+        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbModalModule,
+        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbTooltipModule,
+        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbCollapseModule,
+        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbDatepickerModule,
+        _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_11__.NgbPaginationModule,
+        simplebar_angular__WEBPACK_IMPORTED_MODULE_12__.SimplebarAngularModule] }); })();
 
 
 /***/ }),
@@ -287,6 +296,34 @@ class DemandeCongeComponent {
             return;
         }
         this.submitting = true;
+        // Vérification préventive des conflits de dates
+        const formValue = this.demandeForm.value;
+        const dateDebut = this.ngbDateToDate(formValue.dateDebut);
+        const dateFin = this.ngbDateToDate(formValue.dateFin);
+        console.log('🔍 Vérification des conflits pour les dates:', dateDebut, 'à', dateFin);
+        this.congeApiService.verifierConflitsDates(dateDebut, dateFin).subscribe({
+            next: (conflits) => {
+                if (conflits.length > 0) {
+                    console.warn('⚠️ Conflits détectés:', conflits);
+                    const detailsConflits = conflits.map(c => `• Demande #${c.id} : ${c.dateDebut} au ${c.dateFin} (${c.statut})`).join('\n');
+                    const message = `⚠️ Conflit de dates détecté !\n\n` +
+                        `Les dates sélectionnées (${dateDebut} au ${dateFin}) chevauchent avec :\n\n${detailsConflits}\n\n` +
+                        `👉 Veuillez modifier les dates ou gérer les demandes existantes dans "Mes demandes".`;
+                    alert(message);
+                    this.submitting = false;
+                    return;
+                }
+                // Aucun conflit, procéder à la soumission
+                this.procederSoumission();
+            },
+            error: (error) => {
+                console.error('❌ Erreur lors de la vérification des conflits:', error);
+                // En cas d'erreur de vérification, procéder quand même (le backend fera la vérification)
+                this.procederSoumission();
+            }
+        });
+    }
+    procederSoumission() {
         // Préparation des données au format CongeRequest
         const formValue = this.demandeForm.value;
         const demandeData = {
@@ -310,10 +347,22 @@ class DemandeCongeComponent {
                 this.initForm();
             },
             error: (error) => {
+                var _a;
                 console.error('❌ Erreur lors de la création de la demande:', error);
                 let errorMessage = 'Une erreur est survenue lors de la soumission de votre demande.';
-                if (error === null || error === void 0 ? void 0 : error.error) {
-                    errorMessage = typeof error.error === 'string' ? error.error : error.error.message || errorMessage;
+                // Gestion spécifique des erreurs de chevauchement
+                if ((error === null || error === void 0 ? void 0 : error.error) && typeof error.error === 'string') {
+                    if (error.error.includes('Chevauchement avec une autre demande')) {
+                        errorMessage = '⚠️ Impossible de créer cette demande :\n\n' +
+                            'Les dates sélectionnées chevauchent avec une demande de congé existante.\n\n' +
+                            '👉 Veuillez vérifier vos demandes existantes dans "Mes demandes" et choisir des dates différentes.';
+                    }
+                    else {
+                        errorMessage = error.error;
+                    }
+                }
+                else if ((_a = error === null || error === void 0 ? void 0 : error.error) === null || _a === void 0 ? void 0 : _a.message) {
+                    errorMessage = error.error.message;
                 }
                 alert(errorMessage);
                 this.submitting = false;
@@ -1248,6 +1297,452 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _historique_conges_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./historique-conges.component */ 83792);
 
+
+
+/***/ }),
+
+/***/ 35821:
+/*!*********************************************************************!*\
+  !*** ./src/app/pages/conges/mes-demandes/mes-demandes.component.ts ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MesDemandesComponent": () => (/* binding */ MesDemandesComponent)
+/* harmony export */ });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ 14001);
+/* harmony import */ var _conge_api_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../conge-api.service */ 98435);
+/* harmony import */ var src_app_core_services_tokenservice_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! src/app/core/services/tokenservice.service */ 73565);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/common */ 28267);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/router */ 13252);
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ 44070);
+
+
+
+
+
+
+function MesDemandesComponent_div_18_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 23);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "div", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "span", 25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3, "Chargement...");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "span", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](5, "Chargement de vos demandes...");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} }
+function MesDemandesComponent_div_19_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 27);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](1, "i", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", ctx_r1.error, " ");
+} }
+function MesDemandesComponent_div_20_div_1_Template(rf, ctx) { if (rf & 1) {
+    const _r8 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 34);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](1, "i", 35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "h5", 36);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3, "Aucune demande de cong\u00E9");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "p", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](5, "Vous n'avez encore soumis aucune demande de cong\u00E9.");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](6, "div", 38);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](7, "a", 39);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](8, "i", 40);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](9, " Cr\u00E9er une demande ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](10, "button", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function MesDemandesComponent_div_20_div_1_Template_button_click_10_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r8); const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2); return ctx_r7.actualiser(); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](11, "i", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](12, " Actualiser ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} }
+function MesDemandesComponent_div_20_table_2_tr_18_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "tr");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](3, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "span", 45);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](6, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](8, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](10, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](11, "span", 46);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](13, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](14, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](16, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](17, "span", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const demande_r10 = ctx.$implicit;
+    const ctx_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](ctx_r9.formatDate(demande_r10.dateDemande));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](demande_r10.typeConge);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](ctx_r9.formatDate(demande_r10.dateDebut));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](ctx_r9.formatDate(demande_r10.dateFin));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"]("", demande_r10.duree, " jour(s)");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵclassMap"](ctx_r9.getStatutClass(demande_r10.statut));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", ctx_r9.getStatutTexte(demande_r10.statut), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](ctx_r9.getValidateurActuel(demande_r10.statut));
+} }
+function MesDemandesComponent_div_20_table_2_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "table", 42);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "thead", 43);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "tr");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](3, "th");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](4, "Date de demande");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](5, "th");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](6, "Type de cong\u00E9");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](7, "th");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](8, "Date de d\u00E9but");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](9, "th");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](10, "Date de fin");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](11, "th");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](12, "Dur\u00E9e");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](13, "th");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](14, "Statut");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](15, "th");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](16, "Validateur actuel");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](17, "tbody");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](18, MesDemandesComponent_div_20_table_2_tr_18_Template, 19, 9, "tr", 44);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngForOf", ctx_r4.demandesPaginees)("ngForTrackBy", ctx_r4.trackByDemande);
+} }
+function MesDemandesComponent_div_20_nav_3_Template(rf, ctx) { if (rf & 1) {
+    const _r12 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "nav", 47);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "ngb-pagination", 48);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("pageChange", function MesDemandesComponent_div_20_nav_3_Template_ngb_pagination_pageChange_1_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r12); const ctx_r11 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2); return ctx_r11.currentPage = $event; });
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("page", ctx_r5.currentPage)("pageSize", ctx_r5.itemsPerPage)("collectionSize", ctx_r5.demandes.length)("maxSize", 5)("rotate", true);
+} }
+function MesDemandesComponent_div_20_div_4_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 49);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate3"](" Affichage de ", (ctx_r6.currentPage - 1) * ctx_r6.itemsPerPage + 1, " \u00E0 ", ctx_r6.getEndIndex(), " sur ", ctx_r6.demandes.length, " demande(s) ");
+} }
+function MesDemandesComponent_div_20_Template(rf, ctx) { if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](1, MesDemandesComponent_div_20_div_1_Template, 13, 0, "div", 30);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](2, MesDemandesComponent_div_20_table_2_Template, 19, 2, "table", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](3, MesDemandesComponent_div_20_nav_3_Template, 2, 5, "nav", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](4, MesDemandesComponent_div_20_div_4_Template, 2, 3, "div", 33);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+} if (rf & 2) {
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r2.demandes.length === 0 && !ctx_r2.loading && !ctx_r2.error);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r2.demandes.length > 0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r2.totalPages > 1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r2.demandes.length > 0);
+} }
+class MesDemandesComponent {
+    constructor(congeApiService, tokenStorage) {
+        this.congeApiService = congeApiService;
+        this.tokenStorage = tokenStorage;
+        this.demandes = [];
+        this.loading = false;
+        this.error = null;
+        // Pagination
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
+    }
+    ngOnInit() {
+        this.chargerMesdemandes();
+    }
+    /**
+     * Charge la liste des demandes de l'utilisateur connecté
+     */
+    chargerMesdemandes() {
+        this.loading = true;
+        this.error = null;
+        console.log('🔍 Chargement des demandes de congé...');
+        this.congeApiService.getMesDemandesConges().subscribe({
+            next: (demandes) => {
+                console.log('✅ Demandes récupérées:', (demandes === null || demandes === void 0 ? void 0 : demandes.length) || 0, 'demande(s)');
+                this.demandes = Array.isArray(demandes) ? demandes : [];
+                this.loading = false;
+                // Remettre à la première page si on est au-delà du nombre de pages disponibles
+                if (this.currentPage > this.totalPages && this.totalPages > 0) {
+                    this.currentPage = 1;
+                }
+            },
+            error: (error) => {
+                console.error('❌ Erreur lors du chargement des demandes:', error);
+                let errorMessage = 'Impossible de charger vos demandes de congé.';
+                if (error.status === 401) {
+                    errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+                }
+                else if (error.status === 403) {
+                    errorMessage = 'Vous n\'avez pas l\'autorisation d\'accéder à ces données.';
+                }
+                else if (error.status === 0 || error.status >= 500) {
+                    errorMessage = 'Erreur de connexion au serveur. Veuillez réessayer plus tard.';
+                }
+                this.error = errorMessage;
+                this.demandes = [];
+                this.loading = false;
+            }
+        });
+    }
+    /**
+     * Retourne la classe CSS pour le statut
+     */
+    getStatutClass(statut) {
+        switch (statut) {
+            case 'APPROUVE':
+                return 'badge bg-success';
+            case 'REFUSE':
+            case 'REFUSE_PAR_CHEF_A':
+            case 'REFUSE_PAR_CHEF_B':
+            case 'REFUSE_PAR_RH':
+                return 'badge bg-danger';
+            case 'EN_ATTENTE':
+            case 'EN_ATTENTE_CHEF_A':
+            case 'EN_ATTENTE_CHEF_B':
+            case 'EN_ATTENTE_RH':
+                return 'badge bg-warning';
+            case 'ANNULE':
+                return 'badge bg-secondary';
+            default:
+                return 'badge bg-info';
+        }
+    }
+    /**
+     * Retourne le texte à afficher pour le statut
+     */
+    getStatutTexte(statut) {
+        switch (statut) {
+            case 'APPROUVE':
+                return 'Approuvé';
+            case 'REFUSE':
+                return 'Refusé';
+            case 'REFUSE_PAR_CHEF_A':
+                return 'Refusé par Chef A';
+            case 'REFUSE_PAR_CHEF_B':
+                return 'Refusé par Chef B';
+            case 'REFUSE_PAR_RH':
+                return 'Refusé par RH';
+            case 'EN_ATTENTE':
+                return 'En attente';
+            case 'EN_ATTENTE_CHEF_A':
+                return 'En attente Chef A';
+            case 'EN_ATTENTE_CHEF_B':
+                return 'En attente Chef B';
+            case 'EN_ATTENTE_RH':
+                return 'En attente RH';
+            case 'ANNULE':
+                return 'Annulé';
+            default:
+                return statut;
+        }
+    }
+    /**
+     * Retourne le validateur actuel selon le statut
+     */
+    getValidateurActuel(statut) {
+        switch (statut) {
+            case 'EN_ATTENTE_CHEF_A':
+                return 'Chef A';
+            case 'EN_ATTENTE_CHEF_B':
+                return 'Chef B';
+            case 'EN_ATTENTE_RH':
+                return 'RH';
+            case 'EN_ATTENTE':
+                return 'Chef de service';
+            case 'APPROUVE':
+            case 'REFUSE':
+            case 'REFUSE_PAR_CHEF_A':
+            case 'REFUSE_PAR_CHEF_B':
+            case 'REFUSE_PAR_RH':
+            case 'ANNULE':
+                return '-';
+            default:
+                return '-';
+        }
+    }
+    /**
+     * Formate une date au format français
+     */
+    formatDate(dateString) {
+        if (!dateString)
+            return '-';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+        catch (error) {
+            return dateString;
+        }
+    }
+    /**
+     * Retourne les demandes pour la page actuelle
+     */
+    get demandesPaginees() {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        return this.demandes.slice(startIndex, startIndex + this.itemsPerPage);
+    }
+    /**
+     * Retourne le nombre total de pages
+     */
+    get totalPages() {
+        return Math.ceil(this.demandes.length / this.itemsPerPage);
+    }
+    /**
+     * Actualise la liste des demandes avec feedback utilisateur
+     */
+    actualiser() {
+        console.log('🔄 Actualisation des demandes...');
+        this.currentPage = 1; // Retour à la première page
+        const originalLoadingState = this.loading;
+        this.chargerMesdemandes();
+        // Si le chargement se termine avec succès, on pourrait ajouter une notification
+        // Pour l'instant, le spinner de chargement suffit comme feedback
+    }
+    /**
+     * Fonction de tracking pour *ngFor
+     */
+    trackByDemande(index, demande) {
+        return demande.id || index;
+    }
+    /**
+     * Retourne l'index de fin pour la pagination
+     */
+    getEndIndex() {
+        return Math.min(this.currentPage * this.itemsPerPage, this.demandes.length);
+    }
+}
+MesDemandesComponent.ɵfac = function MesDemandesComponent_Factory(t) { return new (t || MesDemandesComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdirectiveInject"](_conge_api_service__WEBPACK_IMPORTED_MODULE_0__.CongeApiService), _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdirectiveInject"](src_app_core_services_tokenservice_service__WEBPACK_IMPORTED_MODULE_1__.TokenStorage)); };
+MesDemandesComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({ type: MesDemandesComponent, selectors: [["app-mes-demandes"]], decls: 36, vars: 3, consts: [[1, "container-fluid"], [1, "row"], [1, "col-12"], [1, "page-title-box", "d-sm-flex", "align-items-center", "justify-content-between"], [1, "mb-sm-0", "font-size-18"], [1, "page-title-right"], ["type", "button", 1, "btn", "btn-primary", "btn-sm", 3, "click"], [1, "bx", "bx-refresh", "me-1"], [1, "card"], [1, "card-header"], [1, "card-title", "mb-0"], [1, "bx", "bx-calendar-event", "me-2"], [1, "card-body"], ["class", "d-flex justify-content-center align-items-center", "style", "min-height: 200px;", 4, "ngIf"], ["class", "alert alert-danger", "role", "alert", 4, "ngIf"], ["class", "table-responsive", 4, "ngIf"], [1, "row", "mt-4"], [1, "card", "bg-light", "border-0"], [1, "card-body", "py-3"], [1, "d-flex", "align-items-center"], [1, "bx", "bx-info-circle", "text-info", "me-3", 2, "font-size", "1.5rem"], [1, "mb-1"], [1, "mb-0", "small", "text-muted"], [1, "d-flex", "justify-content-center", "align-items-center", 2, "min-height", "200px"], ["role", "status", 1, "spinner-border", "text-primary"], [1, "visually-hidden"], [1, "ms-2"], ["role", "alert", 1, "alert", "alert-danger"], [1, "bx", "bx-error-circle", "me-2"], [1, "table-responsive"], ["class", "text-center py-5", 4, "ngIf"], ["class", "table table-bordered table-hover mb-0", 4, "ngIf"], ["aria-label", "Pagination des demandes", "class", "mt-3", 4, "ngIf"], ["class", "mt-3 text-muted small", 4, "ngIf"], [1, "text-center", "py-5"], [1, "bx", "bx-calendar-x", "display-4", "text-muted"], [1, "mt-3", "text-muted"], [1, "text-muted"], [1, "mt-4"], ["routerLink", "/conges/demande", 1, "btn", "btn-primary", "me-2"], [1, "bx", "bx-plus", "me-1"], ["type", "button", 1, "btn", "btn-outline-secondary", 3, "click"], [1, "table", "table-bordered", "table-hover", "mb-0"], [1, "table-light"], [4, "ngFor", "ngForOf", "ngForTrackBy"], [1, "badge", "bg-info"], [1, "fw-medium"], ["aria-label", "Pagination des demandes", 1, "mt-3"], [1, "d-flex", "justify-content-center", 3, "page", "pageSize", "collectionSize", "maxSize", "rotate", "pageChange"], [1, "mt-3", "text-muted", "small"]], template: function MesDemandesComponent_Template(rf, ctx) { if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "div", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "div", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](3, "div", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "h4", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](5, "Mes Demandes de Cong\u00E9");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](6, "div", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](7, "button", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function MesDemandesComponent_Template_button_click_7_listener() { return ctx.actualiser(); });
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](8, "i", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](9, " Actualiser ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](10, "div", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](11, "div", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](12, "div", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](13, "div", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](14, "h4", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](15, "i", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](16, " Historique de vos demandes ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](17, "div", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](18, MesDemandesComponent_div_18_Template, 6, 0, "div", 13);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](19, MesDemandesComponent_div_19_Template, 3, 1, "div", 14);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](20, MesDemandesComponent_div_20_Template, 5, 4, "div", 15);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](21, "div", 16);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](22, "div", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](23, "div", 17);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](24, "div", 18);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](25, "div", 19);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](26, "i", 20);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](27, "div");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](28, "h6", 21);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](29, "Informations utiles");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](30, "p", 22);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](31, " \u2022 Consultez ici l'historique de toutes vos demandes de cong\u00E9");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](32, "br");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](33, " \u2022 Le statut indique o\u00F9 en est votre demande dans le processus de validation");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](34, "br");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](35, " \u2022 En cas de questions, contactez votre responsable ou le service RH ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    } if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](18);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx.loading);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx.error && !ctx.loading);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", !ctx.loading && !ctx.error);
+    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_3__.NgIf, _angular_router__WEBPACK_IMPORTED_MODULE_4__.RouterLinkWithHref, _angular_common__WEBPACK_IMPORTED_MODULE_3__.NgForOf, _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_5__.NgbPagination], styles: ["@charset \"UTF-8\";\n\n.page-title-box[_ngcontent-%COMP%] {\n  margin-bottom: 1.5rem;\n}\n.card[_ngcontent-%COMP%] {\n  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);\n  border: 1px solid rgba(0, 0, 0, 0.125);\n}\n.card-header[_ngcontent-%COMP%] {\n  background-color: #f8f9fa;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.125);\n}\n.card-header[_ngcontent-%COMP%]   .card-title[_ngcontent-%COMP%] {\n  color: #495057;\n  font-weight: 600;\n}\n.table[_ngcontent-%COMP%]   th[_ngcontent-%COMP%] {\n  font-weight: 600;\n  color: #495057;\n  border-color: #dee2e6;\n  vertical-align: middle;\n}\n.table[_ngcontent-%COMP%]   td[_ngcontent-%COMP%] {\n  vertical-align: middle;\n  border-color: #dee2e6;\n}\n.table[_ngcontent-%COMP%]   tr[_ngcontent-%COMP%]:hover {\n  background-color: rgba(0, 123, 255, 0.05);\n}\n.badge[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  padding: 0.375rem 0.75rem;\n}\n.badge.bg-success[_ngcontent-%COMP%] {\n  background-color: #28a745 !important;\n}\n.badge.bg-warning[_ngcontent-%COMP%] {\n  background-color: #ffc107 !important;\n  color: #212529;\n}\n.badge.bg-danger[_ngcontent-%COMP%] {\n  background-color: #dc3545 !important;\n}\n.badge.bg-info[_ngcontent-%COMP%] {\n  background-color: #17a2b8 !important;\n}\n.badge.bg-secondary[_ngcontent-%COMP%] {\n  background-color: #6c757d !important;\n}\n.btn.btn-sm[_ngcontent-%COMP%] {\n  padding: 0.25rem 0.75rem;\n  font-size: 0.875rem;\n}\n.btn.btn-danger[_ngcontent-%COMP%]:hover {\n  transform: translateY(-1px);\n  box-shadow: 0 0.125rem 0.375rem rgba(220, 53, 69, 0.3);\n}\n.btn.btn-primary[_ngcontent-%COMP%]:hover {\n  transform: translateY(-1px);\n  box-shadow: 0 0.125rem 0.375rem rgba(0, 123, 255, 0.3);\n}\n.text-center.py-5[_ngcontent-%COMP%] {\n  padding-top: 3rem !important;\n  padding-bottom: 3rem !important;\n}\n.text-center.py-5[_ngcontent-%COMP%]   .display-4[_ngcontent-%COMP%] {\n  font-size: 3rem;\n  opacity: 0.5;\n}\n.spinner-border[_ngcontent-%COMP%] {\n  width: 1.5rem;\n  height: 1.5rem;\n}\n.alert[_ngcontent-%COMP%] {\n  border: none;\n  border-radius: 0.5rem;\n}\n.alert.alert-danger[_ngcontent-%COMP%] {\n  background-color: rgba(220, 53, 69, 0.1);\n  color: #721c24;\n}\n.card.bg-light[_ngcontent-%COMP%] {\n  background-color: #f8f9fa !important;\n}\n.card.bg-light[_ngcontent-%COMP%]   .card-body[_ngcontent-%COMP%] {\n  padding: 1rem;\n}\n@media (max-width: 768px) {\n  .table-responsive[_ngcontent-%COMP%] {\n    font-size: 0.875rem;\n  }\n\n  .btn-sm[_ngcontent-%COMP%] {\n    padding: 0.2rem 0.5rem;\n    font-size: 0.75rem;\n  }\n\n  .page-title-box[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: flex-start !important;\n  }\n  .page-title-box[_ngcontent-%COMP%]   .page-title-right[_ngcontent-%COMP%] {\n    margin-top: 0.5rem;\n  }\n}\n@media (max-width: 576px) {\n  .table[_ngcontent-%COMP%] {\n    font-size: 0.8rem;\n  }\n\n  .badge[_ngcontent-%COMP%] {\n    font-size: 0.65rem;\n    padding: 0.25rem 0.5rem;\n  }\n}\n.card[_ngcontent-%COMP%], .btn[_ngcontent-%COMP%], .badge[_ngcontent-%COMP%] {\n  transition: all 0.15s ease-in-out;\n}\n.btn[_ngcontent-%COMP%]:focus {\n  outline: 2px solid #007bff;\n  outline-offset: 2px;\n}\n.table[_ngcontent-%COMP%]   th[_ngcontent-%COMP%] {\n  position: relative;\n}\n.tooltip[_ngcontent-%COMP%] {\n  font-size: 0.875rem;\n}\n.spinner-border[_ngcontent-%COMP%]    + span[_ngcontent-%COMP%] {\n  color: #6c757d;\n  font-weight: 500;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm1lcy1kZW1hbmRlcy5jb21wb25lbnQuc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxnQkFBZ0I7QUFBaEIsK0NBQUE7QUFFQTtFQUNFLHFCQUFBO0FBQ0Y7QUFFQTtFQUNFLG1EQUFBO0VBQ0Esc0NBQUE7QUFDRjtBQUVBO0VBQ0UseUJBQUE7RUFDQSw2Q0FBQTtBQUNGO0FBQ0U7RUFDRSxjQUFBO0VBQ0EsZ0JBQUE7QUFDSjtBQUlFO0VBQ0UsZ0JBQUE7RUFDQSxjQUFBO0VBQ0EscUJBQUE7RUFDQSxzQkFBQTtBQURKO0FBSUU7RUFDRSxzQkFBQTtFQUNBLHFCQUFBO0FBRko7QUFLRTtFQUNFLHlDQUFBO0FBSEo7QUFPQTtFQUNFLGtCQUFBO0VBQ0EseUJBQUE7QUFKRjtBQU1FO0VBQ0Usb0NBQUE7QUFKSjtBQU9FO0VBQ0Usb0NBQUE7RUFDQSxjQUFBO0FBTEo7QUFRRTtFQUNFLG9DQUFBO0FBTko7QUFTRTtFQUNFLG9DQUFBO0FBUEo7QUFVRTtFQUNFLG9DQUFBO0FBUko7QUFhRTtFQUNFLHdCQUFBO0VBQ0EsbUJBQUE7QUFWSjtBQWNJO0VBQ0UsMkJBQUE7RUFDQSxzREFBQTtBQVpOO0FBaUJJO0VBQ0UsMkJBQUE7RUFDQSxzREFBQTtBQWZOO0FBb0JBO0VBQ0UsNEJBQUE7RUFDQSwrQkFBQTtBQWpCRjtBQW1CRTtFQUNFLGVBQUE7RUFDQSxZQUFBO0FBakJKO0FBcUJBO0VBQ0UsYUFBQTtFQUNBLGNBQUE7QUFsQkY7QUFxQkE7RUFDRSxZQUFBO0VBQ0EscUJBQUE7QUFsQkY7QUFvQkU7RUFDRSx3Q0FBQTtFQUNBLGNBQUE7QUFsQko7QUFzQkE7RUFDRSxvQ0FBQTtBQW5CRjtBQXFCRTtFQUNFLGFBQUE7QUFuQko7QUF3QkE7RUFDRTtJQUNFLG1CQUFBO0VBckJGOztFQXdCQTtJQUNFLHNCQUFBO0lBQ0Esa0JBQUE7RUFyQkY7O0VBd0JBO0lBQ0Usc0JBQUE7SUFDQSxrQ0FBQTtFQXJCRjtFQXVCRTtJQUNFLGtCQUFBO0VBckJKO0FBQ0Y7QUF5QkE7RUFDRTtJQUNFLGlCQUFBO0VBdkJGOztFQTBCQTtJQUNFLGtCQUFBO0lBQ0EsdUJBQUE7RUF2QkY7QUFDRjtBQTJCQTtFQUNFLGlDQUFBO0FBekJGO0FBNkJBO0VBQ0UsMEJBQUE7RUFDQSxtQkFBQTtBQTFCRjtBQTZCQTtFQUNFLGtCQUFBO0FBMUJGO0FBOEJBO0VBQ0UsbUJBQUE7QUEzQkY7QUErQkE7RUFDRSxjQUFBO0VBQ0EsZ0JBQUE7QUE1QkYiLCJmaWxlIjoibWVzLWRlbWFuZGVzLmNvbXBvbmVudC5zY3NzIiwic291cmNlc0NvbnRlbnQiOlsiQGNoYXJzZXQgXCJVVEYtOFwiO1xuLyogTWVzIERlbWFuZGVzIGRlIENvbmfDqSAtIFN0eWxlcyBzcMOpY2lmaXF1ZXMgKi9cbi5wYWdlLXRpdGxlLWJveCB7XG4gIG1hcmdpbi1ib3R0b206IDEuNXJlbTtcbn1cblxuLmNhcmQge1xuICBib3gtc2hhZG93OiAwIDAuMTI1cmVtIDAuMjVyZW0gcmdiYSgwLCAwLCAwLCAwLjA3NSk7XG4gIGJvcmRlcjogMXB4IHNvbGlkIHJnYmEoMCwgMCwgMCwgMC4xMjUpO1xufVxuXG4uY2FyZC1oZWFkZXIge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjhmOWZhO1xuICBib3JkZXItYm90dG9tOiAxcHggc29saWQgcmdiYSgwLCAwLCAwLCAwLjEyNSk7XG59XG4uY2FyZC1oZWFkZXIgLmNhcmQtdGl0bGUge1xuICBjb2xvcjogIzQ5NTA1NztcbiAgZm9udC13ZWlnaHQ6IDYwMDtcbn1cblxuLnRhYmxlIHRoIHtcbiAgZm9udC13ZWlnaHQ6IDYwMDtcbiAgY29sb3I6ICM0OTUwNTc7XG4gIGJvcmRlci1jb2xvcjogI2RlZTJlNjtcbiAgdmVydGljYWwtYWxpZ246IG1pZGRsZTtcbn1cbi50YWJsZSB0ZCB7XG4gIHZlcnRpY2FsLWFsaWduOiBtaWRkbGU7XG4gIGJvcmRlci1jb2xvcjogI2RlZTJlNjtcbn1cbi50YWJsZSB0cjpob3ZlciB7XG4gIGJhY2tncm91bmQtY29sb3I6IHJnYmEoMCwgMTIzLCAyNTUsIDAuMDUpO1xufVxuXG4uYmFkZ2Uge1xuICBmb250LXNpemU6IDAuNzVyZW07XG4gIHBhZGRpbmc6IDAuMzc1cmVtIDAuNzVyZW07XG59XG4uYmFkZ2UuYmctc3VjY2VzcyB7XG4gIGJhY2tncm91bmQtY29sb3I6ICMyOGE3NDUgIWltcG9ydGFudDtcbn1cbi5iYWRnZS5iZy13YXJuaW5nIHtcbiAgYmFja2dyb3VuZC1jb2xvcjogI2ZmYzEwNyAhaW1wb3J0YW50O1xuICBjb2xvcjogIzIxMjUyOTtcbn1cbi5iYWRnZS5iZy1kYW5nZXIge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAjZGMzNTQ1ICFpbXBvcnRhbnQ7XG59XG4uYmFkZ2UuYmctaW5mbyB7XG4gIGJhY2tncm91bmQtY29sb3I6ICMxN2EyYjggIWltcG9ydGFudDtcbn1cbi5iYWRnZS5iZy1zZWNvbmRhcnkge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAjNmM3NTdkICFpbXBvcnRhbnQ7XG59XG5cbi5idG4uYnRuLXNtIHtcbiAgcGFkZGluZzogMC4yNXJlbSAwLjc1cmVtO1xuICBmb250LXNpemU6IDAuODc1cmVtO1xufVxuLmJ0bi5idG4tZGFuZ2VyOmhvdmVyIHtcbiAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0xcHgpO1xuICBib3gtc2hhZG93OiAwIDAuMTI1cmVtIDAuMzc1cmVtIHJnYmEoMjIwLCA1MywgNjksIDAuMyk7XG59XG4uYnRuLmJ0bi1wcmltYXJ5OmhvdmVyIHtcbiAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0xcHgpO1xuICBib3gtc2hhZG93OiAwIDAuMTI1cmVtIDAuMzc1cmVtIHJnYmEoMCwgMTIzLCAyNTUsIDAuMyk7XG59XG5cbi50ZXh0LWNlbnRlci5weS01IHtcbiAgcGFkZGluZy10b3A6IDNyZW0gIWltcG9ydGFudDtcbiAgcGFkZGluZy1ib3R0b206IDNyZW0gIWltcG9ydGFudDtcbn1cbi50ZXh0LWNlbnRlci5weS01IC5kaXNwbGF5LTQge1xuICBmb250LXNpemU6IDNyZW07XG4gIG9wYWNpdHk6IDAuNTtcbn1cblxuLnNwaW5uZXItYm9yZGVyIHtcbiAgd2lkdGg6IDEuNXJlbTtcbiAgaGVpZ2h0OiAxLjVyZW07XG59XG5cbi5hbGVydCB7XG4gIGJvcmRlcjogbm9uZTtcbiAgYm9yZGVyLXJhZGl1czogMC41cmVtO1xufVxuLmFsZXJ0LmFsZXJ0LWRhbmdlciB7XG4gIGJhY2tncm91bmQtY29sb3I6IHJnYmEoMjIwLCA1MywgNjksIDAuMSk7XG4gIGNvbG9yOiAjNzIxYzI0O1xufVxuXG4uY2FyZC5iZy1saWdodCB7XG4gIGJhY2tncm91bmQtY29sb3I6ICNmOGY5ZmEgIWltcG9ydGFudDtcbn1cbi5jYXJkLmJnLWxpZ2h0IC5jYXJkLWJvZHkge1xuICBwYWRkaW5nOiAxcmVtO1xufVxuXG5AbWVkaWEgKG1heC13aWR0aDogNzY4cHgpIHtcbiAgLnRhYmxlLXJlc3BvbnNpdmUge1xuICAgIGZvbnQtc2l6ZTogMC44NzVyZW07XG4gIH1cblxuICAuYnRuLXNtIHtcbiAgICBwYWRkaW5nOiAwLjJyZW0gMC41cmVtO1xuICAgIGZvbnQtc2l6ZTogMC43NXJlbTtcbiAgfVxuXG4gIC5wYWdlLXRpdGxlLWJveCB7XG4gICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbiAgICBhbGlnbi1pdGVtczogZmxleC1zdGFydCAhaW1wb3J0YW50O1xuICB9XG4gIC5wYWdlLXRpdGxlLWJveCAucGFnZS10aXRsZS1yaWdodCB7XG4gICAgbWFyZ2luLXRvcDogMC41cmVtO1xuICB9XG59XG5AbWVkaWEgKG1heC13aWR0aDogNTc2cHgpIHtcbiAgLnRhYmxlIHtcbiAgICBmb250LXNpemU6IDAuOHJlbTtcbiAgfVxuXG4gIC5iYWRnZSB7XG4gICAgZm9udC1zaXplOiAwLjY1cmVtO1xuICAgIHBhZGRpbmc6IDAuMjVyZW0gMC41cmVtO1xuICB9XG59XG4uY2FyZCwgLmJ0biwgLmJhZGdlIHtcbiAgdHJhbnNpdGlvbjogYWxsIDAuMTVzIGVhc2UtaW4tb3V0O1xufVxuXG4uYnRuOmZvY3VzIHtcbiAgb3V0bGluZTogMnB4IHNvbGlkICMwMDdiZmY7XG4gIG91dGxpbmUtb2Zmc2V0OiAycHg7XG59XG5cbi50YWJsZSB0aCB7XG4gIHBvc2l0aW9uOiByZWxhdGl2ZTtcbn1cblxuLnRvb2x0aXAge1xuICBmb250LXNpemU6IDAuODc1cmVtO1xufVxuXG4uc3Bpbm5lci1ib3JkZXIgKyBzcGFuIHtcbiAgY29sb3I6ICM2Yzc1N2Q7XG4gIGZvbnQtd2VpZ2h0OiA1MDA7XG59Il19 */"] });
 
 
 /***/ }),

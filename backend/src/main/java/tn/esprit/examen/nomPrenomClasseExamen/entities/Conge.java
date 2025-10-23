@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -44,13 +45,38 @@ public class Conge {
     // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personnel_id", nullable = false)
-    @JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "roles", "conges", "notifications", "service", "password", "email"})
     private Personnel personnel;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_conge_id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private TypeConge typeConge;
+    
+    // Validateurs (relations avec Personnel)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "validateur_chef_a_id")
+    @JsonIgnore
+    private Personnel validateurChefA;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "validateur_chef_b_id")
+    @JsonIgnore
+    private Personnel validateurChefB;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "validateur_rh_id")
+    @JsonIgnore
+    private Personnel validateurRh;
+    
+    // Dates de validation
+    private LocalDateTime dateValidationChefA;
+    private LocalDateTime dateValidationChefB;
+    private LocalDateTime dateValidationRh;
+    
+    // Statut global de la demande (pour faciliter les requêtes)
+    @Enumerated(EnumType.STRING)
+    private StatutConge statutConge;
     
     // Constructeurs
     public Conge() {}
@@ -64,6 +90,7 @@ public class Conge {
         this.repChefsNiveau1 = "EN_ATTENTE";
         this.repChefsNiveau2 = "EN_ATTENTE";
         this.repRh = "EN_ATTENTE";
+        this.statutConge = StatutConge.EN_ATTENTE_CHEF_A;
     }
     
     // Méthodes utilitaires
@@ -87,6 +114,49 @@ public class Conge {
         return "REFUSE".equals(repChefsNiveau1) || 
                "REFUSE".equals(repChefsNiveau2) || 
                "REFUSE".equals(repRh);
+    }
+    
+    // Méthodes utilitaires pour le nouveau workflow
+    public boolean isEnAttenteChefA() {
+        return StatutConge.EN_ATTENTE_CHEF_A.equals(statutConge);
+    }
+    
+    public boolean isEnAttenteChefB() {
+        return StatutConge.EN_ATTENTE_CHEF_B.equals(statutConge);
+    }
+    
+    public boolean isEnAttenteRH() {
+        return StatutConge.EN_ATTENTE_RH.equals(statutConge);
+    }
+    
+    public boolean isFullyApprovedNew() {
+        return StatutConge.APPROUVE_PAR_RH.equals(statutConge);
+    }
+    
+    public boolean isRejectedNew() {
+        return statutConge == StatutConge.REFUSE_PAR_CHEF_A || 
+               statutConge == StatutConge.REFUSE_PAR_CHEF_B || 
+               statutConge == StatutConge.REFUSE_PAR_RH;
+    }
+    
+    public String getStatutLibelle() {
+        return statutConge != null ? statutConge.getLibelle() : "Inconnu";
+    }
+    
+    // Méthodes d'aide pour l'API (éviter d'exposer tout l'objet Personnel)
+    @com.fasterxml.jackson.annotation.JsonProperty("personnelMatricule")
+    public String getPersonnelMatricule() {
+        return personnel != null ? personnel.getMatriculeP() : null;
+    }
+    
+    @com.fasterxml.jackson.annotation.JsonProperty("personnelNomComplet")
+    public String getPersonnelNomComplet() {
+        return personnel != null ? personnel.getNom() + " " + personnel.getPrenom() : null;
+    }
+    
+    @com.fasterxml.jackson.annotation.JsonProperty("typeCongeLibelle")
+    public String getTypeCongeLibelle() {
+        return typeConge != null ? typeConge.getNomTypeconge() : null;
     }
     
     @Override

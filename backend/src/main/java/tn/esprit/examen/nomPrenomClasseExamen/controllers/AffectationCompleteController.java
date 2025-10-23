@@ -159,11 +159,11 @@ public class AffectationCompleteController {
                 Personnel chefA = chefAOpt.get();
                 
                 // Vérifier si le chef A a le bon rôle
-                boolean hasChefRole = chefA.getRoles() != null && 
-                    chefA.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE);
+                boolean hasChefARole = chefA.getRoles() != null && 
+                    chefA.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_A);
                 
-                if (!hasChefRole) {
-                    return ResponseEntity.badRequest().body(Map.of("error", "Le Chef A n'a pas le rôle chef de service"));
+                if (!hasChefARole) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Le Chef A n'a pas le rôle CHEF_A"));
                 }
                 
                 // Vérifier l'unicité (pas affecté ailleurs)
@@ -196,11 +196,11 @@ public class AffectationCompleteController {
                 }
                 
                 // Vérifier si le chef B a le bon rôle
-                boolean hasChefRole = chefB.getRoles() != null && 
-                    chefB.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_SERVICE);
+                boolean hasChefBRole = chefB.getRoles() != null && 
+                    chefB.getRoles().stream().anyMatch(r -> r.getNomRole() == ERole.ROLE_CHEF_B);
                 
-                if (!hasChefRole) {
-                    return ResponseEntity.badRequest().body(Map.of("error", "Le Chef B n'a pas le rôle chef de service"));
+                if (!hasChefBRole) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Le Chef B n'a pas le rôle CHEF_B"));
                 }
                 
                 // Vérifier l'unicité (pas affecté ailleurs)

@@ -28,7 +28,8 @@ export interface Role {
 
 export enum ERole {
   ROLE_USER = 'ROLE_USER',
-  ROLE_CHEF_SERVICE = 'ROLE_CHEF_SERVICE',
+  ROLE_CHEF_A = 'ROLE_CHEF_A',
+  ROLE_CHEF_B = 'ROLE_CHEF_B',
   ROLE_RH = 'ROLE_RH',
   ROLE_ADMIN = 'ROLE_ADMIN'
 }

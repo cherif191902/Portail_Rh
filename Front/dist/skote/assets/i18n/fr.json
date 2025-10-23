@@ -72,6 +72,9 @@
     "DASHBOARD": {
       "TEXT": "Tableau de bord"
     },
+    "EMPLOYEE_SECTION": {
+      "TEXT": "Espace Employé"
+    },
     "CONGES_SECTION": {
       "TEXT": "Congés"
     },

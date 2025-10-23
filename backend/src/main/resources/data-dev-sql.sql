@@ -14,7 +14,7 @@ INSERT IGNORE INTO personnel_roles (personnel_id, role_id)
 SELECT p.id, r.id FROM personnel p, roles r WHERE p.matriculep = 'ADMIN001' AND r.nom_role = 'ROLE_ADMIN';
 
 INSERT IGNORE INTO personnel_roles (personnel_id, role_id)
-SELECT p.id, r.id FROM personnel p, roles r WHERE p.matriculep = 'CHEF001' AND r.nom_role = 'ROLE_CHEF_SERVICE';
+SELECT p.id, r.id FROM personnel p, roles r WHERE p.matriculep = 'CHEF001' AND r.nom_role = 'ROLE_CHEF_A';
 
 INSERT IGNORE INTO personnel_roles (personnel_id, role_id)
 SELECT p.id, r.id FROM personnel p, roles r WHERE p.matriculep = 'RH001' AND r.nom_role = 'ROLE_RH';

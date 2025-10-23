@@ -35,6 +35,10 @@ export class Auth2Service {
     return this.http.get<any[]>(`${this.AUTH_API}services`);
   }
 
+  getServiceDetails(serviceId: number): Observable<any> {
+    return this.http.get<any>(`${this.AUTH_API}service/${serviceId}`);
+  }
+
   getChefsByService(serviceId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.AUTH_API}getChefsByService/${serviceId}`);
   }

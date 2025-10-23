@@ -63,9 +63,65 @@
           </div>
         </div>
 
+        <!-- Informations sur l'affectation automatique -->
+        <div *ngIf="selectedServiceDetails" class="mb-3">
+          <!-- Service avec chefs assignés -->
+          <div *ngIf="selectedServiceDetails.hasChefA || selectedServiceDetails.hasChefB || selectedServiceDetails.hasRh" 
+               class="alert alert-success">
+            <i class="mdi mdi-check-circle-outline"></i>
+            <strong>✅ Affectations automatiques pour "{{ selectedServiceDetails.nomService }}" :</strong>
+            <div class="mt-2">
+              <small class="text-muted">Lors de votre inscription, vous serez automatiquement rattaché à :</small>
+            </div>
+            <ul class="mb-0 mt-2">
+              <li><strong>Chef A :</strong> 
+                <span [ngClass]="{'text-success fw-bold': selectedServiceDetails.hasChefA, 'text-warning': !selectedServiceDetails.hasChefA}">
+                  {{ selectedServiceDetails.chefANom }}
+                </span>
+                <small *ngIf="selectedServiceDetails.hasChefA" class="text-muted"> (Responsable hiérarchique principal)</small>
+              </li>
+              <li><strong>Chef B :</strong> 
+                <span [ngClass]="{'text-success fw-bold': selectedServiceDetails.hasChefB, 'text-warning': !selectedServiceDetails.hasChefB}">
+                  {{ selectedServiceDetails.chefBNom }}
+                </span>
+                <small *ngIf="selectedServiceDetails.hasChefB" class="text-muted"> (Responsable hiérarchique secondaire)</small>
+              </li>
+              <li><strong>RH Responsable :</strong> 
+                <span [ngClass]="{'text-success fw-bold': selectedServiceDetails.hasRh, 'text-warning': !selectedServiceDetails.hasRh}">
+                  {{ selectedServiceDetails.rhNom }}
+                </span>
+                <small *ngIf="selectedServiceDetails.hasRh" class="text-muted"> (Référent ressources humaines)</small>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Service sans chefs assignés -->
+          <div *ngIf="!selectedServiceDetails.hasChefA && !selectedServiceDetails.hasChefB && !selectedServiceDetails.hasRh" 
+               class="alert alert-warning">
+            <i class="mdi mdi-alert-outline"></i>
+            <strong>⚠️ Attention - Service "{{ selectedServiceDetails.nomService }}" :</strong>
+            <p class="mb-0 mt-2">Ce service n'a pas encore de responsables assignés. Vous serez inscrit mais les champs chef_a_id, chef_b_id et rh_responsable_id resteront NULL. Un administrateur devra configurer les responsables de ce service.</p>
+          </div>
+
+          <!-- Service partiellement configuré -->
+          <div *ngIf="(!selectedServiceDetails.hasChefA || !selectedServiceDetails.hasChefB || !selectedServiceDetails.hasRh) && 
+                      (selectedServiceDetails.hasChefA || selectedServiceDetails.hasChefB || selectedServiceDetails.hasRh)" 
+               class="alert alert-info">
+            <i class="mdi mdi-information-outline"></i>
+            <strong>ℹ️ Information - Service "{{ selectedServiceDetails.nomService }}" :</strong>
+            <p class="mb-0 mt-2">Ce service est partiellement configuré. Certains responsables ne sont pas encore assignés et les champs correspondants resteront NULL.</p>
+          </div>
+        </div>
+
         <div class="alert alert-info mb-3">
           <i class="mdi mdi-information-outline"></i>
-          <strong>Information :</strong> Votre matricule et mot de passe seront générés automatiquement et envoyés à votre adresse email. Vous serez automatiquement rattaché aux responsables hiérarchiques du service choisi.
+          <strong>🔄 Processus automatique :</strong>
+          <ul class="mb-0 mt-2">
+            <li>Votre matricule et mot de passe seront générés automatiquement</li>
+            <li>Vos identifiants seront envoyés à votre adresse email</li>
+            <li><strong>Les champs chef_a_id, chef_b_id et rh_responsable_id seront automatiquement remplis selon votre service</strong></li>
+            <li>Aucune intervention manuelle requise pour les affectations</li>
+          </ul>
         </div>
 
        

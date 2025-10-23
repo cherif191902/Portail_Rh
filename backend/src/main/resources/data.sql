@@ -5,7 +5,8 @@
 
 -- Initialisation des rôles par défaut
 INSERT IGNORE INTO roles (nom_role) VALUES ('ROLE_USER');
-INSERT IGNORE INTO roles (nom_role) VALUES ('ROLE_CHEF_SERVICE');
+INSERT IGNORE INTO roles (nom_role) VALUES ('ROLE_CHEF_A');
+INSERT IGNORE INTO roles (nom_role) VALUES ('ROLE_CHEF_B');
 INSERT IGNORE INTO roles (nom_role) VALUES ('ROLE_RH');
 INSERT IGNORE INTO roles (nom_role) VALUES ('ROLE_ADMIN');
 

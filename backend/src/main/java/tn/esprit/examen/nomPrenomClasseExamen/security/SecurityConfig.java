@@ -2,6 +2,7 @@ package tn.esprit.examen.nomPrenomClasseExamen.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -51,6 +52,10 @@ public class SecurityConfig {
                                         "/webjars/**"
                                 ).permitAll()
                                 .requestMatchers("/api/rh/**").hasAnyRole("RH", "ADMIN")
+                                .requestMatchers("/rh/**").hasAnyRole("RH", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/rh/**").hasAnyRole("RH", "ADMIN")
+                                .requestMatchers("/api/services/**").hasAnyRole("RH", "ADMIN", "USER")
+                                .requestMatchers("/api/employes/**").hasAnyRole("RH", "ADMIN")
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 

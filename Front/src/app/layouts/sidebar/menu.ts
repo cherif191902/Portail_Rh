@@ -13,7 +13,7 @@ export const MENU: MenuItem[] = [
         label: 'MENUITEMS.CHEF_DASHBOARD.TEXT',
         icon: 'bx-group',
         link: '/dashboards/chef',
-        requiredRoles: ['ROLE_CHEF_SERVICE', 'ROLE_CHEF_A', 'ROLE_CHEF_B']
+        requiredRoles: ['ROLE_CHEF_A', 'ROLE_CHEF_B']
     },
     {
         id: 10,
@@ -29,8 +29,6 @@ export const MENU: MenuItem[] = [
         link: '/dashboards/rh',
         requiredRoles: ['ROLE_RH', 'ROLE_ADMIN']
     },
-    // Section Congés supprimée (gérée via l'espace RH uniquement)
-    // Section Chef supprimée - accès chef géré différemment
     {
         id: 15,
         label: 'MENUITEMS.ADMIN_SECTION.TEXT',
@@ -143,13 +141,6 @@ export const MENU: MenuItem[] = [
                 label: 'MENUITEMS.RH_AFFECTATIONS.TEXT',
                 icon: 'bx-git-merge',
                 link: '/RH/affectations',
-                parentId: 200
-            },
-            {
-                id: 202,
-                label: 'MENUITEMS.RH_TABLEAU_AFFECTATIONS.TEXT',
-                icon: 'bx-table',
-                link: '/RH/tableau-affectations',
                 parentId: 200
             },
             {
