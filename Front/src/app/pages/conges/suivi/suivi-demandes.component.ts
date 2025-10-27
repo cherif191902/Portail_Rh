@@ -44,10 +44,11 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
     { value: 'EN_ATTENTE_CHEF_A', label: 'En attente Chef A' },
     { value: 'EN_ATTENTE_CHEF_B', label: 'En attente Chef B' },
     { value: 'EN_ATTENTE_RH', label: 'En attente RH' },
-    { value: 'APPROUVE', label: 'Approuvé' },
+    { value: 'VALIDE', label: 'Validé' },
     { value: 'REFUSE_PAR_CHEF_A', label: 'Refusé par Chef A' },
     { value: 'REFUSE_PAR_CHEF_B', label: 'Refusé par Chef B' },
     { value: 'REFUSE_PAR_RH', label: 'Refusé par RH' },
+    { value: 'APPROUVE', label: 'Approuvé (ancien)' },
     { value: 'EN_ATTENTE', label: 'En attente (ancien)' },
     { value: 'REFUSE', label: 'Refusé (ancien)' }
   ];
@@ -176,7 +177,7 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
     
     if (confirm(confirmMessage)) {
       const validationData = {
-        action: 'VALIDER' as const,
+        action: 'APPROUVER' as const,
         commentaire: commentaire || 'Validation approuvée'
       };
 
@@ -256,7 +257,24 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
       commentaire: demande.commentaire,
       motifRefus: demande.motifRefus
     };
-    return this.congeApiService.peutValider(congeResponse);
+    
+    // Obtenir le rôle de l'utilisateur connecté
+    const userRole = this.getCurrentUserRole();
+    return this.congeApiService.peutValider(congeResponse, userRole);
+  }
+
+  /**
+   * Obtient le rôle de l'utilisateur connecté
+   */
+  private getCurrentUserRole(): string {
+    const user = this.token.getUser();
+    if (!user || !user.roles) return '';
+    
+    // Prendre le premier rôle (le plus élevé en général)
+    const role = user.roles[0] || '';
+    
+    // Nettoyer le nom du rôle (enlever ROLE_ si présent)
+    return role.replace('ROLE_', '');
   }
 
   /**
@@ -334,9 +352,21 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
   // Calcul des statistiques rapides
   getStatistiques() {
     const total = this.demandes.length;
-    const enAttente = this.demandes.filter(d => d.statut === 'EN_ATTENTE').length;
-    const approuvees = this.demandes.filter(d => d.statut === 'APPROUVE').length;
-    const refusees = this.demandes.filter(d => d.statut === 'REFUSE').length;
+    const enAttente = this.demandes.filter(d => 
+      d.statut === 'EN_ATTENTE' || 
+      d.statut === 'EN_ATTENTE_CHEF_A' || 
+      d.statut === 'EN_ATTENTE_CHEF_B' || 
+      d.statut === 'EN_ATTENTE_RH'
+    ).length;
+    const approuvees = this.demandes.filter(d => 
+      d.statut === 'VALIDE' || d.statut === 'APPROUVE'
+    ).length;
+    const refusees = this.demandes.filter(d => 
+      d.statut === 'REFUSE' || 
+      d.statut === 'REFUSE_PAR_CHEF_A' || 
+      d.statut === 'REFUSE_PAR_CHEF_B' || 
+      d.statut === 'REFUSE_PAR_RH'
+    ).length;
 
     return { total, enAttente, approuvees, refusees };
   }
@@ -344,6 +374,49 @@ export class SuiviDemandesComponent implements OnInit, OnDestroy {
   // TrackBy function pour optimiser les performances
   trackByFn(index: number, item: DemandeConge): number {
     return item.id;
+  }
+
+  /**
+   * Retourne le libellé du statut selon le nouveau workflow
+   */
+  getStatutLibelle(statut: string): string {
+    return this.congeApiService.getStatutLibelle(statut);
+  }
+
+  /**
+   * Retourne la couleur du badge pour le statut
+   */
+  getStatutColorClass(statut: string): string {
+    const color = this.congeApiService.getStatutColor(statut);
+    return `badge bg-${color}`;
+  }
+
+  /**
+   * Retourne un message explicatif selon l'étape du workflow
+   */
+  getWorkflowMessage(demande: DemandeConge): string {
+    if (!demande || !demande.statut) {
+      return 'Statut indéterminé';
+    }
+
+    switch (demande.statut) {
+      case 'EN_ATTENTE_CHEF_A':
+        return 'En attente de validation par Chef A';
+      case 'EN_ATTENTE_CHEF_B':
+        return 'En attente de validation par Chef B';
+      case 'EN_ATTENTE_RH':
+        return 'En attente de validation par RH';
+      case 'VALIDE':
+        return 'Demande validée';
+      case 'REFUSE_PAR_CHEF_A':
+        return 'Refusé par Chef A';
+      case 'REFUSE_PAR_CHEF_B':
+        return 'Refusé par Chef B';
+      case 'REFUSE_PAR_RH':
+        return 'Refusé par RH';
+      default:
+        return 'En cours de traitement...';
+    }
   }
 
   // Référence à Math pour l'utilisation dans le template

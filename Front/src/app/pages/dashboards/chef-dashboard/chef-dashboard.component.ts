@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { TokenStorage } from 'src/app/core/services/tokenservice.service';
 import { CongeService } from 'src/app/pages/tables/conge.service';
 import { CongeApiService } from 'src/app/pages/conges/conge-api.service';
 import { CongeResponse, ValidationCongeRequest } from 'src/app/pages/conges/conge-api.service';
 import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -31,6 +33,7 @@ export class ChefDashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private token: TokenStorage, 
+    private http: HttpClient,
     private congeService: CongeService,
     private congeApiService: CongeApiService,
     private translate: TranslateService
@@ -48,6 +51,9 @@ export class ChefDashboardComponent implements OnInit, OnDestroy {
     // Diagnostic complet
     console.log('🔍 Lancement diagnostic chef dashboard...');
     this.congeService.diagnostic();
+    
+    // Test utilisateur connecté
+    this.testCurrentUser();
     
     this.loadPending();
     this.loadEmployees();
@@ -164,9 +170,11 @@ export class ChefDashboardComponent implements OnInit, OnDestroy {
     
     // Préparer les données de validation selon le nouveau format hiérarchique
     const validationData: ValidationCongeRequest = {
-      action: decision === 'APPROUVE' ? 'VALIDER' : 'REFUSER',
+      action: decision === 'APPROUVE' ? 'APPROUVER' : 'REFUSER',
       commentaire: commentaire
     };
+    
+    console.log('📋 Données de validation envoyées:', validationData);
 
     // Utiliser l'endpoint universel qui détermine automatiquement le niveau (Chef A/B)
     this.congeApiService.validerCongeUniversel(id, validationData).subscribe({
@@ -194,14 +202,33 @@ export class ChefDashboardComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('❌ Erreur soumission décision:', error);
+        console.error('Status:', error.status);
+        console.error('Error response:', error.error);
         
         let errorMessage = 'Une erreur est survenue lors de la validation';
-        if (error.error?.message) {
+        
+        if (error.status === 400) {
+          if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
+          } else {
+            errorMessage = 'Données de validation invalides';
+          }
+        } else if (error.status === 401) {
+          errorMessage = 'Vous n\'êtes pas autorisé à effectuer cette action';
+        } else if (error.status === 403) {
+          errorMessage = 'Accès refusé - vérifiez vos permissions';
+        } else if (error.status === 404) {
+          errorMessage = 'Demande de congé non trouvée';
+        } else if (error.error?.message) {
           errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
         }
         
         Swal.fire({
-          title: 'Erreur',
+          title: 'Erreur de validation',
           text: errorMessage,
           icon: 'error',
           confirmButtonText: 'OK'
@@ -278,6 +305,97 @@ export class ChefDashboardComponent implements OnInit, OnDestroy {
     }
     
     return 'badge bg-info';
+  }
+
+  /**
+   * Test l'utilisateur connecté via l'endpoint de debug
+   */
+  testCurrentUser() {
+    console.log('🔍 Test utilisateur connecté...');
+    this.http.get(`${environment.apiUrl}/conge/validation/debug/current-user`, {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('auth-token')}`,
+        'Content-Type': 'application/json'
+      }
+    }).subscribe({
+      next: (user) => {
+        console.log('✅ Utilisateur connecté:', user);
+      },
+      error: (error) => {
+        console.error('❌ Erreur test utilisateur:', error);
+      }
+    });
+  }
+
+  /**
+   * Détermine si l'utilisateur peut valider cette demande
+   */
+  canValidate(demande: any): boolean {
+    if (!demande || !demande.statut) return false;
+    
+    // Utiliser le service CongeApiService pour déterminer les droits
+    const userRole = this.getCurrentUserRole();
+    return this.congeApiService.peutValider(demande, userRole);
+  }
+
+  /**
+   * Obtient le rôle de l'utilisateur connecté
+   */
+  private getCurrentUserRole(): string {
+    // Cette logique doit être adaptée selon votre système d'authentification
+    const token = sessionStorage.getItem('auth-token');
+    if (!token) return '';
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.roles?.[0] || payload.role || '';
+    } catch (error) {
+      console.error('Erreur parsing token:', error);
+      return '';
+    }
+  }
+
+  /**
+   * Retourne le libellé du statut
+   */
+  getStatutLibelle(statut: string): string {
+    return this.congeApiService.getStatutLibelle(statut);
+  }
+
+  /**
+   * Retourne la couleur du badge pour le statut
+   */
+  getStatutColorClass(statut: string): string {
+    const color = this.congeApiService.getStatutColor(statut);
+    return `badge bg-${color}`;
+  }
+
+  /**
+   * Retourne un message explicatif selon l'étape du workflow
+   */
+  getWorkflowMessage(demande: any): string {
+    if (!demande || !demande.statut) {
+      return 'Statut indéterminé';
+    }
+
+    switch (demande.statut) {
+      case 'EN_ATTENTE_CHEF_A':
+        return 'En attente de validation par Chef A';
+      case 'EN_ATTENTE_CHEF_B':
+        return 'En attente de validation par Chef B';
+      case 'EN_ATTENTE_RH':
+        return 'En attente de validation par RH';
+      case 'VALIDE':
+        return 'Demande validée';
+      case 'REFUSE_PAR_CHEF_A':
+        return 'Refusé par Chef A';
+      case 'REFUSE_PAR_CHEF_B':
+        return 'Refusé par Chef B';
+      case 'REFUSE_PAR_RH':
+        return 'Refusé par RH';
+      default:
+        return 'En cours de traitement...';
+    }
   }
 
   ngOnDestroy(): void {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CongeApiService, CongeResponse, ValidationCongeRequest } from '../../pages/conges/conge-api.service';
+import { CongeApiService, CongeRhResponse } from '../../pages/conges/conge-api.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./conge-validate-rh.component.scss']
 })
 export class CongeValidateRhComponent implements OnInit {
-  demandes: CongeResponse[] = [];
+  demandes: CongeRhResponse[] = [];
   isLoading = false;
   errorMessage = '';
 
@@ -27,7 +27,7 @@ export class CongeValidateRhComponent implements OnInit {
     
     console.log('🔄 Chargement des demandes RH en attente...');
     
-    this.congeApiService.getDemandesRhHierarchique().subscribe({
+    this.congeApiService.getCongesEnAttenteRH().subscribe({
       next: (demandes) => {
         this.demandes = demandes;
         this.isLoading = false;
@@ -51,54 +51,43 @@ export class CongeValidateRhComponent implements OnInit {
   }
 
   /**
-   * Valide une demande de congé
+   * Approuve une demande de congé
    */
-  validerDemande(demande: CongeResponse) {
+  approuverConge(id: number) {
     Swal.fire({
-      title: 'Valider cette demande ?',
-      html: `
-        <div class="text-start">
-          <strong>Employé:</strong> ${this.getEmployeeName(demande)}<br>
-          <strong>Type:</strong> ${demande.typeConge}<br>
-          <strong>Période:</strong> du ${demande.dateDebut} au ${demande.dateFin}<br>
-          <strong>Durée:</strong> ${demande.duree} jour(s)
-        </div>
-      `,
-      input: 'textarea',
-      inputLabel: 'Commentaire de validation (optionnel)',
-      inputPlaceholder: 'Ajouter un commentaire...',
+      title: 'Approuver cette demande ?',
+      text: 'Cette action est irréversible.',
+      icon: 'question',
       showCancelButton: true,
-      confirmButtonText: '✅ Valider',
+      confirmButtonText: '✅ Approuver',
       cancelButtonText: '❌ Annuler',
       confirmButtonColor: '#28a745',
-      preConfirm: (commentaire) => {
-        const validationData: ValidationCongeRequest = {
-          action: 'VALIDER',
-          commentaire: commentaire || 'Demande validée par RH'
-        };
-
-        console.log('✅ Validation de la demande ID:', demande.id);
-        
-        return this.congeApiService.validerRhHierarchique(demande.id, validationData).toPromise()
-          .then(response => {
-            console.log('✅ Demande validée avec succès:', response);
-            return response;
-          })
-          .catch(error => {
-            console.error('❌ Erreur lors de la validation:', error);
-            Swal.showValidationMessage(`Erreur: ${error.message || 'Une erreur est survenue'}`);
-          });
-      }
     }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        Swal.fire({
-          title: 'Validé !',
-          text: `Demande approuvée avec succès. Nouveau statut: ${result.value.statut}`,
-          icon: 'success',
-          confirmButtonText: 'OK'
+      if (result.isConfirmed) {
+        console.log('✅ Approbation de la demande ID:', id);
+        
+        this.congeApiService.approuverConge(id).subscribe({
+          next: (response) => {
+            console.log('✅ Demande approuvée avec succès:', response);
+            Swal.fire({
+              title: 'Approuvé !',
+              text: response.message || 'Demande approuvée avec succès',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+            // Recharger la liste
+            this.loadDemandesEnAttenteRh();
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de l\'approbation:', error);
+            Swal.fire({
+              title: 'Erreur',
+              text: error.message || 'Impossible d\'approuver la demande',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
         });
-        // Recharger la liste
-        this.loadDemandesEnAttenteRh();
       }
     });
   }
@@ -106,82 +95,43 @@ export class CongeValidateRhComponent implements OnInit {
   /**
    * Refuse une demande de congé
    */
-  refuserDemande(demande: CongeResponse) {
+  refuserConge(id: number) {
     Swal.fire({
       title: 'Refuser cette demande ?',
-      html: `
-        <div class="text-start">
-          <strong>Employé:</strong> ${this.getEmployeeName(demande)}<br>
-          <strong>Type:</strong> ${demande.typeConge}<br>
-          <strong>Période:</strong> du ${demande.dateDebut} au ${demande.dateFin}<br>
-          <strong>Durée:</strong> ${demande.duree} jour(s)
-        </div>
-      `,
-      input: 'textarea',
-      inputLabel: 'Motif du refus (obligatoire)',
-      inputPlaceholder: 'Veuillez préciser le motif du refus...',
-      inputValidator: (value) => {
-        if (!value || !value.trim()) {
-          return 'Le motif du refus est obligatoire !';
-        }
-      },
+      text: 'Cette action est irréversible.',
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonText: '🚫 Refuser',
       cancelButtonText: '❌ Annuler',
       confirmButtonColor: '#dc3545',
-      preConfirm: (motifRefus) => {
-        const validationData: ValidationCongeRequest = {
-          action: 'REFUSER',
-          commentaire: motifRefus
-        };
-
-        console.log('❌ Refus de la demande ID:', demande.id);
-        
-        return this.congeApiService.validerRhHierarchique(demande.id, validationData).toPromise()
-          .then(response => {
-            console.log('❌ Demande refusée avec succès:', response);
-            return response;
-          })
-          .catch(error => {
-            console.error('❌ Erreur lors du refus:', error);
-            Swal.showValidationMessage(`Erreur: ${error.message || 'Une erreur est survenue'}`);
-          });
-      }
     }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        Swal.fire({
-          title: 'Refusé !',
-          text: `Demande refusée. Nouveau statut: ${result.value.statut}`,
-          icon: 'success',
-          confirmButtonText: 'OK'
+      if (result.isConfirmed) {
+        console.log('❌ Refus de la demande ID:', id);
+        
+        this.congeApiService.refuserCongeRh(id).subscribe({
+          next: (response) => {
+            console.log('❌ Demande refusée avec succès:', response);
+            Swal.fire({
+              title: 'Refusée !',
+              text: response.message || 'Demande refusée',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+            // Recharger la liste
+            this.loadDemandesEnAttenteRh();
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors du refus:', error);
+            Swal.fire({
+              title: 'Erreur',
+              text: error.message || 'Impossible de refuser la demande',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
         });
-        // Recharger la liste
-        this.loadDemandesEnAttenteRh();
       }
     });
-  }
-
-  /**
-   * Obtient le nom complet de l'employé
-   */
-  getEmployeeName(demande: CongeResponse): string {
-    return demande.personnel?.nom && demande.personnel?.prenom 
-      ? `${demande.personnel.nom} ${demande.personnel.prenom}`
-      : 'Nom non disponible';
-  }
-
-  /**
-   * Détermine la classe CSS pour le badge de statut
-   */
-  getStatutBadgeClass(statut: string): string {
-    return this.congeApiService.getStatutBadgeClass(statut);
-  }
-
-  /**
-   * Détermine l'icône pour le statut
-   */
-  getStatutIcon(statut: string): string {
-    return this.congeApiService.getStatutIcon(statut);
   }
 
   /**
@@ -189,5 +139,36 @@ export class CongeValidateRhComponent implements OnInit {
    */
   actualiserListe() {
     this.loadDemandesEnAttenteRh();
+  }
+  canValidate(demande: CongeRhResponse): boolean {
+    return demande.statutActuel === 'EN_ATTENTE_RH';
+  }
+
+  /**
+   * Retourne un message explicatif selon l'étape du workflow
+   */
+  getWorkflowMessage(demande: CongeRhResponse): string {
+    if (!demande || !demande.statutActuel) {
+      return 'Statut indéterminé';
+    }
+
+    switch (demande.statutActuel) {
+      case 'EN_ATTENTE_CHEF_A':
+        return 'En attente de validation par Chef A';
+      case 'EN_ATTENTE_CHEF_B':
+        return 'En attente de validation par Chef B';
+      case 'EN_ATTENTE_RH':
+        return 'Prêt pour validation RH';
+      case 'VALIDE':
+        return 'Demande validée';
+      case 'REFUSE_PAR_CHEF_A':
+        return 'Refusé par Chef A';
+      case 'REFUSE_PAR_CHEF_B':
+        return 'Refusé par Chef B';
+      case 'REFUSE_PAR_RH':
+        return 'Refusé par RH';
+      default:
+        return 'En cours de traitement...';
+    }
   }
 }

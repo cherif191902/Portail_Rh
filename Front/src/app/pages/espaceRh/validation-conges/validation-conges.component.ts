@@ -1,176 +1,314 @@
 import { Component, OnInit } from '@angular/core';
-import { RhService } from '../../../core/services/rh.service';
-
-interface CongeVM {
-  id: number;
-  personnel?: any;
-  dateDeb?: string;
-  dateFin?: string;
-  nbJours?: string;
-  repChefsNiveau1?: string;
-  repChefsNiveau2?: string;
-  repRh?: string;
-  motif?: string;
-}
+import { CongeApiService, CongeResponse, ValidationCongeRequest } from '../../conges/conge-api.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-validation-conges',
-  template: `
-  <div class="card mb-3">
-    <div class="card-body">
-      <h4 class="card-title mb-0">Congés en attente (RH)</h4>
-      <div class="d-flex gap-2 align-items-center mt-2">
-        <input class="form-control" style="max-width:260px" placeholder="Filtrer (matricule/nom)" [(ngModel)]="filterText" />
-        <button class="btn btn-sm btn-outline-secondary" (click)="refresh()" [disabled]="loading">Rafraîchir</button>
-      </div>
-      <div *ngIf="errorMsg" class="alert alert-danger py-1 mt-2">{{errorMsg}}</div>
-      <div *ngIf="message" class="alert alert-info py-1 mt-2">{{message}}</div>
-      <div class="table-responsive mt-3" *ngIf="pending?.length; else emptyPending">
-        <table class="table table-sm align-middle">
-          <thead><tr>
-            <th>#</th><th>Employé</th><th>Période</th><th>Jours</th><th>Chef1</th><th>Chef2</th><th>RH</th><th>Actions</th>
-          </tr></thead>
-          <tbody>
-            <tr *ngFor="let c of filteredPending()">
-              <td>{{c.id}}</td>
-              <td>{{c.personnel?.prenom}} {{c.personnel?.nom}}<br><small class="text-muted">{{c.personnel?.matriculeP}}</small></td>
-              <td>{{c.dateDeb | date:'dd/MM'}} - {{c.dateFin | date:'dd/MM/yyyy'}}</td>
-              <td>{{c.nbJours}}</td>
-              <td><span class="badge bg-{{badge(c.repChefsNiveau1)}}">{{c.repChefsNiveau1}}</span></td>
-              <td><span class="badge bg-{{badge(c.repChefsNiveau2)}}">{{c.repChefsNiveau2}}</span></td>
-              <td><span class="badge bg-{{badge(c.repRh)}}">{{c.repRh}}</span></td>
-              <td>
-                <div class="btn-group btn-group-sm">
-                  <button class="btn btn-success" (click)="decide(c,'APPROUVE')" [disabled]="loading">✔</button>
-                  <button class="btn btn-danger" (click)="decide(c,'REFUSE')" [disabled]="loading">✖</button>
-                  <button class="btn btn-outline-secondary" (click)="loadHistorique(c)" title="Historique">H</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <ng-template #emptyPending>
-        <div class="text-muted mt-3">Aucune demande en attente.</div>
-      </ng-template>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">Historique RH <small *ngIf="historique?.length" class="text-muted">({{historique.length}})</small></h5>
-        <div class="d-flex gap-2">
-          <select [(ngModel)]="histStatus" (change)="loadHistoriqueLastFilter()" class="form-select form-select-sm" style="width:160px">
-            <option value="">Tous</option>
-            <option value="APPROUVE">Approuvés</option>
-            <option value="REFUSE">Refusés</option>
-          </select>
-          <input class="form-control form-control-sm" placeholder="Filtrer" [(ngModel)]="histFilter" style="width:180px" />
-        </div>
-      </div>
-      <div class="table-responsive" *ngIf="historique?.length; else emptyHist">
-        <table class="table table-sm">
-          <thead><tr>
-            <th>#</th><th>Employé</th><th>Période</th><th>Jours</th><th>Chef1</th><th>Chef2</th><th>RH</th>
-          </tr></thead>
-          <tbody>
-            <tr *ngFor="let c of filteredHistorique()">
-              <td>{{c.id}}</td>
-              <td>{{c.personnel?.prenom}} {{c.personnel?.nom}}<br><small class="text-muted">{{c.personnel?.matriculeP}}</small></td>
-              <td>{{c.dateDeb | date:'dd/MM'}} - {{c.dateFin | date:'dd/MM/yyyy'}}</td>
-              <td>{{c.nbJours}}</td>
-              <td><span class="badge bg-{{badge(c.repChefsNiveau1)}}">{{c.repChefsNiveau1}}</span></td>
-              <td><span class="badge bg-{{badge(c.repChefsNiveau2)}}">{{c.repChefsNiveau2}}</span></td>
-              <td><span class="badge bg-{{badge(c.repRh)}}">{{c.repRh}}</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <ng-template #emptyHist>
-        <div class="text-muted">Pas d'historique encore.</div>
-      </ng-template>
-    </div>
-  </div>
-  `,
+  templateUrl: './validation-conges.component.html',
   styles: [`.card-title{font-weight:600}.badge{min-width:70px}`]
 })
 export class ValidationCongesComponent implements OnInit {
-  pending: CongeVM[] = [];
-  historique: CongeVM[] = [];
-  loading = false;
-  message = '';
-  errorMsg = '';
+  demandes: CongeResponse[] = [];
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
   filterText = '';
-  histStatus = '';
-  histFilter = '';
-  private lastLoadedHistStatus = '';
 
-  constructor(private rh: RhService) {}
+  // Statistiques
+  totalDemandes = 0;
+  demandesEnAttente = 0;
+
+  constructor(private congeApiService: CongeApiService) { }
 
   ngOnInit(): void {
-    this.refresh();
-    this.loadHistoriqueLastFilter();
+    this.loadDemandesEnAttenteRH();
   }
 
-  refresh() { this.loadPending(); }
-
-  loadPending() {
-    this.loading = true; this.errorMsg='';
-    this.rh.getPendingCongesRh().subscribe({
-      next: data => { this.pending = data || []; },
-      error: e => { console.error(e); this.errorMsg='Erreur chargement pending'; },
-      complete: () => this.loading=false
-    });
-  }
-
-  loadHistorique(conge?: CongeVM) {
-    // si demandé pour un employé particulier, filtrer côté client après chargement global (simple pour début)
-    this.rh.getHistoriqueRh(this.histStatus || undefined).subscribe({
-      next: data => {
-        this.historique = (data||[]) as CongeVM[];
-        if (conge && conge.personnel?.matriculeP) {
-          const m = conge.personnel.matriculeP;
-            this.historique = this.historique.filter(h => h.personnel?.matriculeP === m);
-        }
+  /**
+   * Charge TOUTES les demandes de congé pour consultation RH avec historique complet
+   */
+  loadDemandesEnAttenteRH() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    
+    console.log('🔄 Chargement de toutes les demandes pour consultation RH...');
+    
+    this.congeApiService.getAllCongesForRH().subscribe({
+      next: (demandes) => {
+        this.demandes = demandes;
+        this.totalDemandes = demandes.length;
+        
+        // Compter les demandes selon leurs statuts
+        this.demandesEnAttente = demandes.filter(d => 
+          d.statut === 'EN_ATTENTE_RH' || 
+          d.statut === 'EN_ATTENTE_CHEF_A' || 
+          d.statut === 'EN_ATTENTE_CHEF_B'
+        ).length;
+        
+        this.isLoading = false;
+        
+        console.log('✅ Toutes les demandes RH chargées:', this.demandes.length);
+        console.log('� Demandes en attente (tous niveaux):', this.demandesEnAttente);
+        console.log('�📋 Détail complet des demandes:', this.demandes);
       },
-      error: e => console.error(e)
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement de toutes les demandes RH:', error);
+        this.errorMessage = 'Erreur lors du chargement des demandes de congés.';
+        this.isLoading = false;
+        
+        Swal.fire({
+          title: 'Erreur',
+          text: error.message || 'Impossible de charger les demandes de congés',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
     });
   }
 
-  loadHistoriqueLastFilter() {
-    this.lastLoadedHistStatus = this.histStatus;
-    this.loadHistorique();
-  }
+  /**
+   * Valide une demande de congé
+   */
+  validerDemande(demande: CongeResponse) {
+    Swal.fire({
+      title: 'Valider cette demande ?',
+      html: `
+        <div class="text-start">
+          <strong>Employé:</strong> ${this.getEmployeeName(demande)}<br>
+          <strong>Type:</strong> ${demande.typeConge}<br>
+          <strong>Période:</strong> du ${demande.dateDebut} au ${demande.dateFin}<br>
+          <strong>Durée:</strong> ${demande.duree} jour(s)
+        </div>
+      `,
+      input: 'textarea',
+      inputLabel: 'Commentaire de validation (optionnel)',
+      inputPlaceholder: 'Ajouter un commentaire...',
+      showCancelButton: true,
+      confirmButtonText: '✅ Valider',
+      cancelButtonText: '❌ Annuler',
+      confirmButtonColor: '#28a745',
+      preConfirm: (commentaire) => {
+        const validationData: ValidationCongeRequest = {
+          action: 'APPROUVER',
+          commentaire: commentaire || 'Demande validée par RH'
+        };
 
-  decide(c: CongeVM, decision: 'APPROUVE'|'REFUSE') {
-    if (this.loading) return;
-    this.loading = true; this.message='';
-    this.rh.rhDecision(c.id, decision).subscribe({
-      next: _ => { this.message = `Décision ${decision}`; this.refresh(); this.loadHistoriqueLastFilter(); },
-      error: e => { console.error(e); this.message = 'Erreur décision'; },
-      complete: () => this.loading=false
+        console.log('✅ Validation de la demande ID:', demande.id);
+        
+        return this.congeApiService.validerCongeUniversel(demande.id, validationData).toPromise()
+          .then(response => {
+            console.log('✅ Demande validée avec succès:', response);
+            return response;
+          })
+          .catch(error => {
+            console.error('❌ Erreur lors de la validation:', error);
+            Swal.showValidationMessage(`Erreur: ${error.message || 'Une erreur est survenue'}`);
+          });
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        Swal.fire({
+          title: 'Validé !',
+          text: `Demande approuvée avec succès. Nouveau statut: ${result.value.statut}`,
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        // Recharger la liste
+        this.loadDemandesEnAttenteRH();
+      }
     });
   }
 
-  filteredPending() {
-    if(!this.filterText) return this.pending;
-    const t = this.filterText.toLowerCase();
-    return this.pending.filter(c => (c.personnel?.matriculeP||'').toLowerCase().includes(t) || (c.personnel?.nom||'').toLowerCase().includes(t));
+  /**
+   * Refuse une demande de congé
+   */
+  refuserDemande(demande: CongeResponse) {
+    Swal.fire({
+      title: 'Refuser cette demande ?',
+      html: `
+        <div class="text-start">
+          <strong>Employé:</strong> ${this.getEmployeeName(demande)}<br>
+          <strong>Type:</strong> ${demande.typeConge}<br>
+          <strong>Période:</strong> du ${demande.dateDebut} au ${demande.dateFin}<br>
+          <strong>Durée:</strong> ${demande.duree} jour(s)
+        </div>
+      `,
+      input: 'textarea',
+      inputLabel: 'Motif du refus (obligatoire)',
+      inputPlaceholder: 'Indiquez la raison du refus...',
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'Le motif du refus est obligatoire';
+        }
+        return null;
+      },
+      showCancelButton: true,
+      confirmButtonText: '❌ Refuser',
+      cancelButtonText: '🔙 Annuler',
+      confirmButtonColor: '#dc3545',
+      preConfirm: (commentaire) => {
+        const validationData: ValidationCongeRequest = {
+          action: 'REFUSER',
+          commentaire: commentaire
+        };
+
+        console.log('❌ Refus de la demande ID:', demande.id);
+        
+        return this.congeApiService.validerCongeUniversel(demande.id, validationData).toPromise()
+          .then(response => {
+            console.log('❌ Demande refusée avec succès:', response);
+            return response;
+          })
+          .catch(error => {
+            console.error('❌ Erreur lors du refus:', error);
+            Swal.showValidationMessage(`Erreur: ${error.message || 'Une erreur est survenue'}`);
+          });
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        Swal.fire({
+          title: 'Refusé !',
+          text: `Demande refusée. Nouveau statut: ${result.value.statut}`,
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        // Recharger la liste
+        this.loadDemandesEnAttenteRH();
+      }
+    });
   }
 
-  filteredHistorique() {
-    if(!this.histFilter) return this.historique;
-    const t = this.histFilter.toLowerCase();
-    return this.historique.filter(c => (c.personnel?.matriculeP||'').toLowerCase().includes(t) || (c.personnel?.nom||'').toLowerCase().includes(t));
+  /**
+   * Filtre les demandes selon le texte de recherche
+   */
+  getFilteredDemandes(): CongeResponse[] {
+    if (!this.filterText || this.filterText.trim() === '') {
+      return this.demandes;
+    }
+
+    const searchText = this.filterText.toLowerCase().trim();
+    return this.demandes.filter(demande => 
+      this.getEmployeeName(demande).toLowerCase().includes(searchText) ||
+      demande.typeConge.toLowerCase().includes(searchText) ||
+      demande.statut.toLowerCase().includes(searchText) ||
+      (demande.commentaire && demande.commentaire.toLowerCase().includes(searchText))
+    );
   }
 
-  badge(status?: string) {
-    switch(status){
-      case 'APPROUVE': return 'success';
-      case 'REFUSE': return 'danger';
-      case 'EN_ATTENTE': return 'warning';
-      default: return 'secondary';
+  /**
+   * Actualise la liste des demandes
+   */
+  actualiserListe() {
+    this.loadDemandesEnAttenteRH();
+  }
+
+  /**
+   * Retourne le nom complet de l'employé
+   */
+  getEmployeeName(demande: CongeResponse): string {
+    return demande.personnel ? 
+      `${demande.personnel.prenom || ''} ${demande.personnel.nom || ''}`.trim() 
+      : 'Nom non disponible';
+  }
+
+  /**
+   * Retourne le libellé du statut
+   */
+  getStatutLibelle(statut: string): string {
+    return this.congeApiService.getStatutLibelle(statut);
+  }
+
+  /**
+   * Retourne la couleur du badge pour le statut
+   */
+  getStatutColorClass(statut: string): string {
+    const color = this.congeApiService.getStatutColor(statut);
+    return `badge bg-${color}`;
+  }
+
+  /**
+   * Détermine si l'utilisateur peut valider cette demande
+   */
+  canValidate(demande: CongeResponse): boolean {
+    return this.congeApiService.peutValider(demande, 'RH');
+  }
+
+  /**
+   * Retourne un message explicatif selon l'étape du workflow
+   */
+  getWorkflowMessage(demande: CongeResponse): string {
+    if (!demande || !demande.statut) {
+      return 'Statut indéterminé';
+    }
+
+    switch (demande.statut) {
+      case 'EN_ATTENTE_CHEF_A':
+        return 'En attente de validation par Chef A';
+      case 'EN_ATTENTE_CHEF_B':
+        return 'En attente de validation par Chef B';
+      case 'EN_ATTENTE_RH':
+        return 'Prêt pour validation RH';
+      case 'VALIDE':
+        return 'Demande validée';
+      case 'REFUSE_PAR_CHEF_A':
+        return 'Refusé par Chef A';
+      case 'REFUSE_PAR_CHEF_B':
+        return 'Refusé par Chef B';
+      case 'REFUSE_PAR_RH':
+        return 'Refusé par RH';
+      default:
+        return 'En cours de traitement...';
+    }
+  }
+
+  /**
+   * Retourne la classe CSS pour le badge de validation selon le statut
+   */
+  getValidationBadgeClass(statut: string): string {
+    switch (statut) {
+      case 'APPROUVE':
+      case 'VALIDE':
+        return 'bg-success';
+      case 'REFUSE':
+      case 'REFUSE_PAR_CHEF_A':
+      case 'REFUSE_PAR_CHEF_B':
+      case 'REFUSE_PAR_RH':
+        return 'bg-danger';
+      case 'EN_ATTENTE':
+      case 'EN_ATTENTE_CHEF_A':
+      case 'EN_ATTENTE_CHEF_B':
+      case 'EN_ATTENTE_RH':
+        return 'bg-warning';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+  /**
+   * Retourne le libellé pour une validation spécifique
+   */
+  getValidationLabel(statut: string): string {
+    switch (statut) {
+      case 'APPROUVE':
+        return '✅ Approuvé';
+      case 'VALIDE':
+        return '✅ Validé';
+      case 'REFUSE':
+        return '❌ Refusé';
+      case 'REFUSE_PAR_CHEF_A':
+        return '❌ Refusé';
+      case 'REFUSE_PAR_CHEF_B':
+        return '❌ Refusé';
+      case 'REFUSE_PAR_RH':
+        return '❌ Refusé';
+      case 'EN_ATTENTE':
+      case 'EN_ATTENTE_CHEF_A':
+      case 'EN_ATTENTE_CHEF_B':
+      case 'EN_ATTENTE_RH':
+        return '⏳ En attente';
+      default:
+        return '⏳ En attente';
     }
   }
 }

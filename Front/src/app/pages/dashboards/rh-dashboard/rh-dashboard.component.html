@@ -96,17 +96,17 @@
                 <tr *ngFor="let c of pendingConges">
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      <div class="avatar avatar-xs bg-light">{{ initials(c.personnel) }}</div>
+                      <div class="avatar avatar-xs bg-light">{{ c.matricule?.charAt(0) || '?' }}</div>
                       <div>
-                        <div class="fw-semibold">{{ c.personnel?.prenom }} {{ c.personnel?.nom }}</div>
-                        <small class="text-muted">{{ c.personnel?.matriculeP }}</small>
+                        <div class="fw-semibold">{{ c.nomComplet }}</div>
+                        <small class="text-muted">{{ c.matricule }}</small>
                       </div>
                     </div>
                   </td>
-                  <td>{{ c.dateDeb | date:'dd/MM' }}</td>
+                  <td>{{ c.dateDebut | date:'dd/MM' }}</td>
                   <td>{{ c.dateFin | date:'dd/MM/yyyy' }}</td>
                   <td>{{ c.nbJours }}</td>
-                  <td><span class="badge" [ngClass]="'bg-' + statusBadge(c.repRh || 'EN_ATTENTE')">{{ statusLabel(c.repRh || 'EN_ATTENTE') }}</span></td>
+                  <td><span class="badge" [ngClass]="'bg-' + statusBadge(c.statutActuel || 'EN_ATTENTE_RH')">{{ statusLabel(c.statutActuel || 'EN_ATTENTE_RH') }}</span></td>
                 </tr>
               </tbody>
             </table>

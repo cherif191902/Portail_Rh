@@ -119,20 +119,20 @@
             <table class="table table-hover align-middle mb-0" *ngIf="demandes.length > 0">
               <thead class="table-light">
                 <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">Employé</th>
-                  <th scope="col">Type de congé</th>
-                  <th scope="col">Période</th>
-                  <th scope="col">Durée</th>
+                  <th scope="col">Matricule</th>
+                  <th scope="col">Nom & Prénom</th>
+                  <th scope="col">Service</th>
+                  <th scope="col">Date début</th>
+                  <th scope="col">Date fin</th>
+                  <th scope="col">Motif</th>
                   <th scope="col">Statut</th>
-                  <th scope="col">Date demande</th>
                   <th scope="col" class="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let demande of demandes; let i = index" class="align-middle">
                   <td>
-                    <strong class="text-primary">#{{ demande.id?.toString().padStart(4, '0') }}</strong>
+                    <strong class="text-primary">{{ demande.matricule }}</strong>
                   </td>
                   <td>
                     <div class="d-flex align-items-center">
@@ -142,61 +142,45 @@
                         </div>
                       </div>
                       <div>
-                        <h6 class="mb-0 font-size-14">{{ getEmployeeName(demande) }}</h6>
-                        <p class="text-muted font-size-12 mb-0" *ngIf="demande.personnel?.matricule">
-                          Mat: {{ demande.personnel.matricule }}
-                        </p>
+                        <h6 class="mb-0 font-size-14">{{ demande.nomComplet }}</h6>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <span class="badge bg-soft-info text-info">
-                      <i class="bx bx-calendar me-1"></i>
-                      {{ demande.typeConge }}
+                    <span class="badge bg-soft-secondary text-secondary">
+                      {{ demande.service }}
                     </span>
                   </td>
                   <td>
-                    <div class="text-muted">
-                      <small><strong>Du:</strong> {{ demande.dateDebut | date:'dd/MM/yyyy' }}</small><br>
-                      <small><strong>Au:</strong> {{ demande.dateFin | date:'dd/MM/yyyy' }}</small>
+                    <small class="text-muted">{{ demande.dateDebut | date:'dd/MM/yyyy' }}</small>
+                  </td>
+                  <td>
+                    <small class="text-muted">{{ demande.dateFin | date:'dd/MM/yyyy' }}</small>
+                  </td>
+                  <td>
+                    <div class="text-truncate" style="max-width: 150px;" [title]="demande.motif">
+                      {{ demande.motif || 'Non spécifié' }}
                     </div>
                   </td>
                   <td>
-                    <span class="badge bg-soft-secondary text-secondary">
-                      {{ demande.duree }} jour(s)
+                    <span class="badge bg-warning text-dark">
+                      {{ demande.statutActuel }}
                     </span>
-                  </td>
-                  <td>
-                    <span [class]="getStatutBadgeClass(demande.statut)">
-                      <i [class]="getStatutIcon(demande.statut)" class="me-1"></i>
-                      {{ demande.statut }}
-                    </span>
-                  </td>
-                  <td>
-                    <small class="text-muted">{{ demande.dateDemande | date:'dd/MM/yyyy' }}</small>
                   </td>
                   <td class="text-center">
+                    <!-- Boutons d'action -->
                     <div class="btn-group" role="group">
                       <button type="button" 
                               class="btn btn-success btn-sm"
-                              (click)="validerDemande(demande)"
-                              title="Valider cette demande">
-                        <i class="bx bx-check me-1"></i>Valider
+                              (click)="approuverConge(demande.id)"
+                              title="Approuver cette demande">
+                        <i class="bx bx-check me-1"></i>Approuver
                       </button>
                       <button type="button" 
                               class="btn btn-danger btn-sm"
-                              (click)="refuserDemande(demande)"
+                              (click)="refuserConge(demande.id)"
                               title="Refuser cette demande">
                         <i class="bx bx-x me-1"></i>Refuser
-                      </button>
-                    </div>
-                    
-                    <!-- Détails supplémentaires -->
-                    <div class="mt-2" *ngIf="demande.commentaire">
-                      <button class="btn btn-outline-info btn-xs" 
-                              data-bs-toggle="tooltip" 
-                              [attr.title]="demande.commentaire">
-                        <i class="bx bx-info-circle"></i> Info
                       </button>
                     </div>
                   </td>

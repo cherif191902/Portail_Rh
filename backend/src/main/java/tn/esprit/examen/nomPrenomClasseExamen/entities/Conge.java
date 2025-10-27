@@ -130,7 +130,7 @@ public class Conge {
     }
     
     public boolean isFullyApprovedNew() {
-        return StatutConge.APPROUVE_PAR_RH.equals(statutConge);
+        return StatutConge.VALIDE.equals(statutConge);
     }
     
     public boolean isRejectedNew() {

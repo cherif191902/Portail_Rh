@@ -107,17 +107,13 @@
                   </small>
                 </td>
                 <td>
-                  <span class="badge" 
-                        [ngClass]="{
-                          'bg-warning': demande.statutConge?.includes('EN_ATTENTE') || demande.statutConge?.includes('attente'),
-                          'bg-success': demande.statutConge?.includes('APPROUVE') || demande.statutConge?.includes('Approuvé'),
-                          'bg-danger': demande.statutConge?.includes('REFUSE') || demande.statutConge?.includes('Refusé')
-                        }">
-                    {{ getStatutTexte(demande.statutConge) || 'En attente' }}
+                  <span [ngClass]="getStatutColorClass(demande.statutConge || demande.statut)">
+                    {{ getStatutLibelle(demande.statutConge || demande.statut) }}
                   </span>
                 </td>
                 <td>
-                  <div *ngIf="!activeCommentFor[demande.idConge]" class="btn-group btn-group-sm">
+                  <!-- Boutons de validation conditionnels selon le workflow -->
+                  <div *ngIf="!activeCommentFor[demande.idConge] && canValidate(demande)" class="btn-group btn-group-sm">
                     <button class="btn btn-outline-success" 
                             (click)="approve(demande)"
                             title="Approuver cette demande">
@@ -128,6 +124,12 @@
                             title="Refuser cette demande">
                       <i class="bx bx-x"></i> Refuser
                     </button>
+                  </div>
+
+                  <!-- Message si l'utilisateur ne peut pas valider -->
+                  <div *ngIf="!activeCommentFor[demande.idConge] && !canValidate(demande)" class="text-muted small">
+                    <i class="bx bx-info-circle me-1"></i>
+                    <span>{{ getWorkflowMessage(demande) }}</span>
                   </div>
 
                   <!-- Comment box shown after click -->

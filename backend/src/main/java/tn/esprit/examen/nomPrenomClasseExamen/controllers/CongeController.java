@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.CongeRequestDto;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.DemandeCongeDto;
+import tn.esprit.examen.nomPrenomClasseExamen.dto.DemandeCongeRHDTo;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.PersonnelDTO;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.PersonnelMapper;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Conge;
@@ -748,6 +749,62 @@ public class CongeController {
     public ResponseEntity<?> updateRh(@RequestBody Conge conge) {
         Conge saved = congeRepository.save(conge);
         return ResponseEntity.ok(saved);
+    }
+
+    /**
+     * Récupère toutes les demandes de congé en attente de validation RH (nouveau workflow)
+     */
+    @GetMapping("/en-attente/rh")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getCongesEnAttenteRH() {
+        logger.info("🔍 Récupération des demandes de congé en attente de validation RH");
+        
+        try {
+            // Utiliser le repository pour récupérer les demandes avec statut EN_ATTENTE_RH
+            List<Conge> congesEnAttente = congeRepository.findAllPendingForRh();
+            
+            // Convertir en DTO avec toutes les informations pour RH
+            List<DemandeCongeRHDTo> demandesDto = congesEnAttente.stream()
+                .map(congeMapperService::toDemandeCongeRHDTo)
+                .collect(Collectors.toList());
+            
+            logger.info("✅ {} demandes de congé en attente de validation RH trouvées", demandesDto.size());
+            
+            return ResponseEntity.ok(demandesDto);
+            
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la récupération des demandes RH en attente: {}", e.getMessage());
+            return ResponseEntity.internalServerError()
+                .body("Erreur lors de la récupération des demandes de congé");
+        }
+    }
+
+    /**
+     * Récupère toutes les demandes de congé pour consultation RH avec historique complet
+     */
+    @GetMapping("/all-for-rh")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getAllCongesForRH() {
+        logger.info("🔍 Récupération de toutes les demandes de congé pour consultation RH");
+        
+        try {
+            // Récupérer toutes les demandes triées par date de création (plus récentes d'abord)
+            List<Conge> toutesLesDemandes = congeRepository.findAllByOrderByDateCreationDesc();
+            
+            // Convertir en DTO avec toutes les informations
+            List<DemandeCongeDto> demandesDto = toutesLesDemandes.stream()
+                .map(congeMapperService::toDemandeCongeDto)
+                .collect(Collectors.toList());
+            
+            logger.info("✅ {} demandes de congé récupérées pour consultation RH", demandesDto.size());
+            
+            return ResponseEntity.ok(demandesDto);
+            
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la récupération de toutes les demandes pour RH: {}", e.getMessage());
+            return ResponseEntity.internalServerError()
+                .body("Erreur lors de la récupération des demandes de congé");
+        }
     }
 
 }

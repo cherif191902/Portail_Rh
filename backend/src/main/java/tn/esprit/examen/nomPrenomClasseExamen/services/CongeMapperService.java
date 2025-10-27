@@ -2,6 +2,7 @@ package tn.esprit.examen.nomPrenomClasseExamen.services;
 
 import org.springframework.stereotype.Service;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.DemandeCongeDto;
+import tn.esprit.examen.nomPrenomClasseExamen.dto.DemandeCongeRHDTo;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.CongeRequestDto;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Conge;
 
@@ -103,5 +104,44 @@ public class CongeMapperService {
         }
         
         return conge;
+    }
+
+    /**
+     * Convertit une entité Conge vers un DTO DemandeCongeRHDTo pour la validation RH
+     */
+    public DemandeCongeRHDTo toDemandeCongeRHDTo(Conge conge) {
+        if (conge == null) return null;
+
+        DemandeCongeRHDTo dto = new DemandeCongeRHDTo();
+        dto.setId(conge.getIdConge());
+
+        // Informations de l'employé
+        if (conge.getPersonnel() != null) {
+            dto.setMatricule(conge.getPersonnel().getMatriculeP());
+            dto.setNomComplet(conge.getPersonnel().getNom() + " " + conge.getPersonnel().getPrenom());
+            dto.setService(conge.getPersonnel().getService() != null ?
+                          conge.getPersonnel().getService().getNomService() : "Non assigné");
+        }
+
+        dto.setDateDebut(conge.getDateDeb());
+        dto.setDateFin(conge.getDateFin());
+        dto.setMotif(conge.getMotif());
+
+        // Calculer le nombre de jours
+        if (conge.getDateDeb() != null && conge.getDateFin() != null) {
+            long jours = ChronoUnit.DAYS.between(conge.getDateDeb(), conge.getDateFin()) + 1;
+            dto.setNbJours((int) jours);
+        } else if (conge.getNbJours() != null) {
+            try {
+                dto.setNbJours(Integer.parseInt(conge.getNbJours()));
+            } catch (NumberFormatException e) {
+                dto.setNbJours(1);
+            }
+        }
+
+        dto.setStatutActuel(conge.getStatutConge() != null ? conge.getStatutConge().getLibelle() : "Inconnu");
+        dto.setTypeConge(conge.getTypeConge() != null ? conge.getTypeConge().getNomTypeconge() : "Non spécifié");
+
+        return dto;
     }
 }

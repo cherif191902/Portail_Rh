@@ -11,6 +11,8 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { NgbDropdownModule, NgbTooltipModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap'
 import { SimplebarAngularModule } from 'simplebar-angular';
 
+import { CongeApiService } from '../conges/conge-api.service';
+
 import { DefaultComponent } from './default/default.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { RhDashboardComponent } from './rh-dashboard/rh-dashboard.component';
@@ -37,6 +39,9 @@ import { ChartsModule } from 'ng2-charts';
     ChartModule,
     NgApexchartsModule,
     SimplebarAngularModule
+  ],
+  providers: [
+    CongeApiService
   ]
 })
 export class DashboardsModule { }

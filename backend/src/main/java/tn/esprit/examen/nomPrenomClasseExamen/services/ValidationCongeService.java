@@ -70,11 +70,9 @@ public class ValidationCongeService {
             case EN_ATTENTE_CHEF_A:
                 return traiterValidationChefA(conge, validateur, validationDto);
             
-            case APPROUVE_PAR_CHEF_A:
             case EN_ATTENTE_CHEF_B:
                 return traiterValidationChefB(conge, validateur, validationDto);
             
-            case APPROUVE_PAR_CHEF_B:
             case EN_ATTENTE_RH:
                 return traiterValidationRH(conge, validateur, validationDto);
             
@@ -94,32 +92,21 @@ public class ValidationCongeService {
             throw new IllegalArgumentException("Vous n'êtes pas autorisé à valider cette demande en tant que Chef A");
         }
         
+        // Appliquer la transition automatique de statut
+        StatutConge nouveauStatut = StatutConge.getNextStatus(conge.getStatutConge(), validationDto.getAction(), "CHEF_A");
+        conge.setStatutConge(nouveauStatut);
+        
         if (validationDto.estApprobation()) {
-            logger.info("✅ Chef A approuve la demande");
-            conge.setStatutConge(StatutConge.APPROUVE_PAR_CHEF_A);
+            logger.info("✅ Chef A approuve la demande - Nouveau statut: {}", nouveauStatut.getLibelle());
             conge.setRepChefsNiveau1("APPROUVE");
-            
-            // Assigner le Chef B si disponible
-            if (conge.getValidateurChefB() != null) {
-                conge.setStatutConge(StatutConge.EN_ATTENTE_CHEF_B);
-                logger.info("🔄 Demande transférée vers Chef B: {}", conge.getValidateurChefB().getNom());
-            } else {
-                // Pas de Chef B, passer directement au RH
-                conge.setStatutConge(StatutConge.EN_ATTENTE_RH);
-                logger.info("🔄 Pas de Chef B, demande transférée directement vers RH");
-            }
-            
         } else if (validationDto.estRefus()) {
-            logger.info("❌ Chef A refuse la demande");
-            conge.setStatutConge(StatutConge.REFUSE_PAR_CHEF_A);
+            logger.info("❌ Chef A refuse la demande - Nouveau statut: {}", nouveauStatut.getLibelle());
             conge.setRepChefsNiveau1("REFUSE");
-        } else {
-            throw new IllegalArgumentException("Action non reconnue: " + validationDto.getAction());
         }
         
         // Ajouter le commentaire
         if (validationDto.getCommentaire() != null && !validationDto.getCommentaire().trim().isEmpty()) {
-            conge.setRepChefsNiveau1(conge.getRepChefsNiveau1() + " - " + validationDto.getCommentaire());
+            conge.setCommentaire(validationDto.getCommentaire());
         }
         
         conge.setDateValidationChefA(LocalDateTime.now());
@@ -137,26 +124,21 @@ public class ValidationCongeService {
             throw new IllegalArgumentException("Vous n'êtes pas autorisé à valider cette demande en tant que Chef B");
         }
         
+        // Appliquer la transition automatique de statut
+        StatutConge nouveauStatut = StatutConge.getNextStatus(conge.getStatutConge(), validationDto.getAction(), "CHEF_B");
+        conge.setStatutConge(nouveauStatut);
+        
         if (validationDto.estApprobation()) {
-            logger.info("✅ Chef B approuve la demande");
-            conge.setStatutConge(StatutConge.APPROUVE_PAR_CHEF_B);
+            logger.info("✅ Chef B approuve la demande - Nouveau statut: {}", nouveauStatut.getLibelle());
             conge.setRepChefsNiveau2("APPROUVE");
-            
-            // Transférer vers RH
-            conge.setStatutConge(StatutConge.EN_ATTENTE_RH);
-            logger.info("🔄 Demande transférée vers RH");
-            
         } else if (validationDto.estRefus()) {
-            logger.info("❌ Chef B refuse la demande");
-            conge.setStatutConge(StatutConge.REFUSE_PAR_CHEF_B);
+            logger.info("❌ Chef B refuse la demande - Nouveau statut: {}", nouveauStatut.getLibelle());
             conge.setRepChefsNiveau2("REFUSE");
-        } else {
-            throw new IllegalArgumentException("Action non reconnue: " + validationDto.getAction());
         }
         
         // Ajouter le commentaire
         if (validationDto.getCommentaire() != null && !validationDto.getCommentaire().trim().isEmpty()) {
-            conge.setRepChefsNiveau2(conge.getRepChefsNiveau2() + " - " + validationDto.getCommentaire());
+            conge.setCommentaire(validationDto.getCommentaire());
         }
         
         conge.setDateValidationChefB(LocalDateTime.now());
@@ -177,24 +159,23 @@ public class ValidationCongeService {
             throw new IllegalArgumentException("Vous n'êtes pas autorisé à effectuer une validation RH");
         }
         
+        // Appliquer la transition automatique de statut
+        StatutConge nouveauStatut = StatutConge.getNextStatus(conge.getStatutConge(), validationDto.getAction(), "RH");
+        conge.setStatutConge(nouveauStatut);
+        
         if (validationDto.estApprobation()) {
-            logger.info("✅ RH approuve la demande");
-            conge.setStatutConge(StatutConge.APPROUVE_PAR_RH);
+            logger.info("✅ RH approuve la demande - Nouveau statut: {}", nouveauStatut.getLibelle());
             conge.setRepRh("APPROUVE");
             conge.setValidateurRh(validateur);
-            
         } else if (validationDto.estRefus()) {
-            logger.info("❌ RH refuse la demande");
-            conge.setStatutConge(StatutConge.REFUSE_PAR_RH);
+            logger.info("❌ RH refuse la demande - Nouveau statut: {}", nouveauStatut.getLibelle());
             conge.setRepRh("REFUSE");
             conge.setValidateurRh(validateur);
-        } else {
-            throw new IllegalArgumentException("Action non reconnue: " + validationDto.getAction());
         }
         
         // Ajouter le commentaire
         if (validationDto.getCommentaire() != null && !validationDto.getCommentaire().trim().isEmpty()) {
-            conge.setRepRh(conge.getRepRh() + " - " + validationDto.getCommentaire());
+            conge.setCommentaire(validationDto.getCommentaire());
         }
         
         conge.setDateValidationRh(LocalDateTime.now());
@@ -223,12 +204,10 @@ public class ValidationCongeService {
                            conge.getValidateurChefA().getId().equals(validateur.getId());
                 
                 case EN_ATTENTE_CHEF_B:
-                case APPROUVE_PAR_CHEF_A:
                     return conge.getValidateurChefB() != null && 
                            conge.getValidateurChefB().getId().equals(validateur.getId());
                 
                 case EN_ATTENTE_RH:
-                case APPROUVE_PAR_CHEF_B:
                     return validateur.getRoles().stream()
                         .anyMatch(role -> role.getNomRole().name().equals("ROLE_RH") || 
                                          role.getNomRole().name().equals("ROLE_ADMIN"));

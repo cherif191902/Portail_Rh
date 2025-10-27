@@ -3,15 +3,27 @@ import { forkJoin } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { TokenStorage } from 'src/app/core/services/tokenservice.service';
 import { RhService } from 'src/app/core/services/rh.service';
+import { CongeApiService } from 'src/app/pages/conges/conge-api.service';
 
 interface CongeVM {
+  id: number;
+  matricule: string;
+  nomComplet: string;
+  service: string;
+  dateDebut: string;
+  dateFin: string;
+  motif: string;
+  nbJours: number;
+  statutActuel: string;
+  typeConge: string;
+}
+
+interface DecisionVM {
   id: number;
   personnel?: any;
   dateDeb?: string;
   dateFin?: string;
   nbJours?: string;
-  repChefsNiveau1?: string;
-  repChefsNiveau2?: string;
   repRh?: string;
   motif?: string;
 }
@@ -43,7 +55,7 @@ export class RhDashboardComponent implements OnInit {
 
   services: any[] = [];
   pendingConges: CongeVM[] = [];
-  recentDecisions: CongeVM[] = [];
+  recentDecisions: DecisionVM[] = [];
 
   summaryCards: SummaryCard[] = [];
   quickActions: QuickAction[] = [];
@@ -54,6 +66,7 @@ export class RhDashboardComponent implements OnInit {
   constructor(
     private token: TokenStorage, 
     private rh: RhService,
+    private congeApiService: CongeApiService,
     private translate: TranslateService
   ) { }
 
@@ -112,7 +125,7 @@ export class RhDashboardComponent implements OnInit {
     this.errorMessage = '';
     forkJoin({
       services: this.rh.getServices(),
-      pending: this.rh.getPendingCongesRh(),
+      pending: this.congeApiService.getCongesEnAttenteRH(),
       history: this.rh.getHistoriqueRh()
     }).subscribe({
       next: ({ services, pending, history }) => {
@@ -200,10 +213,12 @@ export class RhDashboardComponent implements OnInit {
     switch (status) {
       case 'APPROUVE':
       case 'ACCEPTE':
+      case 'VALIDE':
         return 'success';
       case 'REFUSE':
         return 'danger';
       case 'EN_ATTENTE':
+      case 'EN_ATTENTE_RH':
         return 'warning';
       default:
         return 'secondary';
@@ -214,10 +229,13 @@ export class RhDashboardComponent implements OnInit {
     switch (status) {
       case 'APPROUVE':
       case 'ACCEPTE':
+      case 'VALIDE':
         return 'Accepté';
       case 'REFUSE':
         return 'Refusé';
       case 'EN_ATTENTE':
+      case 'EN_ATTENTE_RH':
+        return 'En attente';
       default:
         return 'En attente';
     }

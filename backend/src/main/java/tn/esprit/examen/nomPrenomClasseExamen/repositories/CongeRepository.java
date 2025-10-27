@@ -150,4 +150,8 @@ public interface CongeRepository extends JpaRepository<Conge, Long> {
     // Trouver tous les congés d'un service avec certains statuts
     @Query("SELECT c FROM Conge c WHERE c.personnel.service.idService = :serviceId AND c.statutConge IN :statuts")
     List<Conge> findByServiceAndStatutIn(@Param("serviceId") Long serviceId, @Param("statuts") java.util.List<StatutConge> statuts);
+    
+    // Récupérer toutes les demandes triées par date de création (plus récentes d'abord)
+    @Query("SELECT c FROM Conge c ORDER BY c.dateCong DESC")
+    List<Conge> findAllByOrderByDateCreationDesc();
 }

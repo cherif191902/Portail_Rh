@@ -11,6 +11,7 @@ import { NgbDropdownModule, NgbTooltipModule, NgbDatepickerModule } from '@ng-bo
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { NgxPaginationModule } from 'ngx-pagination';
 
+import { CongeApiService } from '../conges/conge-api.service';
 
 import { Ng2SearchPipeModule } from 'ng2-search-filter';
 import { EspaceRhComponent } from './espace-rh/espace-rh.component';
@@ -63,6 +64,9 @@ import { EmployesInfoComponent } from './employes-info/employes-info.component';
     Ng2SearchPipeModule,
     NgxPaginationModule,
     ReactiveFormsModule
+  ],
+  providers: [
+    CongeApiService
   ]
 })
 

@@ -62,29 +62,8 @@ function CongeValidateRhComponent_div_64_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", ctx_r3.errorMessage, " ");
 } }
-function CongeValidateRhComponent_div_65_table_1_tr_20_p_12_Template(rf, ctx) { if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "p", 77);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-} if (rf & 2) {
-    const demande_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]().$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" Mat: ", demande_r10.personnel.matricule, " ");
-} }
-function CongeValidateRhComponent_div_65_table_1_tr_20_div_49_Template(rf, ctx) { if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 78);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "button", 79);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](2, "i", 80);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3, " Info ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-} if (rf & 2) {
-    const demande_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]().$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵattribute"]("title", demande_r10.commentaire);
-} }
 function CongeValidateRhComponent_div_65_table_1_tr_20_Template(rf, ctx) { if (rf & 1) {
-    const _r17 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
+    const _r13 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "tr", 58);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "td");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "strong", 59);
@@ -102,120 +81,94 @@ function CongeValidateRhComponent_div_65_table_1_tr_20_Template(rf, ctx) { if (r
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](10, "h6", 63);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](11);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](12, CongeValidateRhComponent_div_65_table_1_tr_20_p_12_Template, 2, 1, "p", 64);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](13, "td");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](14, "span", 65);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](15, "i", 66);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](12, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](13, "span", 64);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](14);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](17, "td");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](18, "div", 67);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](19, "small");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](20, "strong");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](21, "Du:");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](15, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](16, "small", 65);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](18, "date");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](22);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](23, "date");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](24, "br");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](25, "small");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](26, "strong");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](27, "Au:");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](19, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](20, "small", 65);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](22, "date");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](23, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](24, "div", 66);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](26, "td");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](27, "span", 67);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](28);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](29, "date");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](29, "td", 68);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](30, "div", 69);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](31, "button", 70);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function CongeValidateRhComponent_div_65_table_1_tr_20_Template_button_click_31_listener() { const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r13); const demande_r10 = restoredCtx.$implicit; const ctx_r12 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](3); return ctx_r12.approuverConge(demande_r10.id); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](32, "i", 71);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](33, "Approuver ");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](30, "td");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](31, "span", 68);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](32);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](33, "td");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](34, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](35, "i", 69);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](36);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](37, "td");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](38, "small", 67);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](39);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](40, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](34, "button", 72);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function CongeValidateRhComponent_div_65_table_1_tr_20_Template_button_click_34_listener() { const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r13); const demande_r10 = restoredCtx.$implicit; const ctx_r14 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](3); return ctx_r14.refuserConge(demande_r10.id); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](35, "i", 73);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](36, "Refuser ");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](41, "td", 70);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](42, "div", 71);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](43, "button", 72);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function CongeValidateRhComponent_div_65_table_1_tr_20_Template_button_click_43_listener() { const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r17); const demande_r10 = restoredCtx.$implicit; const ctx_r16 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](3); return ctx_r16.validerDemande(demande_r10); });
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](44, "i", 73);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](45, "Valider ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](46, "button", 74);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function CongeValidateRhComponent_div_65_table_1_tr_20_Template_button_click_46_listener() { const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r17); const demande_r10 = restoredCtx.$implicit; const ctx_r18 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](3); return ctx_r18.refuserDemande(demande_r10); });
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](47, "i", 75);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](48, "Refuser ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](49, CongeValidateRhComponent_div_65_table_1_tr_20_div_49_Template, 4, 1, "div", 76);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
 } if (rf & 2) {
     const demande_r10 = ctx.$implicit;
-    const ctx_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](3);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"]("#", demande_r10.id == null ? null : demande_r10.id.toString().padStart(4, "0"), "");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](demande_r10.matricule);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](8);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](ctx_r9.getEmployeeName(demande_r10));
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", demande_r10.personnel == null ? null : demande_r10.personnel.matricule);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", demande_r10.typeConge, " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](23, 14, demande_r10.dateDebut, "dd/MM/yyyy"), "");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](29, 17, demande_r10.dateFin, "dd/MM/yyyy"), "");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", demande_r10.duree, " jour(s) ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵclassMap"](ctx_r9.getStatutBadgeClass(demande_r10.statut));
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵclassMap"](ctx_r9.getStatutIcon(demande_r10.statut));
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", demande_r10.statut, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](demande_r10.nomComplet);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](40, 20, demande_r10.dateDemande, "dd/MM/yyyy"));
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", demande_r10.commentaire);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", demande_r10.service, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](18, 8, demande_r10.dateDebut, "dd/MM/yyyy"));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](22, 11, demande_r10.dateFin, "dd/MM/yyyy"));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("title", demande_r10.motif);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", demande_r10.motif || "Non sp\u00E9cifi\u00E9", " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", demande_r10.statutActuel, " ");
 } }
 function CongeValidateRhComponent_div_65_table_1_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "table", 53);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "thead", 54);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "tr");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](3, "th", 55);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](4, "ID");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](4, "Matricule");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](5, "th", 55);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](6, "Employ\u00E9");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](6, "Nom & Pr\u00E9nom");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](7, "th", 55);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](8, "Type de cong\u00E9");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](8, "Service");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](9, "th", 55);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](10, "P\u00E9riode");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](10, "Date d\u00E9but");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](11, "th", 55);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](12, "Dur\u00E9e");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](12, "Date fin");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](13, "th", 55);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](14, "Statut");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](14, "Motif");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](15, "th", 55);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](16, "Date demande");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](16, "Statut");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](17, "th", 56);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](18, "Actions");
@@ -223,7 +176,7 @@ function CongeValidateRhComponent_div_65_table_1_Template(rf, ctx) { if (rf & 1)
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](19, "tbody");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](20, CongeValidateRhComponent_div_65_table_1_tr_20_Template, 50, 23, "tr", 57);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](20, CongeValidateRhComponent_div_65_table_1_tr_20_Template, 37, 14, "tr", 57);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
 } if (rf & 2) {
@@ -232,23 +185,23 @@ function CongeValidateRhComponent_div_65_table_1_Template(rf, ctx) { if (rf & 1)
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngForOf", ctx_r7.demandes);
 } }
 function CongeValidateRhComponent_div_65_div_2_Template(rf, ctx) { if (rf & 1) {
-    const _r20 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
+    const _r16 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 44);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "div", 81);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "div", 82);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](3, "i", 83);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "div", 74);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "div", 75);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](3, "i", 76);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "h5", 84);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "h5", 77);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](5, "Aucune demande en attente !");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](6, "p", 67);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](6, "p", 65);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](7, " Toutes les demandes de cong\u00E9s ont \u00E9t\u00E9 trait\u00E9es.");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](8, "br");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](9, " Les nouvelles demandes valid\u00E9es par les chefs appara\u00EEtront ici. ");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](10, "button", 85);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function CongeValidateRhComponent_div_65_div_2_Template_button_click_10_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r20); const ctx_r19 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2); return ctx_r19.actualiserListe(); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](10, "button", 78);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function CongeValidateRhComponent_div_65_div_2_Template_button_click_10_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r16); const ctx_r15 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2); return ctx_r15.actualiserListe(); });
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](11, "i", 28);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](12, "Actualiser la liste ");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
@@ -283,7 +236,7 @@ class CongeValidateRhComponent {
         this.isLoading = true;
         this.errorMessage = '';
         console.log('🔄 Chargement des demandes RH en attente...');
-        this.congeApiService.getDemandesRhHierarchique().subscribe({
+        this.congeApiService.getCongesEnAttenteRH().subscribe({
             next: (demandes) => {
                 this.demandes = demandes;
                 this.isLoading = false;
@@ -304,130 +257,84 @@ class CongeValidateRhComponent {
         });
     }
     /**
-     * Valide une demande de congé
+     * Approuve une demande de congé
      */
-    validerDemande(demande) {
+    approuverConge(id) {
         sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
-            title: 'Valider cette demande ?',
-            html: `
-        <div class="text-start">
-          <strong>Employé:</strong> ${this.getEmployeeName(demande)}<br>
-          <strong>Type:</strong> ${demande.typeConge}<br>
-          <strong>Période:</strong> du ${demande.dateDebut} au ${demande.dateFin}<br>
-          <strong>Durée:</strong> ${demande.duree} jour(s)
-        </div>
-      `,
-            input: 'textarea',
-            inputLabel: 'Commentaire de validation (optionnel)',
-            inputPlaceholder: 'Ajouter un commentaire...',
+            title: 'Approuver cette demande ?',
+            text: 'Cette action est irréversible.',
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonText: '✅ Valider',
+            confirmButtonText: '✅ Approuver',
             cancelButtonText: '❌ Annuler',
             confirmButtonColor: '#28a745',
-            preConfirm: (commentaire) => {
-                const validationData = {
-                    action: 'VALIDER',
-                    commentaire: commentaire || 'Demande validée par RH'
-                };
-                console.log('✅ Validation de la demande ID:', demande.id);
-                return this.congeApiService.validerRhHierarchique(demande.id, validationData).toPromise()
-                    .then(response => {
-                    console.log('✅ Demande validée avec succès:', response);
-                    return response;
-                })
-                    .catch(error => {
-                    console.error('❌ Erreur lors de la validation:', error);
-                    sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().showValidationMessage(`Erreur: ${error.message || 'Une erreur est survenue'}`);
-                });
-            }
         }).then((result) => {
-            if (result.isConfirmed && result.value) {
-                sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
-                    title: 'Validé !',
-                    text: `Demande approuvée avec succès. Nouveau statut: ${result.value.statut}`,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
+            if (result.isConfirmed) {
+                console.log('✅ Approbation de la demande ID:', id);
+                this.congeApiService.approuverConge(id).subscribe({
+                    next: (response) => {
+                        console.log('✅ Demande approuvée avec succès:', response);
+                        sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
+                            title: 'Approuvé !',
+                            text: response.message || 'Demande approuvée avec succès',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        // Recharger la liste
+                        this.loadDemandesEnAttenteRh();
+                    },
+                    error: (error) => {
+                        console.error('❌ Erreur lors de l\'approbation:', error);
+                        sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
+                            title: 'Erreur',
+                            text: error.message || 'Impossible d\'approuver la demande',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 });
-                // Recharger la liste
-                this.loadDemandesEnAttenteRh();
             }
         });
     }
     /**
      * Refuse une demande de congé
      */
-    refuserDemande(demande) {
+    refuserConge(id) {
         sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
             title: 'Refuser cette demande ?',
-            html: `
-        <div class="text-start">
-          <strong>Employé:</strong> ${this.getEmployeeName(demande)}<br>
-          <strong>Type:</strong> ${demande.typeConge}<br>
-          <strong>Période:</strong> du ${demande.dateDebut} au ${demande.dateFin}<br>
-          <strong>Durée:</strong> ${demande.duree} jour(s)
-        </div>
-      `,
-            input: 'textarea',
-            inputLabel: 'Motif du refus (obligatoire)',
-            inputPlaceholder: 'Veuillez préciser le motif du refus...',
-            inputValidator: (value) => {
-                if (!value || !value.trim()) {
-                    return 'Le motif du refus est obligatoire !';
-                }
-            },
+            text: 'Cette action est irréversible.',
+            icon: 'warning',
             showCancelButton: true,
             confirmButtonText: '🚫 Refuser',
             cancelButtonText: '❌ Annuler',
             confirmButtonColor: '#dc3545',
-            preConfirm: (motifRefus) => {
-                const validationData = {
-                    action: 'REFUSER',
-                    commentaire: motifRefus
-                };
-                console.log('❌ Refus de la demande ID:', demande.id);
-                return this.congeApiService.validerRhHierarchique(demande.id, validationData).toPromise()
-                    .then(response => {
-                    console.log('❌ Demande refusée avec succès:', response);
-                    return response;
-                })
-                    .catch(error => {
-                    console.error('❌ Erreur lors du refus:', error);
-                    sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().showValidationMessage(`Erreur: ${error.message || 'Une erreur est survenue'}`);
-                });
-            }
         }).then((result) => {
-            if (result.isConfirmed && result.value) {
-                sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
-                    title: 'Refusé !',
-                    text: `Demande refusée. Nouveau statut: ${result.value.statut}`,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
+            if (result.isConfirmed) {
+                console.log('❌ Refus de la demande ID:', id);
+                this.congeApiService.refuserCongeRh(id).subscribe({
+                    next: (response) => {
+                        console.log('❌ Demande refusée avec succès:', response);
+                        sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
+                            title: 'Refusée !',
+                            text: response.message || 'Demande refusée',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        // Recharger la liste
+                        this.loadDemandesEnAttenteRh();
+                    },
+                    error: (error) => {
+                        console.error('❌ Erreur lors du refus:', error);
+                        sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire({
+                            title: 'Erreur',
+                            text: error.message || 'Impossible de refuser la demande',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 });
-                // Recharger la liste
-                this.loadDemandesEnAttenteRh();
             }
         });
-    }
-    /**
-     * Obtient le nom complet de l'employé
-     */
-    getEmployeeName(demande) {
-        var _a, _b;
-        return ((_a = demande.personnel) === null || _a === void 0 ? void 0 : _a.nom) && ((_b = demande.personnel) === null || _b === void 0 ? void 0 : _b.prenom)
-            ? `${demande.personnel.nom} ${demande.personnel.prenom}`
-            : 'Nom non disponible';
-    }
-    /**
-     * Détermine la classe CSS pour le badge de statut
-     */
-    getStatutBadgeClass(statut) {
-        return this.congeApiService.getStatutBadgeClass(statut);
-    }
-    /**
-     * Détermine l'icône pour le statut
-     */
-    getStatutIcon(statut) {
-        return this.congeApiService.getStatutIcon(statut);
     }
     /**
      * Actualise la liste (méthode publique pour bouton refresh)
@@ -435,9 +342,38 @@ class CongeValidateRhComponent {
     actualiserListe() {
         this.loadDemandesEnAttenteRh();
     }
+    canValidate(demande) {
+        return demande.statutActuel === 'EN_ATTENTE_RH';
+    }
+    /**
+     * Retourne un message explicatif selon l'étape du workflow
+     */
+    getWorkflowMessage(demande) {
+        if (!demande || !demande.statutActuel) {
+            return 'Statut indéterminé';
+        }
+        switch (demande.statutActuel) {
+            case 'EN_ATTENTE_CHEF_A':
+                return 'En attente de validation par Chef A';
+            case 'EN_ATTENTE_CHEF_B':
+                return 'En attente de validation par Chef B';
+            case 'EN_ATTENTE_RH':
+                return 'Prêt pour validation RH';
+            case 'VALIDE':
+                return 'Demande validée';
+            case 'REFUSE_PAR_CHEF_A':
+                return 'Refusé par Chef A';
+            case 'REFUSE_PAR_CHEF_B':
+                return 'Refusé par Chef B';
+            case 'REFUSE_PAR_RH':
+                return 'Refusé par RH';
+            default:
+                return 'En cours de traitement...';
+        }
+    }
 }
 CongeValidateRhComponent.ɵfac = function CongeValidateRhComponent_Factory(t) { return new (t || CongeValidateRhComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdirectiveInject"](_pages_conges_conge_api_service__WEBPACK_IMPORTED_MODULE_1__.CongeApiService)); };
-CongeValidateRhComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({ type: CongeValidateRhComponent, selectors: [["app-conge-validate-rh"]], decls: 66, vars: 9, consts: [[1, "container-fluid"], [1, "row"], [1, "col-12"], [1, "page-title-box", "d-sm-flex", "align-items-center", "justify-content-between"], [1, "mb-sm-0", "font-size-18"], [1, "bx", "bx-check-circle", "me-2"], [1, "page-title-right"], [1, "breadcrumb", "m-0"], [1, "breadcrumb-item"], ["href", "javascript: void(0);"], [1, "breadcrumb-item", "active"], [1, "col-xl-4", "col-md-6"], [1, "card", "mini-stats-wid"], [1, "card-body"], [1, "media"], [1, "media-body"], [1, "text-muted", "fw-medium"], [1, "mb-0", "text-primary"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-primary", "align-self-center"], [1, "avatar-title"], [1, "bx", "bx-time", "font-size-24"], [1, "mb-0", "text-success"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-success", "align-self-center"], [1, "bx", "bx-check-shield", "font-size-24"], [1, "d-flex"], [1, "flex-grow-1"], [1, "text-muted", "fw-medium", "mb-2"], [1, "btn", "btn-outline-primary", "btn-sm", 3, "disabled", "click"], [1, "bx", "bx-refresh", "me-1"], [1, "align-self-center"], [1, "bx", "bx-cog", "font-size-24", "text-muted"], [1, "card"], [1, "card-header"], [1, "d-flex", "align-items-center"], [1, "card-title", "mb-0", "flex-grow-1"], [1, "bx", "bx-list-ul", "me-2"], [1, "flex-shrink-0"], ["class", "badge bg-warning fs-12", 4, "ngIf"], ["class", "badge bg-success fs-12", 4, "ngIf"], ["class", "text-center py-5", 4, "ngIf"], ["class", "alert alert-danger", "role", "alert", 4, "ngIf"], ["class", "table-responsive", 4, "ngIf"], [1, "badge", "bg-warning", "fs-12"], [1, "badge", "bg-success", "fs-12"], [1, "text-center", "py-5"], ["role", "status", 1, "spinner-border", "text-primary"], [1, "sr-only"], [1, "mt-3", "text-muted"], ["role", "alert", 1, "alert", "alert-danger"], [1, "bx", "bx-error-circle", "me-2"], [1, "btn", "btn-outline-danger", "btn-sm", "ms-3", 3, "click"], [1, "table-responsive"], ["class", "table table-hover align-middle mb-0", 4, "ngIf"], [1, "table", "table-hover", "align-middle", "mb-0"], [1, "table-light"], ["scope", "col"], ["scope", "col", 1, "text-center"], ["class", "align-middle", 4, "ngFor", "ngForOf"], [1, "align-middle"], [1, "text-primary"], [1, "avatar-xs", "me-3"], [1, "avatar-title", "rounded-circle", "bg-soft-primary", "text-primary"], [1, "bx", "bx-user", "font-size-16"], [1, "mb-0", "font-size-14"], ["class", "text-muted font-size-12 mb-0", 4, "ngIf"], [1, "badge", "bg-soft-info", "text-info"], [1, "bx", "bx-calendar", "me-1"], [1, "text-muted"], [1, "badge", "bg-soft-secondary", "text-secondary"], [1, "me-1"], [1, "text-center"], ["role", "group", 1, "btn-group"], ["type", "button", "title", "Valider cette demande", 1, "btn", "btn-success", "btn-sm", 3, "click"], [1, "bx", "bx-check", "me-1"], ["type", "button", "title", "Refuser cette demande", 1, "btn", "btn-danger", "btn-sm", 3, "click"], [1, "bx", "bx-x", "me-1"], ["class", "mt-2", 4, "ngIf"], [1, "text-muted", "font-size-12", "mb-0"], [1, "mt-2"], ["data-bs-toggle", "tooltip", 1, "btn", "btn-outline-info", "btn-xs"], [1, "bx", "bx-info-circle"], [1, "avatar-md", "mx-auto", "mb-4"], [1, "avatar-title", "bg-light", "rounded-circle", "text-success", "h1"], [1, "bx", "bx-check-double"], [1, "text-success"], [1, "btn", "btn-outline-primary", 3, "click"]], template: function CongeValidateRhComponent_Template(rf, ctx) { if (rf & 1) {
+CongeValidateRhComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({ type: CongeValidateRhComponent, selectors: [["app-conge-validate-rh"]], decls: 66, vars: 9, consts: [[1, "container-fluid"], [1, "row"], [1, "col-12"], [1, "page-title-box", "d-sm-flex", "align-items-center", "justify-content-between"], [1, "mb-sm-0", "font-size-18"], [1, "bx", "bx-check-circle", "me-2"], [1, "page-title-right"], [1, "breadcrumb", "m-0"], [1, "breadcrumb-item"], ["href", "javascript: void(0);"], [1, "breadcrumb-item", "active"], [1, "col-xl-4", "col-md-6"], [1, "card", "mini-stats-wid"], [1, "card-body"], [1, "media"], [1, "media-body"], [1, "text-muted", "fw-medium"], [1, "mb-0", "text-primary"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-primary", "align-self-center"], [1, "avatar-title"], [1, "bx", "bx-time", "font-size-24"], [1, "mb-0", "text-success"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-success", "align-self-center"], [1, "bx", "bx-check-shield", "font-size-24"], [1, "d-flex"], [1, "flex-grow-1"], [1, "text-muted", "fw-medium", "mb-2"], [1, "btn", "btn-outline-primary", "btn-sm", 3, "disabled", "click"], [1, "bx", "bx-refresh", "me-1"], [1, "align-self-center"], [1, "bx", "bx-cog", "font-size-24", "text-muted"], [1, "card"], [1, "card-header"], [1, "d-flex", "align-items-center"], [1, "card-title", "mb-0", "flex-grow-1"], [1, "bx", "bx-list-ul", "me-2"], [1, "flex-shrink-0"], ["class", "badge bg-warning fs-12", 4, "ngIf"], ["class", "badge bg-success fs-12", 4, "ngIf"], ["class", "text-center py-5", 4, "ngIf"], ["class", "alert alert-danger", "role", "alert", 4, "ngIf"], ["class", "table-responsive", 4, "ngIf"], [1, "badge", "bg-warning", "fs-12"], [1, "badge", "bg-success", "fs-12"], [1, "text-center", "py-5"], ["role", "status", 1, "spinner-border", "text-primary"], [1, "sr-only"], [1, "mt-3", "text-muted"], ["role", "alert", 1, "alert", "alert-danger"], [1, "bx", "bx-error-circle", "me-2"], [1, "btn", "btn-outline-danger", "btn-sm", "ms-3", 3, "click"], [1, "table-responsive"], ["class", "table table-hover align-middle mb-0", 4, "ngIf"], [1, "table", "table-hover", "align-middle", "mb-0"], [1, "table-light"], ["scope", "col"], ["scope", "col", 1, "text-center"], ["class", "align-middle", 4, "ngFor", "ngForOf"], [1, "align-middle"], [1, "text-primary"], [1, "avatar-xs", "me-3"], [1, "avatar-title", "rounded-circle", "bg-soft-primary", "text-primary"], [1, "bx", "bx-user", "font-size-16"], [1, "mb-0", "font-size-14"], [1, "badge", "bg-soft-secondary", "text-secondary"], [1, "text-muted"], [1, "text-truncate", 2, "max-width", "150px", 3, "title"], [1, "badge", "bg-warning", "text-dark"], [1, "text-center"], ["role", "group", 1, "btn-group"], ["type", "button", "title", "Approuver cette demande", 1, "btn", "btn-success", "btn-sm", 3, "click"], [1, "bx", "bx-check", "me-1"], ["type", "button", "title", "Refuser cette demande", 1, "btn", "btn-danger", "btn-sm", 3, "click"], [1, "bx", "bx-x", "me-1"], [1, "avatar-md", "mx-auto", "mb-4"], [1, "avatar-title", "bg-light", "rounded-circle", "text-success", "h1"], [1, "bx", "bx-check-double"], [1, "text-success"], [1, "btn", "btn-outline-primary", 3, "click"]], template: function CongeValidateRhComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "div", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "div", 2);

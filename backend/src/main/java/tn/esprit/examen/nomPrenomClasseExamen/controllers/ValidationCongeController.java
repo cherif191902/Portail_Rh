@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.ValidationCongeDto;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.CongeDTO;
 import tn.esprit.examen.nomPrenomClasseExamen.dto.PersonnelMapper;
+
+import java.util.Map;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Conge;
 import tn.esprit.examen.nomPrenomClasseExamen.entities.Personnel;
 import tn.esprit.examen.nomPrenomClasseExamen.repositories.CongeRepository;
@@ -412,7 +414,9 @@ public class ValidationCongeController {
     @PostMapping("/{congeId}/valider")
     @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B') or hasRole('RH') or hasRole('ADMIN')")
     public ResponseEntity<?> validerConge(@PathVariable Long congeId, @RequestBody ValidationCongeDto validationDto) {
-        logger.info("🔍 Validation générique pour congé ID: {} - Action: {}", congeId, validationDto.getAction());
+        logger.info("🔍 Validation générique pour congé ID: {} - Action: {} - Commentaire: {}", 
+                   congeId, validationDto.getAction(), validationDto.getCommentaire());
+        logger.info("📋 DTO reçu: {}", validationDto);
 
         Optional<Personnel> currentUser = getCurrentPersonnel();
         if (currentUser.isEmpty()) {
@@ -422,13 +426,111 @@ public class ValidationCongeController {
         try {
             Conge congeValide = validationCongeService.validerConge(congeId, currentUser.get().getMatriculeP(), validationDto);
             logger.info("✅ Validation réussie pour congé ID: {}", congeId);
-            return ResponseEntity.ok(congeValide);
+            
+            // Utiliser le mapper pour éviter les références circulaires
+            PersonnelMapper mapper = new PersonnelMapper();
+            CongeDTO congeDTO = mapper.toCongeDTO(congeValide);
+            
+            return ResponseEntity.ok(congeDTO);
         } catch (IllegalArgumentException e) {
             logger.warn("⚠️ Erreur de validation: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             logger.error("❌ Erreur inattendue lors de la validation: {}", e.getMessage());
             return ResponseEntity.internalServerError().body("Erreur lors de la validation");
+        }
+    }
+    
+    /**
+     * Endpoint de diagnostic pour vérifier l'utilisateur connecté
+     */
+    @GetMapping("/debug/current-user")
+    @PreAuthorize("hasRole('CHEF_A') or hasRole('CHEF_B') or hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> getCurrentUserDebug() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        logger.info("🔍 Debug auth - Name: {}, Authorities: {}", auth.getName(), auth.getAuthorities());
+        
+        Optional<Personnel> currentUser = getCurrentPersonnel();
+        if (currentUser.isEmpty()) {
+            return ResponseEntity.badRequest().body("Utilisateur non trouvé pour: " + auth.getName());
+        }
+        
+        Personnel user = currentUser.get();
+        logger.info("👤 User trouvé: {} {} - Matricule: {}", user.getNom(), user.getPrenom(), user.getMatriculeP());
+        logger.info("🎭 Rôles: {}", user.getRoles().stream().map(r -> r.getNomRole().name()).toList());
+        
+        return ResponseEntity.ok(Map.of(
+            "matricule", user.getMatriculeP(),
+            "nom", user.getNom(),
+            "prenom", user.getPrenom(),
+            "roles", user.getRoles().stream().map(r -> r.getNomRole().name()).toList(),
+            "service", user.getService() != null ? user.getService().getNomService() : "Aucun"
+        ));
+    }
+
+    /**
+     * Approuve une demande de congé en attente de validation RH
+     */
+    @PostMapping("/{id}/approuver")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> approuverConge(@PathVariable Long id) {
+        logger.info("✅ Tentative d'approbation de la demande de congé ID: {}", id);
+
+        try {
+            Optional<Personnel> currentUser = getCurrentPersonnel();
+            if (currentUser.isEmpty()) {
+                return ResponseEntity.badRequest().body("Utilisateur non authentifié");
+            }
+
+            ValidationCongeDto validationDto = new ValidationCongeDto("APPROUVER", "Approuvé par RH");
+            Conge conge = validationCongeService.validerConge(id, currentUser.get().getMatriculeP(), validationDto);
+
+            logger.info("✅ Demande de congé ID: {} approuvée par RH", id);
+            return ResponseEntity.ok(Map.of(
+                "message", "Demande de congé approuvée avec succès",
+                "statut", conge.getStatutConge().getLibelle(),
+                "id", conge.getIdConge()
+            ));
+
+        } catch (IllegalArgumentException e) {
+            logger.warn("⚠️ Erreur de validation pour l'approbation ID: {} - {}", id, e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de l'approbation de la demande ID: {}", id, e);
+            return ResponseEntity.internalServerError().body("Erreur lors de l'approbation de la demande");
+        }
+    }
+
+    /**
+     * Refuse une demande de congé en attente de validation RH
+     */
+    @PostMapping("/{id}/refuser")
+    @PreAuthorize("hasRole('RH') or hasRole('ADMIN')")
+    public ResponseEntity<?> refuserConge(@PathVariable Long id) {
+        logger.info("❌ Tentative de refus de la demande de congé ID: {}", id);
+
+        try {
+            Optional<Personnel> currentUser = getCurrentPersonnel();
+            if (currentUser.isEmpty()) {
+                return ResponseEntity.badRequest().body("Utilisateur non authentifié");
+            }
+
+            ValidationCongeDto validationDto = new ValidationCongeDto("REFUSER", "Refusé par RH");
+            Conge conge = validationCongeService.validerConge(id, currentUser.get().getMatriculeP(), validationDto);
+
+            logger.info("❌ Demande de congé ID: {} refusée par RH", id);
+            return ResponseEntity.ok(Map.of(
+                "message", "Demande de congé refusée",
+                "statut", conge.getStatutConge().getLibelle(),
+                "id", conge.getIdConge()
+            ));
+
+        } catch (IllegalArgumentException e) {
+            logger.warn("⚠️ Erreur de validation pour le refus ID: {} - {}", id, e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors du refus de la demande ID: {}", id, e);
+            return ResponseEntity.internalServerError().body("Erreur lors du refus de la demande");
         }
     }
 }

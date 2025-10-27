@@ -11,14 +11,14 @@ export interface CongeRequest {
   dateFin: string;   // Format ISO date
   duree?: number;
   commentaire?: string;
-  statut?: 'EN_ATTENTE_CHEF_A' | 'EN_ATTENTE_CHEF_B' | 'EN_ATTENTE_RH' | 'APPROUVE' | 
+  statut?: 'EN_ATTENTE_CHEF_A' | 'EN_ATTENTE_CHEF_B' | 'EN_ATTENTE_RH' | 'VALIDE' | 
            'REFUSE_PAR_CHEF_A' | 'REFUSE_PAR_CHEF_B' | 'REFUSE_PAR_RH' | 'EN_ATTENTE' | 'REFUSE' | 'ANNULE';
   dateDemande?: string;
   motifRefus?: string;
 }
 
 export interface ValidationCongeRequest {
-  action: 'VALIDER' | 'REFUSER';
+  action: 'APPROUVER' | 'REFUSER';
   commentaire?: string;
 }
 
@@ -33,6 +33,19 @@ export interface CongeResponse {
   commentaire?: string;
   motifRefus?: string;
   personnel?: any;
+}
+
+export interface CongeRhResponse {
+  id: number;
+  matricule: string;
+  nomComplet: string;
+  service: string;
+  dateDebut: string;
+  dateFin: string;
+  motif: string;
+  nbJours: number;
+  statutActuel: string;
+  typeConge: string;
 }
 
 export interface ApiResponse<T> {
@@ -432,7 +445,7 @@ export class CongeApiService {
   /**
    * Détermine si l'utilisateur peut valider une demande selon son rôle et le statut de la demande
    */
-  peutValider(conge: CongeResponse): boolean {
+  peutValiderLegacy(conge: CongeResponse): boolean {
     const userRoles = this.getCurrentUserRoles();
     
     switch (conge.statut) {
@@ -574,7 +587,7 @@ export class CongeApiService {
   }
 
   /**
-   * Récupère les demandes en attente pour RH (nouveau endpoint)
+   * Récupère les demandes en attente pour RH (ancien endpoint)
    */
   getDemandesRhHierarchique(): Observable<CongeResponse[]> {
     return this.http.get<CongeResponse[]>(
@@ -586,6 +599,46 @@ export class CongeApiService {
         return response;
       }),
       catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Récupère toutes les demandes de congé en attente de validation RH (nouveau workflow)
+   */
+  getCongesEnAttenteRH(): Observable<CongeRhResponse[]> {
+    const url = `${this.API_BASE_URL}/conge/en-attente/rh`;
+    console.log('🔄 Récupération des demandes RH en attente depuis:', url);
+    
+    return this.http.get<CongeRhResponse[]>(url, this.getAuthHeaders()).pipe(
+      map(response => {
+        console.log('✅ Demandes RH en attente récupérées:', response.length);
+        console.log('📋 Détail des demandes:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('❌ Erreur récupération demandes RH:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Récupère TOUTES les demandes de congé pour consultation RH avec historique complet
+   */
+  getAllCongesForRH(): Observable<CongeResponse[]> {
+    const url = `${this.API_BASE_URL}/conge/all-for-rh`;
+    console.log('🔄 Récupération de toutes les demandes pour RH depuis:', url);
+    
+    return this.http.get<CongeResponse[]>(url, this.getAuthHeaders()).pipe(
+      map(response => {
+        console.log('✅ Toutes les demandes RH récupérées:', response.length);
+        console.log('📋 Détail complet des demandes:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('❌ Erreur récupération toutes demandes RH:', error);
+        return throwError(() => error);
+      })
     );
   }
 
@@ -644,8 +697,14 @@ export class CongeApiService {
    * Endpoint universel de validation/refus selon le rôle
    */
   validerCongeUniversel(congeId: number, validationData: ValidationCongeRequest): Observable<CongeResponse> {
+    const url = `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/${congeId}/valider`;
+    console.log('🚀 Envoi requête de validation:');
+    console.log('URL:', url);
+    console.log('Données:', validationData);
+    console.log('Headers:', this.getAuthHeaders());
+    
     return this.http.post<CongeResponse>(
-      `${this.API_BASE_URL}${this.VALIDATION_ENDPOINT}/${congeId}/valider`,
+      url,
       validationData,
       this.getAuthHeaders()
     ).pipe(
@@ -655,5 +714,105 @@ export class CongeApiService {
       }),
       catchError(this.handleError)
     );
+  }
+
+  /**
+   * Approuve une demande de congé (spécifique RH)
+   */
+  approuverConge(congeId: number): Observable<any> {
+    const url = `${this.API_BASE_URL}/conge/validation/${congeId}/approuver`;
+    console.log('✅ Approbation de la demande ID:', congeId, 'URL:', url);
+    
+    return this.http.post<any>(url, {}, this.getAuthHeaders()).pipe(
+      map(response => {
+        console.log('✅ Demande approuvée avec succès:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors de l\'approbation:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Refuse une demande de congé (spécifique RH)
+   */
+  refuserCongeRh(congeId: number): Observable<any> {
+    const url = `${this.API_BASE_URL}/conge/validation/${congeId}/refuser`;
+    console.log('❌ Refus de la demande ID:', congeId, 'URL:', url);
+    
+    return this.http.post<any>(url, {}, this.getAuthHeaders()).pipe(
+      map(response => {
+        console.log('❌ Demande refusée avec succès:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('❌ Erreur lors du refus:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Détermine si un utilisateur peut valider une demande selon son rôle et le statut
+   */
+  peutValider(conge: CongeResponse, userRole: string): boolean {
+    if (!conge.statut) return false;
+
+    switch (userRole.toUpperCase()) {
+      case 'CHEF_A':
+      case 'CHEF_SERVICE':
+        return conge.statut === 'EN_ATTENTE_CHEF_A';
+      
+      case 'CHEF_B':
+        return conge.statut === 'EN_ATTENTE_CHEF_B';
+      
+      case 'RH':
+        return conge.statut === 'EN_ATTENTE_RH';
+      
+      case 'ADMIN':
+        return conge.statut.includes('EN_ATTENTE');
+      
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Retourne le libellé approprié pour le statut
+   */
+  getStatutLibelle(statut: string): string {
+    const statutsMap: { [key: string]: string } = {
+      'EN_ATTENTE_CHEF_A': 'En attente Chef A',
+      'EN_ATTENTE_CHEF_B': 'En attente Chef B',
+      'EN_ATTENTE_RH': 'En attente RH',
+      'VALIDE': 'Validé',
+      'REFUSE_PAR_CHEF_A': 'Refusé par Chef A',
+      'REFUSE_PAR_CHEF_B': 'Refusé par Chef B',
+      'REFUSE_PAR_RH': 'Refusé par RH'
+    };
+    
+    return statutsMap[statut] || statut;
+  }
+
+  /**
+   * Détermine la couleur d'affichage selon le statut
+   */
+  getStatutColor(statut: string): string {
+    switch (statut) {
+      case 'VALIDE':
+        return 'success';
+      case 'EN_ATTENTE_CHEF_A':
+      case 'EN_ATTENTE_CHEF_B':
+      case 'EN_ATTENTE_RH':
+        return 'warning';
+      case 'REFUSE_PAR_CHEF_A':
+      case 'REFUSE_PAR_CHEF_B':
+      case 'REFUSE_PAR_RH':
+        return 'danger';
+      default:
+        return 'secondary';
+    }
   }
 }
