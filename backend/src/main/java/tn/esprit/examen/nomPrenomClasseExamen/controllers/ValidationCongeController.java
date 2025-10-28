@@ -261,14 +261,27 @@ public class ValidationCongeController {
             
             // Déterminer le type de demandes selon le rôle
             if (user.getRoles().stream().anyMatch(r -> r.getNomRole().name().equals("ROLE_RH"))) {
-                demandes = congeRepository.findAllPendingForRh();
+                // RH voit toutes les demandes en attente de validation RH
+                demandes = congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_RH);
+                logger.info("🎯 Rôle RH détecté - recherche demandes EN_ATTENTE_RH");
             } else if (user.getRoles().stream().anyMatch(r -> r.getNomRole().name().equals("ROLE_CHEF_B"))) {
-                demandes = congeRepository.findPendingForChefB(user.getId());
+                // Chef B voit toutes les demandes en attente de validation Chef B
+                demandes = congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_B);
+                logger.info("🎯 Rôle CHEF_B détecté - recherche demandes EN_ATTENTE_CHEF_B");
             } else if (user.getRoles().stream().anyMatch(r -> r.getNomRole().name().equals("ROLE_CHEF_A"))) {
-                demandes = congeRepository.findPendingForChefA(user.getId());
+                // Chef A voit toutes les demandes en attente de validation Chef A
+                demandes = congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_A);
+                logger.info("🎯 Rôle CHEF_A détecté - recherche demandes EN_ATTENTE_CHEF_A");
+            } else if (user.getRoles().stream().anyMatch(r -> r.getNomRole().name().equals("ROLE_ADMIN"))) {
+                // Admin voit toutes les demandes en attente
+                demandes = List.of();
+                demandes.addAll(congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_A));
+                demandes.addAll(congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_CHEF_B));
+                demandes.addAll(congeRepository.findByStatutConge(tn.esprit.examen.nomPrenomClasseExamen.entities.StatutConge.EN_ATTENTE_RH));
+                logger.info("🎯 Rôle ADMIN détecté - recherche toutes les demandes en attente");
             }
             
-            logger.info("✅ {} demandes trouvées pour l'utilisateur", demandes.size());
+            logger.info("✅ {} demandes trouvées pour l'utilisateur {}", demandes.size(), user.getMatriculeP());
             
             // Utiliser le mapper pour éviter les références circulaires
             PersonnelMapper mapper = new PersonnelMapper();

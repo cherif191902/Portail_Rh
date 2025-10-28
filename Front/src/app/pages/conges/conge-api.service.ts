@@ -11,7 +11,7 @@ export interface CongeRequest {
   dateFin: string;   // Format ISO date
   duree?: number;
   commentaire?: string;
-  statut?: 'EN_ATTENTE_CHEF_A' | 'EN_ATTENTE_CHEF_B' | 'EN_ATTENTE_RH' | 'VALIDE' | 
+  statut?: 'EN_ATTENTE_CHEF_A' | 'EN_ATTENTE_CHEF_B' | 'EN_ATTENTE_RH' | 'APPROUVE_RH' | 
            'REFUSE_PAR_CHEF_A' | 'REFUSE_PAR_CHEF_B' | 'REFUSE_PAR_RH' | 'EN_ATTENTE' | 'REFUSE' | 'ANNULE';
   dateDemande?: string;
   motifRefus?: string;
@@ -760,20 +760,19 @@ export class CongeApiService {
   peutValider(conge: CongeResponse, userRole: string): boolean {
     if (!conge.statut) return false;
 
-    switch (userRole.toUpperCase()) {
-      case 'CHEF_A':
-      case 'CHEF_SERVICE':
+    switch (userRole) {
+      case 'ROLE_CHEF_A':
         return conge.statut === 'EN_ATTENTE_CHEF_A';
-      
-      case 'CHEF_B':
+
+      case 'ROLE_CHEF_B':
         return conge.statut === 'EN_ATTENTE_CHEF_B';
-      
-      case 'RH':
+
+      case 'ROLE_RH':
         return conge.statut === 'EN_ATTENTE_RH';
-      
-      case 'ADMIN':
+
+      case 'ROLE_ADMIN':
         return conge.statut.includes('EN_ATTENTE');
-      
+
       default:
         return false;
     }

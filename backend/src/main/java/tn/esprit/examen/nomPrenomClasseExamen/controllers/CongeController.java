@@ -780,6 +780,25 @@ public class CongeController {
     }
 
     /**
+     * Endpoint pour exécuter la migration des statuts de congé
+     */
+    @PostMapping("/migrate-status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> migrateCongesStatus() {
+        logger.info("🔄 Déclenchement de la migration des statuts de congé...");
+
+        try {
+            dataInitializationService.migrerStatutsConges();
+            return ResponseEntity.ok("Migration des statuts de congé terminée avec succès");
+
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la migration: {}", e.getMessage());
+            return ResponseEntity.internalServerError()
+                .body("Erreur lors de la migration: " + e.getMessage());
+        }
+    }
+
+    /**
      * Récupère toutes les demandes de congé pour consultation RH avec historique complet
      */
     @GetMapping("/all-for-rh")

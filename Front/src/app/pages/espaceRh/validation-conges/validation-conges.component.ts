@@ -249,7 +249,7 @@ export class ValidationCongesComponent implements OnInit {
         return 'En attente de validation par Chef B';
       case 'EN_ATTENTE_RH':
         return 'Prêt pour validation RH';
-      case 'VALIDE':
+      case 'APPROUVE_RH':
         return 'Demande validée';
       case 'REFUSE_PAR_CHEF_A':
         return 'Refusé par Chef A';
@@ -267,15 +267,12 @@ export class ValidationCongesComponent implements OnInit {
    */
   getValidationBadgeClass(statut: string): string {
     switch (statut) {
-      case 'APPROUVE':
-      case 'VALIDE':
+      case 'APPROUVE_RH':
         return 'bg-success';
-      case 'REFUSE':
       case 'REFUSE_PAR_CHEF_A':
       case 'REFUSE_PAR_CHEF_B':
       case 'REFUSE_PAR_RH':
         return 'bg-danger';
-      case 'EN_ATTENTE':
       case 'EN_ATTENTE_CHEF_A':
       case 'EN_ATTENTE_CHEF_B':
       case 'EN_ATTENTE_RH':
@@ -286,23 +283,39 @@ export class ValidationCongesComponent implements OnInit {
   }
 
   /**
+   * Détermine si les boutons d'action doivent être affichés pour une demande
+   */
+  canShowActionButtons(demande: CongeResponse): boolean {
+    return demande.statut === 'EN_ATTENTE_RH';
+  }
+
+  /**
+   * Détermine si le bouton approuver doit être affiché
+   */
+  canApprove(demande: CongeResponse): boolean {
+    return demande.statut === 'EN_ATTENTE_RH';
+  }
+
+  /**
+   * Détermine si le bouton refuser doit être affiché
+   */
+  canReject(demande: CongeResponse): boolean {
+    return demande.statut === 'EN_ATTENTE_RH';
+  }
+
+  /**
    * Retourne le libellé pour une validation spécifique
    */
   getValidationLabel(statut: string): string {
     switch (statut) {
-      case 'APPROUVE':
-        return '✅ Approuvé';
-      case 'VALIDE':
+      case 'APPROUVE_RH':
         return '✅ Validé';
-      case 'REFUSE':
-        return '❌ Refusé';
       case 'REFUSE_PAR_CHEF_A':
         return '❌ Refusé';
       case 'REFUSE_PAR_CHEF_B':
         return '❌ Refusé';
       case 'REFUSE_PAR_RH':
         return '❌ Refusé';
-      case 'EN_ATTENTE':
       case 'EN_ATTENTE_CHEF_A':
       case 'EN_ATTENTE_CHEF_B':
       case 'EN_ATTENTE_RH':

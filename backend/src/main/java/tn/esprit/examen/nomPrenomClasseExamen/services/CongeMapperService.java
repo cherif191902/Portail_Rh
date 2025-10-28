@@ -49,22 +49,48 @@ public class CongeMapperService {
      * Détermine le statut final d'une demande de congé
      */
     private String determinerStatutFinal(Conge conge) {
-        // Si refusé à n'importe quel niveau
-        if ("REFUSE".equals(conge.getRepChefsNiveau1()) || 
-            "REFUSE".equals(conge.getRepChefsNiveau2()) || 
-            "REFUSE".equals(conge.getRepRh())) {
-            return "REFUSE";
+        // Utiliser le statut canonique de l'entité si disponible
+        if (conge.getStatutConge() != null) {
+            return conge.getStatutConge().name();
         }
-        
+
+        // Fallback vers la logique de workflow si le statut n'est pas défini
+        // Déterminer le statut selon le workflow hiérarchique
+
+        // Si refusé à n'importe quel niveau, déterminer qui a refusé
+        if ("REFUSE".equals(conge.getRepChefsNiveau1())) {
+            return "REFUSE_PAR_CHEF_A";
+        }
+        if ("REFUSE".equals(conge.getRepChefsNiveau2())) {
+            return "REFUSE_PAR_CHEF_B";
+        }
+        if ("REFUSE".equals(conge.getRepRh())) {
+            return "REFUSE_PAR_RH";
+        }
+
         // Si approuvé à tous les niveaux
-        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) && 
-            "APPROUVE".equals(conge.getRepChefsNiveau2()) && 
+        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) &&
+            "APPROUVE".equals(conge.getRepChefsNiveau2()) &&
             "APPROUVE".equals(conge.getRepRh())) {
-            return "APPROUVE";
+            return "APPROUVE_RH";
         }
-        
-        // Sinon, en attente
-        return "EN_ATTENTE";
+
+        // Déterminer l'état d'attente selon le workflow
+        if ("EN_ATTENTE".equals(conge.getRepChefsNiveau1())) {
+            return "EN_ATTENTE_CHEF_A";
+        }
+        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) &&
+            "EN_ATTENTE".equals(conge.getRepChefsNiveau2())) {
+            return "EN_ATTENTE_CHEF_B";
+        }
+        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) &&
+            "APPROUVE".equals(conge.getRepChefsNiveau2()) &&
+            "EN_ATTENTE".equals(conge.getRepRh())) {
+            return "EN_ATTENTE_RH";
+        }
+
+        // Par défaut, en attente du premier niveau
+        return "EN_ATTENTE_CHEF_A";
     }
 
     /**

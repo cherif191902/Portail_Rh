@@ -904,9 +904,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ 83981);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ 85029);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/operators */ 29026);
 /* harmony import */ var _environments_environment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../environments/environment */ 18260);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 14001);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 14001);
 /* harmony import */ var _tokenservice_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./tokenservice.service */ 73565);
 
 
@@ -927,19 +926,8 @@ class Auth2Service {
     login(body) {
         return this.http.post(`${this.AUTH_API}signin`, body, httpOptions).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_3__.tap)(data => {
             this.tokenStorage.saveToken(data.token);
-            // Sauvegarder temporairement les données de base
             this.tokenStorage.saveUser(data);
-        }), 
-        // Après la connexion, récupérer les informations complètes de l'utilisateur
-        (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_4__.switchMap)(() => this.getCurrentUser().pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_3__.tap)(userInfo => {
-            // Mettre à jour avec les informations complètes
-            this.tokenStorage.saveUser(userInfo);
-        }), 
-        // Retourner la réponse originale de connexion
-        (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_4__.switchMap)(() => this.http.post(`${this.AUTH_API}signin`, body, httpOptions)))));
-    }
-    getCurrentUser() {
-        return this.http.get(`${this.AUTH_API}me`, httpOptions);
+        }));
     }
     register(body) {
         return this.http.post(`${this.AUTH_API}signup`, body, httpOptions);
@@ -957,8 +945,8 @@ class Auth2Service {
         return this.http.post(`${this.AUTH_API}signout`, {}, httpOptions);
     }
 }
-Auth2Service.ɵfac = function Auth2Service_Factory(t) { return new (t || Auth2Service)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵinject"](_angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵinject"](_tokenservice_service__WEBPACK_IMPORTED_MODULE_1__.TokenStorage)); };
-Auth2Service.ɵprov = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineInjectable"]({ token: Auth2Service, factory: Auth2Service.ɵfac, providedIn: 'root' });
+Auth2Service.ɵfac = function Auth2Service_Factory(t) { return new (t || Auth2Service)(_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵinject"](_angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵinject"](_tokenservice_service__WEBPACK_IMPORTED_MODULE_1__.TokenStorage)); };
+Auth2Service.ɵprov = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineInjectable"]({ token: Auth2Service, factory: Auth2Service.ɵfac, providedIn: 'root' });
 
 
 /***/ }),

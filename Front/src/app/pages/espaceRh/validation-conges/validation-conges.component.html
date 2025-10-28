@@ -216,12 +216,12 @@
                   </td>
                   <td class="text-center">
                     <!-- Boutons de validation conditionnels selon le workflow -->
-                    <div *ngIf="canValidate(demande)" class="btn-group" role="group">
+                    <div *ngIf="canShowActionButtons(demande)" class="btn-group" role="group">
                       <button type="button" 
                               class="btn btn-success btn-sm"
                               (click)="validerDemande(demande)"
-                              title="Valider cette demande">
-                        <i class="bx bx-check me-1"></i>Valider
+                              title="Approuver cette demande">
+                        <i class="bx bx-check me-1"></i>Approuver
                       </button>
                       <button type="button" 
                               class="btn btn-danger btn-sm"
@@ -232,7 +232,7 @@
                     </div>
 
                     <!-- Message si l'utilisateur ne peut pas valider -->
-                    <div *ngIf="!canValidate(demande)" class="text-muted small">
+                    <div *ngIf="!canShowActionButtons(demande)" class="text-muted small">
                       <i class="bx bx-info-circle me-1"></i>
                       <span>{{ getWorkflowMessage(demande) }}</span>
                     </div>

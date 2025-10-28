@@ -87,6 +87,7 @@ public class PersonnelMapper {
             dto.setNbJours(0);
         }
         dto.setStatutConge(conge.getStatutConge());
+        dto.setStatut(conge.getStatutConge() != null ? conge.getStatutConge().name() : "EN_ATTENTE");
         // Convert LocalDateTime to LocalDate
         dto.setDateValidationChefA(conge.getDateValidationChefA() != null ? conge.getDateValidationChefA().toLocalDate() : null);
         dto.setDateValidationChefB(conge.getDateValidationChefB() != null ? conge.getDateValidationChefB().toLocalDate() : null);

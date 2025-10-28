@@ -211,13 +211,14 @@ export class RhDashboardComponent implements OnInit {
 
   statusBadge(status?: string): string {
     switch (status) {
-      case 'APPROUVE':
-      case 'ACCEPTE':
-      case 'VALIDE':
+      case 'APPROUVE_RH':
         return 'success';
-      case 'REFUSE':
+      case 'REFUSE_PAR_CHEF_A':
+      case 'REFUSE_PAR_CHEF_B':
+      case 'REFUSE_PAR_RH':
         return 'danger';
-      case 'EN_ATTENTE':
+      case 'EN_ATTENTE_CHEF_A':
+      case 'EN_ATTENTE_CHEF_B':
       case 'EN_ATTENTE_RH':
         return 'warning';
       default:
@@ -227,17 +228,22 @@ export class RhDashboardComponent implements OnInit {
 
   statusLabel(status?: string | null): string {
     switch (status) {
-      case 'APPROUVE':
-      case 'ACCEPTE':
-      case 'VALIDE':
-        return 'Accepté';
-      case 'REFUSE':
-        return 'Refusé';
-      case 'EN_ATTENTE':
+      case 'APPROUVE_RH':
+        return 'Approuvé';
+      case 'REFUSE_PAR_CHEF_A':
+        return 'Refusé par Chef A';
+      case 'REFUSE_PAR_CHEF_B':
+        return 'Refusé par Chef B';
+      case 'REFUSE_PAR_RH':
+        return 'Refusé par RH';
+      case 'EN_ATTENTE_CHEF_A':
+        return 'En attente Chef A';
+      case 'EN_ATTENTE_CHEF_B':
+        return 'En attente Chef B';
       case 'EN_ATTENTE_RH':
-        return 'En attente';
+        return 'En attente RH';
       default:
-        return 'En attente';
+        return 'Statut inconnu';
     }
   }
 }

@@ -146,6 +146,74 @@ public class DataInitializationService {
     }
 
     /**
+     * Exécute la migration de normalisation des statuts de congé
+     */
+    public void migrerStatutsConges() {
+        logger.info("🔄 Début de la migration des statuts de congé...");
+
+        try {
+            List<Conge> tousLesConges = congeRepository.findAll();
+            int migres = 0;
+
+            for (Conge conge : tousLesConges) {
+                StatutConge nouveauStatut = determinerStatutConge(conge);
+                if (nouveauStatut != null && !nouveauStatut.equals(conge.getStatutConge())) {
+                    conge.setStatutConge(nouveauStatut);
+                    congeRepository.save(conge);
+                    migres++;
+                    logger.debug("✅ Migré congé ID {} vers statut {}", conge.getIdConge(), nouveauStatut);
+                }
+            }
+
+            logger.info("✅ Migration terminée: {} congés migrés sur {}", migres, tousLesConges.size());
+
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la migration des statuts: {}", e.getMessage());
+            throw new RuntimeException("Erreur lors de la migration des statuts de congé", e);
+        }
+    }
+
+    /**
+     * Détermine le statut canonique d'un congé basé sur les anciennes colonnes
+     */
+    private StatutConge determinerStatutConge(Conge conge) {
+        // Si refusé à n'importe quel niveau, déterminer qui a refusé
+        if ("REFUSE".equals(conge.getRepChefsNiveau1())) {
+            return StatutConge.REFUSE_PAR_CHEF_A;
+        }
+        if ("REFUSE".equals(conge.getRepChefsNiveau2())) {
+            return StatutConge.REFUSE_PAR_CHEF_B;
+        }
+        if ("REFUSE".equals(conge.getRepRh())) {
+            return StatutConge.REFUSE_PAR_RH;
+        }
+
+        // Si approuvé à tous les niveaux
+        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) &&
+            "APPROUVE".equals(conge.getRepChefsNiveau2()) &&
+            "APPROUVE".equals(conge.getRepRh())) {
+            return StatutConge.APPROUVE_RH;
+        }
+
+        // Déterminer l'état d'attente selon le workflow
+        if ("EN_ATTENTE".equals(conge.getRepChefsNiveau1())) {
+            return StatutConge.EN_ATTENTE_CHEF_A;
+        }
+        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) &&
+            "EN_ATTENTE".equals(conge.getRepChefsNiveau2())) {
+            return StatutConge.EN_ATTENTE_CHEF_B;
+        }
+        if ("APPROUVE".equals(conge.getRepChefsNiveau1()) &&
+            "APPROUVE".equals(conge.getRepChefsNiveau2()) &&
+            "EN_ATTENTE".equals(conge.getRepRh())) {
+            return StatutConge.EN_ATTENTE_RH;
+        }
+
+        // Par défaut, en attente du premier niveau
+        return StatutConge.EN_ATTENTE_CHEF_A;
+    }
+
+    /**
      * Nettoie toutes les données de test
      */
     public void cleanTestData() {

@@ -70,9 +70,11 @@ export class ChefDashboardComponent implements OnInit, OnDestroy {
     this.congeService.getMyPendingDemandes().subscribe({
       next: (demandes) => {
         console.log('✅ Demandes à valider récupérées:', demandes);
+        console.log('📊 Nombre de demandes:', demandes?.length || 0);
         if (demandes && demandes.length > 0) {
           console.log('📋 Structure première demande:', demandes[0]);
           console.log('🔍 Propriétés disponibles:', Object.keys(demandes[0]));
+          console.log('🔍 Statuts des demandes:', demandes.map(d => ({ id: d.id, statut: d.statut })));
         }
         this.pendingDemandes = Array.isArray(demandes) ? demandes : [];
         this.pendingCount = this.pendingDemandes.length;
@@ -335,24 +337,25 @@ export class ChefDashboardComponent implements OnInit, OnDestroy {
     
     // Utiliser le service CongeApiService pour déterminer les droits
     const userRole = this.getCurrentUserRole();
-    return this.congeApiService.peutValider(demande, userRole);
+    console.log('🔍 canValidate - Rôle détecté:', userRole, 'Statut demande:', demande.statut);
+    const canValidate = this.congeApiService.peutValider(demande, userRole);
+    console.log('🔍 canValidate - Résultat:', canValidate);
+    return canValidate;
   }
 
   /**
    * Obtient le rôle de l'utilisateur connecté
    */
   private getCurrentUserRole(): string {
-    // Cette logique doit être adaptée selon votre système d'authentification
-    const token = sessionStorage.getItem('auth-token');
-    if (!token) return '';
+    // Utiliser les données utilisateur stockées plutôt que le token JWT
+    const user = this.token.getUser();
+    const role = user?.roles?.[0] || user?.role_portail || '';
     
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.roles?.[0] || payload.role || '';
-    } catch (error) {
-      console.error('Erreur parsing token:', error);
-      return '';
-    }
+    console.log('🔍 getCurrentUserRole - Données utilisateur:', user);
+    console.log('🔍 getCurrentUserRole - Rôles disponibles:', user?.roles);
+    console.log('🔍 getCurrentUserRole - Rôle principal:', role);
+    
+    return role;
   }
 
   /**

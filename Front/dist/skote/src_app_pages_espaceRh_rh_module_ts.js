@@ -8962,7 +8962,7 @@ function ValidationCongesComponent_div_71_tr_21_div_57_Template(rf, ctx) { if (r
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "button", 81);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function ValidationCongesComponent_div_71_tr_21_div_57_Template_button_click_1_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r20); const demande_r11 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]().$implicit; const ctx_r18 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2); return ctx_r18.validerDemande(demande_r11); });
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](2, "i", 82);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3, "Valider ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3, "Approuver ");
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "button", 83);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("click", function ValidationCongesComponent_div_71_tr_21_div_57_Template_button_click_4_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r20); const demande_r11 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]().$implicit; const ctx_r21 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2); return ctx_r21.refuserDemande(demande_r11); });
@@ -9126,9 +9126,9 @@ function ValidationCongesComponent_div_71_tr_21_Template(rf, ctx) { if (rf & 1) 
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](55, 25, demande_r11.dateDemande, "dd/MM/yyyy"));
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r10.canValidate(demande_r11));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r10.canShowActionButtons(demande_r11));
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", !ctx_r10.canValidate(demande_r11));
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", !ctx_r10.canShowActionButtons(demande_r11));
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", demande_r11.commentaire);
 } }
@@ -9418,7 +9418,7 @@ class ValidationCongesComponent {
                 return 'En attente de validation par Chef B';
             case 'EN_ATTENTE_RH':
                 return 'Prêt pour validation RH';
-            case 'VALIDE':
+            case 'APPROUVE_RH':
                 return 'Demande validée';
             case 'REFUSE_PAR_CHEF_A':
                 return 'Refusé par Chef A';
@@ -9435,15 +9435,12 @@ class ValidationCongesComponent {
      */
     getValidationBadgeClass(statut) {
         switch (statut) {
-            case 'APPROUVE':
-            case 'VALIDE':
+            case 'APPROUVE_RH':
                 return 'bg-success';
-            case 'REFUSE':
             case 'REFUSE_PAR_CHEF_A':
             case 'REFUSE_PAR_CHEF_B':
             case 'REFUSE_PAR_RH':
                 return 'bg-danger';
-            case 'EN_ATTENTE':
             case 'EN_ATTENTE_CHEF_A':
             case 'EN_ATTENTE_CHEF_B':
             case 'EN_ATTENTE_RH':
@@ -9453,23 +9450,36 @@ class ValidationCongesComponent {
         }
     }
     /**
+     * Détermine si les boutons d'action doivent être affichés pour une demande
+     */
+    canShowActionButtons(demande) {
+        return demande.statut === 'EN_ATTENTE_RH';
+    }
+    /**
+     * Détermine si le bouton approuver doit être affiché
+     */
+    canApprove(demande) {
+        return demande.statut === 'EN_ATTENTE_RH';
+    }
+    /**
+     * Détermine si le bouton refuser doit être affiché
+     */
+    canReject(demande) {
+        return demande.statut === 'EN_ATTENTE_RH';
+    }
+    /**
      * Retourne le libellé pour une validation spécifique
      */
     getValidationLabel(statut) {
         switch (statut) {
-            case 'APPROUVE':
-                return '✅ Approuvé';
-            case 'VALIDE':
+            case 'APPROUVE_RH':
                 return '✅ Validé';
-            case 'REFUSE':
-                return '❌ Refusé';
             case 'REFUSE_PAR_CHEF_A':
                 return '❌ Refusé';
             case 'REFUSE_PAR_CHEF_B':
                 return '❌ Refusé';
             case 'REFUSE_PAR_RH':
                 return '❌ Refusé';
-            case 'EN_ATTENTE':
             case 'EN_ATTENTE_CHEF_A':
             case 'EN_ATTENTE_CHEF_B':
             case 'EN_ATTENTE_RH':
@@ -9480,7 +9490,7 @@ class ValidationCongesComponent {
     }
 }
 ValidationCongesComponent.ɵfac = function ValidationCongesComponent_Factory(t) { return new (t || ValidationCongesComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdirectiveInject"](_conges_conge_api_service__WEBPACK_IMPORTED_MODULE_1__.CongeApiService)); };
-ValidationCongesComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({ type: ValidationCongesComponent, selectors: [["app-validation-conges"]], decls: 73, vars: 10, consts: [[1, "container-fluid"], [1, "row"], [1, "col-12"], [1, "page-title-box", "d-sm-flex", "align-items-center", "justify-content-between"], [1, "mb-sm-0", "font-size-18"], [1, "bx", "bx-check-circle", "me-2"], [1, "page-title-right"], [1, "breadcrumb", "m-0"], [1, "breadcrumb-item"], ["href", "javascript: void(0);"], [1, "breadcrumb-item", "active"], [1, "col-xl-4", "col-md-6"], [1, "card", "mini-stats-wid"], [1, "card-body"], [1, "media"], [1, "media-body"], [1, "text-muted", "fw-medium"], [1, "mb-0", "text-primary"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-primary", "align-self-center"], [1, "avatar-title"], [1, "bx", "bx-time", "font-size-24"], [1, "mb-0", "text-info"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-info", "align-self-center"], [1, "bx", "bx-list-ol", "font-size-24"], [1, "mb-0", "text-success"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-success", "align-self-center"], [1, "bx", "bx-check-shield", "font-size-24"], ["class", "row", 4, "ngIf"], [1, "card"], [1, "row", "align-items-center", "mb-3"], [1, "col-md-6"], [1, "card-title", "mb-0"], [1, "bx", "bx-list-check", "me-2"], [1, "d-flex", "gap-2", "justify-content-md-end"], [1, "input-group", 2, "max-width", "300px"], [1, "input-group-text"], [1, "bx", "bx-search"], ["type", "text", "placeholder", "Rechercher employ\u00E9, type...", 1, "form-control", 3, "ngModel", "ngModelChange"], [1, "btn", "btn-outline-primary", 3, "disabled", "click"], [1, "bx", "bx-refresh", "me-1"], ["class", "text-center py-4", 4, "ngIf"], ["class", "table-responsive", 4, "ngIf"], ["class", "text-center py-5", 4, "ngIf"], ["class", "alert alert-danger alert-dismissible", 4, "ngIf"], ["class", "alert alert-success alert-dismissible", 4, "ngIf"], [1, "alert", "alert-danger", "alert-dismissible"], [1, "bx", "bx-error-circle", "me-2"], ["type", "button", 1, "btn-close", 3, "click"], [1, "alert", "alert-success", "alert-dismissible"], [1, "text-center", "py-4"], ["role", "status", 1, "spinner-border", "text-primary"], [1, "visually-hidden"], [1, "mt-2", "text-muted"], [1, "table-responsive"], [1, "table", "table-striped", "table-hover", "align-middle"], [1, "table-dark"], ["scope", "col"], ["scope", "col", 1, "text-center"], [4, "ngFor", "ngForOf"], [1, "fw-medium"], [1, "d-flex", "align-items-center"], [1, "avatar-sm", "rounded-circle", "bg-soft-primary", "text-primary", "me-2", "d-flex", "align-items-center", "justify-content-center"], [1, "bx", "bx-user", "font-size-16"], [1, "mb-0", "font-size-14"], ["class", "text-muted font-size-12 mb-0", 4, "ngIf"], [1, "badge", "bg-soft-info", "text-info"], [1, "bx", "bx-calendar", "me-1"], [1, "text-muted"], [1, "badge", "bg-soft-secondary", "text-secondary"], [1, "workflow-history"], [1, "d-flex", "flex-column", "gap-1"], [1, "badge", "bg-soft-secondary", "text-secondary", "me-2", 2, "min-width", "60px"], [1, "badge", 3, "ngClass"], [1, "badge", "bg-soft-primary", "text-primary", "me-2", 2, "min-width", "60px"], [3, "ngClass"], [1, "text-center"], ["class", "btn-group", "role", "group", 4, "ngIf"], ["class", "text-muted small", 4, "ngIf"], ["class", "mt-2", 4, "ngIf"], [1, "text-muted", "font-size-12", "mb-0"], ["role", "group", 1, "btn-group"], ["type", "button", "title", "Valider cette demande", 1, "btn", "btn-success", "btn-sm", 3, "click"], [1, "bx", "bx-check", "me-1"], ["type", "button", "title", "Refuser cette demande", 1, "btn", "btn-danger", "btn-sm", 3, "click"], [1, "bx", "bx-x", "me-1"], [1, "text-muted", "small"], [1, "bx", "bx-info-circle", "me-1"], [1, "mt-2"], ["data-bs-toggle", "tooltip", 1, "btn", "btn-outline-info", "btn-xs"], [1, "bx", "bx-info-circle"], [1, "text-center", "py-5"], [1, "mb-3"], [1, "bx", "bx-inbox", "font-size-48", "text-muted"], ["class", "text-muted", 4, "ngIf"]], template: function ValidationCongesComponent_Template(rf, ctx) { if (rf & 1) {
+ValidationCongesComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({ type: ValidationCongesComponent, selectors: [["app-validation-conges"]], decls: 73, vars: 10, consts: [[1, "container-fluid"], [1, "row"], [1, "col-12"], [1, "page-title-box", "d-sm-flex", "align-items-center", "justify-content-between"], [1, "mb-sm-0", "font-size-18"], [1, "bx", "bx-check-circle", "me-2"], [1, "page-title-right"], [1, "breadcrumb", "m-0"], [1, "breadcrumb-item"], ["href", "javascript: void(0);"], [1, "breadcrumb-item", "active"], [1, "col-xl-4", "col-md-6"], [1, "card", "mini-stats-wid"], [1, "card-body"], [1, "media"], [1, "media-body"], [1, "text-muted", "fw-medium"], [1, "mb-0", "text-primary"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-primary", "align-self-center"], [1, "avatar-title"], [1, "bx", "bx-time", "font-size-24"], [1, "mb-0", "text-info"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-info", "align-self-center"], [1, "bx", "bx-list-ol", "font-size-24"], [1, "mb-0", "text-success"], [1, "mini-stat-icon", "avatar-sm", "rounded-circle", "bg-success", "align-self-center"], [1, "bx", "bx-check-shield", "font-size-24"], ["class", "row", 4, "ngIf"], [1, "card"], [1, "row", "align-items-center", "mb-3"], [1, "col-md-6"], [1, "card-title", "mb-0"], [1, "bx", "bx-list-check", "me-2"], [1, "d-flex", "gap-2", "justify-content-md-end"], [1, "input-group", 2, "max-width", "300px"], [1, "input-group-text"], [1, "bx", "bx-search"], ["type", "text", "placeholder", "Rechercher employ\u00E9, type...", 1, "form-control", 3, "ngModel", "ngModelChange"], [1, "btn", "btn-outline-primary", 3, "disabled", "click"], [1, "bx", "bx-refresh", "me-1"], ["class", "text-center py-4", 4, "ngIf"], ["class", "table-responsive", 4, "ngIf"], ["class", "text-center py-5", 4, "ngIf"], ["class", "alert alert-danger alert-dismissible", 4, "ngIf"], ["class", "alert alert-success alert-dismissible", 4, "ngIf"], [1, "alert", "alert-danger", "alert-dismissible"], [1, "bx", "bx-error-circle", "me-2"], ["type", "button", 1, "btn-close", 3, "click"], [1, "alert", "alert-success", "alert-dismissible"], [1, "text-center", "py-4"], ["role", "status", 1, "spinner-border", "text-primary"], [1, "visually-hidden"], [1, "mt-2", "text-muted"], [1, "table-responsive"], [1, "table", "table-striped", "table-hover", "align-middle"], [1, "table-dark"], ["scope", "col"], ["scope", "col", 1, "text-center"], [4, "ngFor", "ngForOf"], [1, "fw-medium"], [1, "d-flex", "align-items-center"], [1, "avatar-sm", "rounded-circle", "bg-soft-primary", "text-primary", "me-2", "d-flex", "align-items-center", "justify-content-center"], [1, "bx", "bx-user", "font-size-16"], [1, "mb-0", "font-size-14"], ["class", "text-muted font-size-12 mb-0", 4, "ngIf"], [1, "badge", "bg-soft-info", "text-info"], [1, "bx", "bx-calendar", "me-1"], [1, "text-muted"], [1, "badge", "bg-soft-secondary", "text-secondary"], [1, "workflow-history"], [1, "d-flex", "flex-column", "gap-1"], [1, "badge", "bg-soft-secondary", "text-secondary", "me-2", 2, "min-width", "60px"], [1, "badge", 3, "ngClass"], [1, "badge", "bg-soft-primary", "text-primary", "me-2", 2, "min-width", "60px"], [3, "ngClass"], [1, "text-center"], ["class", "btn-group", "role", "group", 4, "ngIf"], ["class", "text-muted small", 4, "ngIf"], ["class", "mt-2", 4, "ngIf"], [1, "text-muted", "font-size-12", "mb-0"], ["role", "group", 1, "btn-group"], ["type", "button", "title", "Approuver cette demande", 1, "btn", "btn-success", "btn-sm", 3, "click"], [1, "bx", "bx-check", "me-1"], ["type", "button", "title", "Refuser cette demande", 1, "btn", "btn-danger", "btn-sm", 3, "click"], [1, "bx", "bx-x", "me-1"], [1, "text-muted", "small"], [1, "bx", "bx-info-circle", "me-1"], [1, "mt-2"], ["data-bs-toggle", "tooltip", 1, "btn", "btn-outline-info", "btn-xs"], [1, "bx", "bx-info-circle"], [1, "text-center", "py-5"], [1, "mb-3"], [1, "bx", "bx-inbox", "font-size-48", "text-muted"], ["class", "text-muted", 4, "ngIf"]], template: function ValidationCongesComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "div", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](2, "div", 2);

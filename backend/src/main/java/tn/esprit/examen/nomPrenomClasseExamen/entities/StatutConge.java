@@ -8,7 +8,7 @@ public enum StatutConge {
     EN_ATTENTE_CHEF_A("En attente de validation Chef A"),
     EN_ATTENTE_CHEF_B("En attente de validation Chef B"),
     EN_ATTENTE_RH("En attente de validation RH"),
-    VALIDE("Validé"),
+    APPROUVE_RH("Approuvé par RH"),
     REFUSE_PAR_CHEF_A("Refusé par Chef A"),
     REFUSE_PAR_CHEF_B("Refusé par Chef B"),
     REFUSE_PAR_RH("Refusé par RH");
@@ -46,7 +46,7 @@ public enum StatutConge {
      * Détermine si le statut correspond à une validation finale
      */
     public boolean isValide() {
-        return this == VALIDE;
+        return this == APPROUVE_RH;
     }
 
     /**
@@ -78,7 +78,7 @@ public enum StatutConge {
                 case EN_ATTENTE_CHEF_B:
                     return EN_ATTENTE_RH;
                 case EN_ATTENTE_RH:
-                    return VALIDE;
+                    return APPROUVE_RH;
                 default:
                     throw new IllegalArgumentException("Impossible d'approuver à partir du statut: " + currentStatus);
             }

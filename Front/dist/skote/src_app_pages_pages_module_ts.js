@@ -88602,8 +88602,8 @@ class CongeApiService {
                 // Ignore les demandes refusées ou annulées
                 if (demande.statut && (demande.statut.includes('REFUSE') ||
                     demande.statut === 'ANNULE' ||
-                    demande.statut === 'REFUSE_PAR_CHEF_A' ||
-                    demande.statut === 'REFUSE_PAR_CHEF_B' ||
+                    demande.statut === 'REFUSE_CHEF_A' ||
+                    demande.statut === 'REFUSE_CHEF_B' ||
                     demande.statut === 'REFUSE_PAR_RH')) {
                     return false;
                 }
@@ -88775,22 +88775,6 @@ class CongeApiService {
             console.log('🏢 Demandes RH en attente récupérées:', response);
             return response;
         }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_4__.catchError)(this.handleError));
-    }
-    /**
-     * Détermine si l'utilisateur peut valider une demande selon son rôle et le statut de la demande
-     */
-    peutValiderLegacy(conge) {
-        const userRoles = this.getCurrentUserRoles();
-        switch (conge.statut) {
-            case 'En attente de validation Chef A':
-                return userRoles.includes('ROLE_CHEF_A') || userRoles.includes('ROLE_ADMIN');
-            case 'En attente de validation Chef B':
-                return userRoles.includes('ROLE_CHEF_B') || userRoles.includes('ROLE_ADMIN');
-            case 'En attente de validation RH':
-                return userRoles.includes('ROLE_RH') || userRoles.includes('ROLE_ADMIN');
-            default:
-                return false;
-        }
     }
     /**
      * Récupère les rôles de l'utilisateur connecté
@@ -89001,15 +88985,14 @@ class CongeApiService {
     peutValider(conge, userRole) {
         if (!conge.statut)
             return false;
-        switch (userRole.toUpperCase()) {
-            case 'CHEF_A':
-            case 'CHEF_SERVICE':
+        switch (userRole) {
+            case 'ROLE_CHEF_A':
                 return conge.statut === 'EN_ATTENTE_CHEF_A';
-            case 'CHEF_B':
+            case 'ROLE_CHEF_B':
                 return conge.statut === 'EN_ATTENTE_CHEF_B';
-            case 'RH':
+            case 'ROLE_RH':
                 return conge.statut === 'EN_ATTENTE_RH';
-            case 'ADMIN':
+            case 'ROLE_ADMIN':
                 return conge.statut.includes('EN_ATTENTE');
             default:
                 return false;
@@ -89024,8 +89007,8 @@ class CongeApiService {
             'EN_ATTENTE_CHEF_B': 'En attente Chef B',
             'EN_ATTENTE_RH': 'En attente RH',
             'VALIDE': 'Validé',
-            'REFUSE_PAR_CHEF_A': 'Refusé par Chef A',
-            'REFUSE_PAR_CHEF_B': 'Refusé par Chef B',
+            'REFUSE_CHEF_A': 'Refusé par Chef A',
+            'REFUSE_CHEF_B': 'Refusé par Chef B',
             'REFUSE_PAR_RH': 'Refusé par RH'
         };
         return statutsMap[statut] || statut;
@@ -89041,8 +89024,8 @@ class CongeApiService {
             case 'EN_ATTENTE_CHEF_B':
             case 'EN_ATTENTE_RH':
                 return 'warning';
-            case 'REFUSE_PAR_CHEF_A':
-            case 'REFUSE_PAR_CHEF_B':
+            case 'REFUSE_CHEF_A':
+            case 'REFUSE_CHEF_B':
             case 'REFUSE_PAR_RH':
                 return 'danger';
             default:
@@ -90173,9 +90156,11 @@ class ChefDashboardComponent {
         this.congeService.getMyPendingDemandes().subscribe({
             next: (demandes) => {
                 console.log('✅ Demandes à valider récupérées:', demandes);
+                console.log('📊 Nombre de demandes:', (demandes === null || demandes === void 0 ? void 0 : demandes.length) || 0);
                 if (demandes && demandes.length > 0) {
                     console.log('📋 Structure première demande:', demandes[0]);
                     console.log('🔍 Propriétés disponibles:', Object.keys(demandes[0]));
+                    console.log('🔍 Statuts des demandes:', demandes.map(d => ({ id: d.id, statut: d.statut })));
                 }
                 this.pendingDemandes = Array.isArray(demandes) ? demandes : [];
                 this.pendingCount = this.pendingDemandes.length;
@@ -90424,25 +90409,23 @@ class ChefDashboardComponent {
             return false;
         // Utiliser le service CongeApiService pour déterminer les droits
         const userRole = this.getCurrentUserRole();
-        return this.congeApiService.peutValider(demande, userRole);
+        console.log('🔍 canValidate - Rôle détecté:', userRole, 'Statut demande:', demande.statut);
+        const canValidate = this.congeApiService.peutValider(demande, userRole);
+        console.log('🔍 canValidate - Résultat:', canValidate);
+        return canValidate;
     }
     /**
      * Obtient le rôle de l'utilisateur connecté
      */
     getCurrentUserRole() {
         var _a;
-        // Cette logique doit être adaptée selon votre système d'authentification
-        const token = sessionStorage.getItem('auth-token');
-        if (!token)
-            return '';
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return ((_a = payload.roles) === null || _a === void 0 ? void 0 : _a[0]) || payload.role || '';
-        }
-        catch (error) {
-            console.error('Erreur parsing token:', error);
-            return '';
-        }
+        // Utiliser les données utilisateur stockées plutôt que le token JWT
+        const user = this.token.getUser();
+        const role = ((_a = user === null || user === void 0 ? void 0 : user.roles) === null || _a === void 0 ? void 0 : _a[0]) || (user === null || user === void 0 ? void 0 : user.role_portail) || '';
+        console.log('🔍 getCurrentUserRole - Données utilisateur:', user);
+        console.log('🔍 getCurrentUserRole - Rôles disponibles:', user === null || user === void 0 ? void 0 : user.roles);
+        console.log('🔍 getCurrentUserRole - Rôle principal:', role);
+        return role;
     }
     /**
      * Retourne le libellé du statut
@@ -92429,13 +92412,14 @@ class RhDashboardComponent {
     }
     statusBadge(status) {
         switch (status) {
-            case 'APPROUVE':
-            case 'ACCEPTE':
-            case 'VALIDE':
+            case 'APPROUVE_RH':
                 return 'success';
-            case 'REFUSE':
+            case 'REFUSE_PAR_CHEF_A':
+            case 'REFUSE_PAR_CHEF_B':
+            case 'REFUSE_PAR_RH':
                 return 'danger';
-            case 'EN_ATTENTE':
+            case 'EN_ATTENTE_CHEF_A':
+            case 'EN_ATTENTE_CHEF_B':
             case 'EN_ATTENTE_RH':
                 return 'warning';
             default:
@@ -92444,17 +92428,22 @@ class RhDashboardComponent {
     }
     statusLabel(status) {
         switch (status) {
-            case 'APPROUVE':
-            case 'ACCEPTE':
-            case 'VALIDE':
-                return 'Accepté';
-            case 'REFUSE':
-                return 'Refusé';
-            case 'EN_ATTENTE':
+            case 'APPROUVE_RH':
+                return 'Approuvé';
+            case 'REFUSE_PAR_CHEF_A':
+                return 'Refusé par Chef A';
+            case 'REFUSE_PAR_CHEF_B':
+                return 'Refusé par Chef B';
+            case 'REFUSE_PAR_RH':
+                return 'Refusé par RH';
+            case 'EN_ATTENTE_CHEF_A':
+                return 'En attente Chef A';
+            case 'EN_ATTENTE_CHEF_B':
+                return 'En attente Chef B';
             case 'EN_ATTENTE_RH':
-                return 'En attente';
+                return 'En attente RH';
             default:
-                return 'En attente';
+                return 'Statut inconnu';
         }
     }
 }

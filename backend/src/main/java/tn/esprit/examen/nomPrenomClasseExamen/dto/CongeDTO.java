@@ -14,6 +14,7 @@ public class CongeDTO {
     private String commentaire;
     private int nbJours;
     private StatutConge statutConge;
+    private String statut; // Pour compatibilité frontend
     private LocalDate dateValidationChefA;
     private LocalDate dateValidationChefB;
     private LocalDate dateValidationRh;
